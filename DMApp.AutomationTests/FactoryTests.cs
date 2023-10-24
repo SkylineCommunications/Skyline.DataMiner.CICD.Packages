@@ -423,7 +423,7 @@ namespace DMApp.AutomationTests
             sb.AppendLine(String.Join(Environment.NewLine, LogCollector.Logging));
 
             // Assert.
-            Assert.IsTrue(sw.Elapsed < TimeSpan.FromMinutes(1));
+            Assert.IsTrue(sw.Elapsed < TimeSpan.FromMinutes(1), sb.ToString());
             ////Assert.Inconclusive(sb.ToString());
         }
 
