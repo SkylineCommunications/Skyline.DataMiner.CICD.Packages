@@ -2,7 +2,9 @@
 
 ## About
 
-This .NET tool allows you to create dmapp and dmprotocol packages.
+This .NET tool allows you to create application (.dmapp) and protocol (.dmprotocol) packages.
+
+For more information about application packages, refer to [Application packages](https://aka.dataminer.services/application-packages).
 
 ### About DataMiner
 

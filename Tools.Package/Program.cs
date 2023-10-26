@@ -1,4 +1,4 @@
-﻿namespace Skyline.DataMiner.CICD.Tools.Package
+﻿namespace Skyline.DataMiner.CICD.Tools.Packager
 {
     using System;
     using System.CommandLine;
@@ -35,7 +35,7 @@
 
             var workspaceArgument = new Argument<string>(
                 name: "directory",
-                description: "Directory containing the items for the package");
+                description: "Directory containing the package items");
 
             var outputDirectory = new Option<string>(
                 name: "--output",
@@ -48,7 +48,7 @@
 
             var packageName = new Option<string>(
                 name: "--name",
-                description: "Name for the package.",
+                description: "Name of the package.",
                 getDefaultValue: () => "Package")
             {
                 IsRequired = false,
@@ -56,7 +56,7 @@
             };
             packageName.AddAlias("-n");
 
-            var rootCommand = new RootCommand("This .NET tool allows you to create dmapp and dmprotocol packages.");
+            var rootCommand = new RootCommand("This .NET tool allows you to create DataMiner application (.dmapp) and protocol (.dmprotocol) packages.");
             rootCommand.AddGlobalOption(debugOption);
             rootCommand.AddGlobalOption(outputDirectory);
             rootCommand.AddGlobalOption(packageName);
@@ -77,7 +77,7 @@
 
             var buildNumber = new Option<uint>(
                 name: "--build-number",
-                description: "The build number of a workflow run.")
+                description: "The build number.")
             {
                 ArgumentHelpName = "BUILD_NUMBER"
             };
@@ -85,7 +85,7 @@
 
             var version = new Option<string>(
                 name: "--version",
-                description: "The version number for the artifact. This takes precedent before 'build-number'. Supported formats: 'A.B.C', 'A.B.C.D', 'A.B.C-suffix' and 'A.B.C.D-suffix'.")
+                description: "The version number for the artifact. This takes precedence over 'build-number'. Supported formats: 'A.B.C', 'A.B.C.D', 'A.B.C-suffix' and 'A.B.C.D-suffix'.")
             {
                 ArgumentHelpName = "VERSION",
             };
