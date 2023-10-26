@@ -61,7 +61,7 @@
             rootCommand.AddGlobalOption(outputDirectory);
             rootCommand.AddGlobalOption(packageName);
 
-            var dmprotocolSubCommand = new Command("dmprotocol", "Creates a dmprotocol package based on a protocol solution")
+            var dmprotocolSubCommand = new Command("dmprotocol", "Creates a protocol (.dmprotocol) package based on a protocol solution")
             {
                 workspaceArgument
             };
