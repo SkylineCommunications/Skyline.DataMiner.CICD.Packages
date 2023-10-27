@@ -6,7 +6,7 @@
 		<ToolCommandName>package create</ToolCommandName>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<Nullable>disable</Nullable>
-		<AssemblyName>Skyline.DataMiner.CICD.Tools.Package</AssemblyName>
+		<AssemblyName>Skyline.DataMiner.CICD.Tools.Packager</AssemblyName>
 		<RootNamespace>Skyline.DataMiner.CICD.Tools.Packager</RootNamespace>
 		<PackageTags>Skyline;DataMiner;CICD</PackageTags>
 		<PackageProjectUrl>https://skyline.be</PackageProjectUrl>

@@ -1,4 +1,4 @@
-# Skyline.DataMiner.CICD.Tools.Package
+# Skyline.DataMiner.CICD.Tools.Packager
 
 ## About
 
@@ -23,7 +23,7 @@ At Skyline Communications, we deal in world-class solutions that are deployed by
 
 ## Getting Started
 In commandline:
-dotnet tool install -g Skyline.DataMiner.CICD.Tools.Package
+dotnet tool install -g Skyline.DataMiner.CICD.Tools.Packager
 
 Then run the command for dmapp packages
 package create dmapp --help

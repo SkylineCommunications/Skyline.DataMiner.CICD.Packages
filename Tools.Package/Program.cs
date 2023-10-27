@@ -2,6 +2,7 @@
 {
     using System;
     using System.CommandLine;
+    using System.CommandLine.Parsing;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
 
@@ -36,6 +37,13 @@
             var workspaceArgument = new Argument<string>(
                 name: "directory",
                 description: "Directory containing the package items");
+            workspaceArgument.AddValidator(result =>
+            {
+                if (String.IsNullOrWhiteSpace(result.GetValueForArgument(workspaceArgument)))
+                {
+                    result.ErrorMessage = "Directory can not be null, empty or whitespace.";
+                }
+            });
 
             var outputDirectory = new Option<string>(
                 name: "--output",
@@ -45,6 +53,13 @@
                 ArgumentHelpName = "OUTPUT_DIRECTORY"
             };
             outputDirectory.AddAlias("-o");
+            outputDirectory.AddValidator(result =>
+            {
+                if (String.IsNullOrWhiteSpace(result.GetValueForOption(outputDirectory)))
+                {
+                    result.ErrorMessage = "Output can not be null, empty or whitespace.";
+                }
+            });
 
             var packageName = new Option<string>(
                 name: "--name",
@@ -55,6 +70,13 @@
                 ArgumentHelpName = "OUTPUT_NAME"
             };
             packageName.AddAlias("-n");
+            packageName.AddValidator(result =>
+            {
+                if (String.IsNullOrWhiteSpace(result.GetValueForOption(packageName)))
+                {
+                    result.ErrorMessage = "Package name can not be null, empty or whitespace.";
+                }
+            });
 
             var rootCommand = new RootCommand("This .NET tool allows you to create DataMiner application (.dmapp) and protocol (.dmprotocol) packages.");
             rootCommand.AddGlobalOption(debugOption);
@@ -90,6 +112,22 @@
                 ArgumentHelpName = "VERSION",
             };
             version.AddAlias("-v");
+            version.AddValidator(result =>
+            {
+                var value = result.GetValueForOption(version);
+
+                if (String.IsNullOrWhiteSpace(value))
+                {
+                    result.ErrorMessage = "Version can not be null, empty or whitespace.";
+                    return;
+                }
+
+                // regexr.com/7gcu9
+                if (!Regex.IsMatch(value, "^(\\d+\\.){2,3}\\d+(-\\w+)?$"))
+                {
+                    result.ErrorMessage = "Invalid format. Supported formats: 'A.B.C', 'A.B.C.D', 'A.B.C-suffix' and 'A.B.C.D-suffix'.";
+                }
+            });
 
             var protocolName = new Option<string>(
                 name: "--protocolName",
@@ -98,8 +136,15 @@
                 ArgumentHelpName = "PROTOCOL_NAME"
             };
             protocolName.AddAlias("-pn");
+            protocolName.AddValidator(result =>
+            {
+                if (String.IsNullOrWhiteSpace(result.GetValueForOption(protocolName)))
+                {
+                    result.ErrorMessage = "Protocol name can not be null, empty or whitespace.";
+                }
+            });
 
-            var dmappSubCommand = new Command("dmapp", "Create a dmapp package based on the type.")
+            var dmappSubCommand = new Command("dmapp", "Creates a DataMiner application (.dmapp) package based on the type.")
             {
                 workspaceArgument,
                 dmappType,
@@ -118,26 +163,6 @@
 
         private static async Task ProcessDmAppAsync(string workspace, string outputDirectory, string packageName, bool debug, string dmappType, uint buildNumber, string version, string protocolName)
         {
-            if (String.IsNullOrWhiteSpace(workspace))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(workspace));
-            }
-
-            if (String.IsNullOrWhiteSpace(outputDirectory))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(outputDirectory));
-            }
-
-            if (String.IsNullOrWhiteSpace(packageName))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(packageName));
-            }
-
-            if (String.IsNullOrWhiteSpace(dmappType))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(dmappType));
-            }
-
             IAppPackageCreator appPackageCreator;
             DMAppVersion dmAppVersion;
 
@@ -175,11 +200,6 @@
                     break;
 
                 case "protocolvisio":
-                    if (String.IsNullOrWhiteSpace(protocolName))
-                    {
-                        throw new ArgumentException("Value cannot be null or whitespace.", nameof(protocolName));
-                    }
-
                     appPackageCreator = AppPackageCreatorForProtocolVisio.Factory.FromRepository(FileSystem.Instance, new Logging(debug),
                         workspace, packageName, dmAppVersion, protocolName);
                     break;
@@ -199,21 +219,6 @@
 
         private static async Task ProcessDmProtocolAsync(string workspace, string outputDirectory, string packageName, bool debug)
         {
-            if (String.IsNullOrWhiteSpace(workspace))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(workspace));
-            }
-
-            if (String.IsNullOrWhiteSpace(outputDirectory))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(outputDirectory));
-            }
-
-            if (String.IsNullOrWhiteSpace(packageName))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(packageName));
-            }
-
             IAppPackageProtocol package = await ProtocolPackageCreator.Factory.FromRepositoryAsync(new Logging(debug), workspace);
             package.CreatePackage(FileSystem.Instance.Path.Combine(outputDirectory, packageName + ".dmprotocol"));
         }
