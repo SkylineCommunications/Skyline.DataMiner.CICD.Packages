@@ -63,8 +63,7 @@
 
             var packageName = new Option<string>(
                 name: "--name",
-                description: "Name of the package.",
-                getDefaultValue: () => "Package")
+                description: "Name of the package.")
             {
                 IsRequired = false,
                 ArgumentHelpName = "OUTPUT_NAME"
@@ -187,6 +186,12 @@
                 dmAppVersion = DMAppVersion.FromBuildNumber(buildNumber);
             }
 
+            if (String.IsNullOrWhiteSpace(packageName))
+            {
+                // Create default name if no custom name was used.
+                packageName = $"Package {dmAppVersion}";
+            }
+
             switch (dmappType)
             {
                 case "automation":
@@ -220,6 +225,13 @@
         private static async Task ProcessDmProtocolAsync(string workspace, string outputDirectory, string packageName, bool debug)
         {
             IAppPackageProtocol package = await ProtocolPackageCreator.Factory.FromRepositoryAsync(new Logging(debug), workspace);
+
+            if (String.IsNullOrWhiteSpace(packageName))
+            {
+                // Create default name if no custom name was used.
+                packageName = $"{package.Name} {package.Version}";
+            }
+
             package.CreatePackage(FileSystem.Instance.Path.Combine(outputDirectory, packageName + ".dmprotocol"));
         }
     }
