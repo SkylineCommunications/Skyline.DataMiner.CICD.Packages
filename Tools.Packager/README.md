@@ -26,7 +26,13 @@ In commandline:
 dotnet tool install -g Skyline.DataMiner.CICD.Tools.Packager
 
 Then run the command for dmapp packages
-package create dmapp --help
+
+```md
+dataminer-package-create dmapp --help
+```
 
 or dmprotocol packages
-package create dmprotocol --help
+
+```md
+dataminer-package-create dmprotocol --help
+```
