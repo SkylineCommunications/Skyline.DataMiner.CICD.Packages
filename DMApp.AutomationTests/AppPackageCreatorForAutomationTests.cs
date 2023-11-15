@@ -22,6 +22,7 @@
             var baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, @"TestFiles\Solutions\Solution1"));
             const string packageName = "MyPackageName";
+
             var packageVersion = DMAppVersion.FromBuildNumber(1);
             var creator = AppPackageCreatorForAutomation.Factory.FromRepository(logCollector, repositoryPath, packageName, packageVersion);
 
