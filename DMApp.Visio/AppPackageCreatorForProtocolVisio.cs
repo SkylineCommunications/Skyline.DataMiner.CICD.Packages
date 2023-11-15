@@ -46,29 +46,6 @@
             }
         }
 
-        private static bool IsVisioForProtocol(string jobBaseName, out string protocolName)
-        {
-            string[] jobBaseNameParts = jobBaseName.Split('_');
-
-            bool isVisioForProtocol = jobBaseNameParts.Contains("P");
-
-            if (isVisioForProtocol)
-            {
-                if (jobBaseNameParts.Length < 5)
-                {
-                    throw new FormatException("JobBaseName is not made of 5 parts separated by an underscore.");
-                }
-
-                protocolName = jobBaseNameParts[3] + ' ' + jobBaseNameParts[4];
-            }
-            else
-            {
-                protocolName = null;
-            }
-
-            return isVisioForProtocol;
-        }
-
         /// <summary>
         /// Factory class for Visio app package creators.
         /// </summary>
@@ -96,16 +73,17 @@
             /// </summary>
             /// <param name="logCollector">The log collector.</param>
             /// <param name="workspace">The workspace.</param>
-            /// <param name="jobBaseName">The job base name.</param>
+            /// <param name="packageName">The name of the package you want.</param>
+            /// <param name="protocolName">The name of the protocol this visio applies to.</param>
             /// <param name="tag">The tag.</param>
             /// <param name="buildNumber">The build number.</param>
             /// <returns>The <see cref="IAppPackageCreator"/> instance.</returns>
-            /// <exception cref="ArgumentNullException"><paramref name="workspace"/> or <paramref name="jobBaseName"/> is <see langword="null"/>.</exception>
-            /// <exception cref="ArgumentException"><paramref name="workspace"/> or <paramref name="jobBaseName"/> is <see langword="null"/> is empty or whitespace.</exception>
-            public static IAppPackageCreator FromSkylinePipeline(ILogCollector logCollector, string workspace, string jobBaseName, string tag, int buildNumber)
+            /// <exception cref="ArgumentNullException"><paramref name="workspace"/> or <paramref name="packageName"/> is <see langword="null"/>.</exception>
+            /// <exception cref="ArgumentException"><paramref name="workspace"/> or <paramref name="packageName"/> is <see langword="null"/> is empty or whitespace.</exception>
+            /// <exception cref="ArgumentNullException"><paramref name="workspace"/> or <paramref name="protocolName"/> is <see langword="null"/>.</exception>
+            /// <exception cref="ArgumentException"><paramref name="workspace"/> or <paramref name="protocolName"/> is <see langword="null"/> is empty or whitespace.</exception>
+            public static IAppPackageCreator FromSkylinePipeline(ILogCollector logCollector, string workspace, string packageName, string protocolName, string tag, int buildNumber)
             {
-                string packageName = jobBaseName;
-
                 bool isRelease = !String.IsNullOrWhiteSpace(tag) && !String.Equals(tag, "null", StringComparison.OrdinalIgnoreCase);
                 DMAppVersion packageVersion;
 
@@ -118,11 +96,6 @@
                     packageVersion = DMAppVersion.FromBuildNumber(buildNumber);
                 }
 
-                if (!IsVisioForProtocol(jobBaseName, out string protocolName))
-                {
-                    throw new ArgumentException("The job base name is invalid.", nameof(jobBaseName));
-                }
-                
                 return new AppPackageCreatorForProtocolVisio(CICD.FileSystem.FileSystem.Instance, logCollector, workspace, packageName, packageVersion, protocolName);
             }
         }
