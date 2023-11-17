@@ -37,7 +37,7 @@
 	<ItemGroup>
 		<PackageReference Include="Skyline.DataMiner.CICD.Common" Version="1.0.3" />
 		<PackageReference Include="Skyline.DataMiner.CICD.Loggers" Version="1.0.3" />
-		<PackageReference Include="Skyline.DataMiner.Core.AppPackageCreator" Version="1.0.0.31" />
+		<PackageReference Include="Skyline.DataMiner.Core.AppPackageCreator" Version="1.0.0.27-ActivateVisioChange.8" />
 	</ItemGroup>
 
 	<ItemGroup>
