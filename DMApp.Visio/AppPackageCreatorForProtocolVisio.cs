@@ -16,11 +16,15 @@
     public class AppPackageCreatorForProtocolVisio : AppPackageCreator
     {
         private readonly string _protocolName;
+        private readonly bool _setAsActive;
+        private readonly bool _markAsDefault;
 
-        private AppPackageCreatorForProtocolVisio(IFileSystem fileSystem, ILogCollector logCollector, string repositoryPath, string packageName, DMAppVersion packageVersion, string protocolName)
+        private AppPackageCreatorForProtocolVisio(IFileSystem fileSystem, ILogCollector logCollector, string repositoryPath, string packageName, DMAppVersion packageVersion, string protocolName, bool setAsActive, bool markAsDefault)
             : base(fileSystem, logCollector, repositoryPath, packageName, packageVersion)
         {
             _protocolName = protocolName;
+            _setAsActive = setAsActive;
+            _markAsDefault = markAsDefault;
         }
 
         /// <summary>
@@ -37,36 +41,18 @@
 			 */
             var visioFilesPath = FileSystem.Directory.GetFiles(RepositoryPath, "*.vsdx", System.IO.SearchOption.AllDirectories);
 
+            if (_setAsActive || _markAsDefault && visioFilesPath.Length > 1)
+            {
+                throw new InvalidOperationException($"Please make sure you only have one .vsdx file in your workspace when trying to set visios to active or mark them as default. Detected: {visioFilesPath.Length} visios.");
+            }
+
             foreach (var visioFilePath in visioFilesPath)
             {
                 string visioVersion = PackageVersion.ToString();
                 LogCollector.ReportStatus("- visioFilePath '" + visioFilePath + "' - visioVersion '" + visioVersion + "'");
 
-                appPackageBuilder.WithVisioForProtocol(_protocolName, visioFilePath, visioVersion);
+                appPackageBuilder.WithVisioForProtocol(_protocolName, visioFilePath, visioVersion, _setAsActive, _markAsDefault);
             }
-        }
-
-        private static bool IsVisioForProtocol(string jobBaseName, out string protocolName)
-        {
-            string[] jobBaseNameParts = jobBaseName.Split('_');
-
-            bool isVisioForProtocol = jobBaseNameParts.Contains("P");
-
-            if (isVisioForProtocol)
-            {
-                if (jobBaseNameParts.Length < 5)
-                {
-                    throw new FormatException("JobBaseName is not made of 5 parts separated by an underscore.");
-                }
-
-                protocolName = jobBaseNameParts[3] + ' ' + jobBaseNameParts[4];
-            }
-            else
-            {
-                protocolName = null;
-            }
-
-            return isVisioForProtocol;
         }
 
         /// <summary>
@@ -88,7 +74,7 @@
             /// <exception cref="DirectoryNotFoundException">The directory specified in <paramref name="repositoryPath"/> does not exist.</exception>
             public static IAppPackageCreator FromRepository(IFileSystem fs, ILogCollector logCollector, string repositoryPath, string packageName, DMAppVersion packageVersion, string protocolName)
             {
-                return new AppPackageCreatorForProtocolVisio(fs, logCollector, repositoryPath, packageName, packageVersion, protocolName);
+                return new AppPackageCreatorForProtocolVisio(fs, logCollector, repositoryPath, packageName, packageVersion, protocolName, false, false);
             }
 
             /// <summary>
@@ -96,16 +82,17 @@
             /// </summary>
             /// <param name="logCollector">The log collector.</param>
             /// <param name="workspace">The workspace.</param>
-            /// <param name="jobBaseName">The job base name.</param>
+            /// <param name="packageName">The name of the package you want.</param>
+            /// <param name="protocolName">The name of the protocol this visio applies to.</param>
             /// <param name="tag">The tag.</param>
             /// <param name="buildNumber">The build number.</param>
             /// <returns>The <see cref="IAppPackageCreator"/> instance.</returns>
-            /// <exception cref="ArgumentNullException"><paramref name="workspace"/> or <paramref name="jobBaseName"/> is <see langword="null"/>.</exception>
-            /// <exception cref="ArgumentException"><paramref name="workspace"/> or <paramref name="jobBaseName"/> is <see langword="null"/> is empty or whitespace.</exception>
-            public static IAppPackageCreator FromSkylinePipeline(ILogCollector logCollector, string workspace, string jobBaseName, string tag, int buildNumber)
+            /// <exception cref="ArgumentNullException"><paramref name="workspace"/> or <paramref name="packageName"/> is <see langword="null"/>.</exception>
+            /// <exception cref="ArgumentException"><paramref name="workspace"/> or <paramref name="packageName"/> is <see langword="null"/> is empty or whitespace.</exception>
+            /// <exception cref="ArgumentNullException"><paramref name="workspace"/> or <paramref name="protocolName"/> is <see langword="null"/>.</exception>
+            /// <exception cref="ArgumentException"><paramref name="workspace"/> or <paramref name="protocolName"/> is <see langword="null"/> is empty or whitespace.</exception>
+            public static IAppPackageCreator FromSkylinePipeline(ILogCollector logCollector, string workspace, string packageName, string protocolName, string tag, int buildNumber)
             {
-                string packageName = jobBaseName;
-
                 bool isRelease = !String.IsNullOrWhiteSpace(tag) && !String.Equals(tag, "null", StringComparison.OrdinalIgnoreCase);
                 DMAppVersion packageVersion;
 
@@ -118,12 +105,40 @@
                     packageVersion = DMAppVersion.FromBuildNumber(buildNumber);
                 }
 
-                if (!IsVisioForProtocol(jobBaseName, out string protocolName))
+                return new AppPackageCreatorForProtocolVisio(CICD.FileSystem.FileSystem.Instance, logCollector, workspace, packageName, packageVersion, protocolName, false, false);
+            }
+
+            /// <summary>
+            /// Creates an <see cref="IAppPackageCreator"/> instance from the specified input.
+            /// </summary>
+            /// <param name="logCollector">The log collector.</param>
+            /// <param name="workspace">The workspace.</param>
+            /// <param name="packageName">The name of the package you want.</param>
+            /// <param name="protocolName">The name of the protocol this visio applies to.</param>
+            /// <param name="tag">The tag.</param>
+            /// <param name="buildNumber">The build number.</param>
+            /// <param name="setActive">Will set this visio as active.</param>
+            /// <param name="markAsDefault">Will mark this visio as a default one by appending skyline_ to the name</param>
+            /// <returns>The <see cref="IAppPackageCreator"/> instance.</returns>
+            /// <exception cref="ArgumentNullException"><paramref name="workspace"/> or <paramref name="packageName"/> is <see langword="null"/>.</exception>
+            /// <exception cref="ArgumentException"><paramref name="workspace"/> or <paramref name="packageName"/> is <see langword="null"/> is empty or whitespace.</exception>
+            /// <exception cref="ArgumentNullException"><paramref name="workspace"/> or <paramref name="protocolName"/> is <see langword="null"/>.</exception>
+            /// <exception cref="ArgumentException"><paramref name="workspace"/> or <paramref name="protocolName"/> is <see langword="null"/> is empty or whitespace.</exception>
+            public static IAppPackageCreator FromSkylinePipeline(ILogCollector logCollector, string workspace, string packageName, string protocolName, string tag, int buildNumber, bool setActive, bool markAsDefault = false)
+            {
+                bool isRelease = !String.IsNullOrWhiteSpace(tag) && !String.Equals(tag, "null", StringComparison.OrdinalIgnoreCase);
+                DMAppVersion packageVersion;
+
+                if (isRelease)
                 {
-                    throw new ArgumentException("The job base name is invalid.", nameof(jobBaseName));
+                    packageVersion = DMAppVersion.FromProtocolVersion(tag);
                 }
-                
-                return new AppPackageCreatorForProtocolVisio(CICD.FileSystem.FileSystem.Instance, logCollector, workspace, packageName, packageVersion, protocolName);
+                else
+                {
+                    packageVersion = DMAppVersion.FromBuildNumber(buildNumber);
+                }
+
+                return new AppPackageCreatorForProtocolVisio(CICD.FileSystem.FileSystem.Instance, logCollector, workspace, packageName, packageVersion, protocolName, setActive, markAsDefault);
             }
         }
     }

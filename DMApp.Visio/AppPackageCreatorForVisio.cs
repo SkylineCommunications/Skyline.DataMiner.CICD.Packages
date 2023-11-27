@@ -68,16 +68,14 @@
             /// </summary>
             /// <param name="logCollector">The log collector.</param>
             /// <param name="workspace">The workspace.</param>
-            /// <param name="jobBaseName">The job base name.</param>
+            /// <param name="packageName">The name of the package</param>
             /// <param name="tag">The tag.</param>
             /// <param name="buildNumber">The build number.</param>
             /// <returns>The <see cref="IAppPackageCreator"/> instance.</returns>
-            /// <exception cref="ArgumentNullException"><paramref name="workspace"/> or <paramref name="jobBaseName"/> is <see langword="null"/>.</exception>
-            /// <exception cref="ArgumentException"><paramref name="workspace"/> or <paramref name="jobBaseName"/> is <see langword="null"/> is empty or whitespace.</exception>
-            public static IAppPackageCreator FromSkylinePipeline(ILogCollector logCollector, string workspace, string jobBaseName, string tag, int buildNumber)
+            /// <exception cref="ArgumentNullException"><paramref name="workspace"/> or <paramref name="packageName"/> is <see langword="null"/>.</exception>
+            /// <exception cref="ArgumentException"><paramref name="workspace"/> or <paramref name="packageName"/> is <see langword="null"/> is empty or whitespace.</exception>
+            public static IAppPackageCreator FromSkylinePipeline(ILogCollector logCollector, string workspace, string packageName, string tag, int buildNumber)
             {
-                string packageName = jobBaseName;
-
                 bool isRelease = !String.IsNullOrWhiteSpace(tag) && !String.Equals(tag, "null", StringComparison.OrdinalIgnoreCase);
                 DMAppVersion packageVersion;
 
