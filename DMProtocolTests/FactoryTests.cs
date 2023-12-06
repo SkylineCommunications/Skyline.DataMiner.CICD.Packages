@@ -44,5 +44,38 @@
             // Verify assembly from DLLs folder is included.
             Assert.IsNotNull(builder.Assemblies.FirstOrDefault(a => a.AssemblyFilePath.EndsWith("ClassLibX.dll")));
         }
+
+        [TestMethod]
+        public async Task FromRepositoryAsyncTestOverrideVersionAsync()
+        {
+            // Arrange
+            LogCollector logCollector = new LogCollector();
+            string repositoryPath = @"TestFiles\VisualStudio\Protocol";
+
+            // Act
+            var builder = await ProtocolPackageCreator.Factory.FromRepositoryAsync(logCollector, repositoryPath, "1.0.0.1_DEV");
+            string protocolXmlContent = Encoding.UTF8.GetString(builder.ProtocolContent, 0, builder.ProtocolContent.Length);
+
+            // Assert
+            Assert.AreEqual("ExampleProtocol", builder.Name);
+            Assert.AreEqual("1.0.0.1_DEV", builder.Version);
+
+            // Verify if shared project code is included.
+            bool containsSharedProjectCode = protocolXmlContent.Contains("public class Utility");
+            Assert.IsTrue(containsSharedProjectCode);
+
+            // Verify if subfolder content is included.
+            bool subfolderCsFileCode = protocolXmlContent.Contains("public class SubfolderClass");
+            Assert.IsTrue(subfolderCsFileCode);
+
+            Assert.AreEqual(2, builder.Assemblies.Count);
+
+            // Verify NuGet assembly is included.
+            var nugetAssembly = builder.Assemblies.FirstOrDefault(a => a.DestinationFolderPath.Equals("C:\\Skyline DataMiner\\ProtocolScripts\\DllImport\\advancedstringbuilder\\0.1.0\\lib\\net45"));
+            Assert.IsNotNull(nugetAssembly);
+
+            // Verify assembly from DLLs folder is included.
+            Assert.IsNotNull(builder.Assemblies.FirstOrDefault(a => a.AssemblyFilePath.EndsWith("ClassLibX.dll")));
+        }
     }
 }
