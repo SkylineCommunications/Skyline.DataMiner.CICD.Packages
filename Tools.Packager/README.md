@@ -91,7 +91,7 @@ Options:
 
 ```console
 Description:
-  Creates a protocol (.dmprotocol) package based on a protocol solution.
+  Creates a protocol package (.dmprotocol) based on a protocol solution.
 
 Usage:
   Skyline.DataMiner.CICD.Tools.Packager dmprotocol [<directory>] [options]
@@ -100,7 +100,7 @@ Arguments:
   <directory>  Directory containing the package items
 
 Options:
-  -ov, --overrideVersion <OVERRIDE_VERSION>   Override the version in the protocol.
+  -vo, --versionOverride <VERSION_OVERRIDE>   Override the version in the protocol.
   -o, --output <OUTPUT_DIRECTORY> (REQUIRED)  Directory where the package will be stored.
   -n, --name <OUTPUT_NAME>                    Name of the package.
   -?, -h, --help                              Show help and usage information

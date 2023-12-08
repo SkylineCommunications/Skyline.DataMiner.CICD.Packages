@@ -82,16 +82,16 @@
             rootCommand.AddGlobalOption(outputDirectory);
             rootCommand.AddGlobalOption(packageName);
 
-            var overrideVersion = new Option<string>(
-                name: "--overrideVersion",
+            var versionOverride = new Option<string>(
+                name: "--versionOverride",
                 description: "Override the version in the protocol.")
             {
-                ArgumentHelpName = "OVERRIDE_VERSION",
+                ArgumentHelpName = "VERSION_OVERRIDE",
             };
-            overrideVersion.AddAlias("-ov");
-            overrideVersion.AddValidator(result =>
+            versionOverride.AddAlias("-vo");
+            versionOverride.AddValidator(result =>
             {
-                var value = result.GetValueForOption(overrideVersion);
+                var value = result.GetValueForOption(versionOverride);
 
                 if (String.IsNullOrWhiteSpace(value))
                 {
@@ -103,9 +103,9 @@
             var dmprotocolSubCommand = new Command("dmprotocol", "Creates a protocol package (.dmprotocol) based on a protocol solution.")
             {
                 workspaceArgument,
-                overrideVersion,
+                versionOverride,
             };
-            dmprotocolSubCommand.SetHandler(ProcessDmProtocolAsync, workspaceArgument, outputDirectory, packageName, overrideVersion, debugOption);
+            dmprotocolSubCommand.SetHandler(ProcessDmProtocolAsync, workspaceArgument, outputDirectory, packageName, versionOverride, debugOption);
 
             var dmappType = new Option<string>(
                 name: "--type",
@@ -241,17 +241,17 @@
             await appPackageCreator.CreateAsync(outputDirectory, dmAppFileName);
         }
 
-        private static async Task ProcessDmProtocolAsync(string workspace, string outputDirectory, string packageName, string overrideVersion, bool debug)
+        private static async Task ProcessDmProtocolAsync(string workspace, string outputDirectory, string packageName, string versionOverride, bool debug)
         {
             IAppPackageProtocol package;
 
-            if (String.IsNullOrWhiteSpace(overrideVersion))
+            if (String.IsNullOrWhiteSpace(versionOverride))
             {
                 package = await ProtocolPackageCreator.Factory.FromRepositoryAsync(new Logging(debug), workspace);
             }
             else
             {
-                package = await ProtocolPackageCreator.Factory.FromRepositoryAsync(new Logging(debug), workspace, overrideVersion);
+                package = await ProtocolPackageCreator.Factory.FromRepositoryAsync(new Logging(debug), workspace, versionOverride);
             }
 
             if (String.IsNullOrWhiteSpace(packageName))
