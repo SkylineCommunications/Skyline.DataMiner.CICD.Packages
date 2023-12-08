@@ -100,7 +100,7 @@
                 }
             });
 
-            var dmprotocolSubCommand = new Command("dmprotocol", "Creates a protocol (.dmprotocol) package based on a protocol solution.")
+            var dmprotocolSubCommand = new Command("dmprotocol", "Creates a protocol package (.dmprotocol) based on a protocol solution.")
             {
                 workspaceArgument,
                 overrideVersion,
