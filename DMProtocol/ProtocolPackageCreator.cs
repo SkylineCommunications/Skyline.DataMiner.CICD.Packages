@@ -37,6 +37,24 @@
             /// The protocol does not have a version specified in the Version tag.</exception>
             public static async Task<IAppPackageProtocol> FromRepositoryAsync(ILogCollector logCollector, string repositoryPath)
             {
+                return await FromRepositoryAsync(logCollector, repositoryPath, String.Empty);
+            }
+
+            /// <summary>
+            /// Creates an <see cref="IAppPackageProtocol"/> instance from the specified repository with the specified name and version.
+            /// </summary>
+            /// <param name="logCollector">The log collector.</param>
+            /// <param name="repositoryPath">The path of the repository that contains the Protocol solution.</param>
+            /// <param name="versionOverride">Override the version in the protocol.</param>
+            /// <returns>The <see cref="IAppPackageProtocol"/> instance.</returns>
+            /// <exception cref="ArgumentNullException"><paramref name="logCollector"/>, <paramref name="repositoryPath"/> is <see langword="null"/>.</exception>
+            /// <exception cref="DirectoryNotFoundException">The directory specified in <paramref name="repositoryPath"/> does not exist.</exception>
+            /// <exception cref="AssemblerException">Project with name could not be found.</exception>
+            /// <exception cref="InvalidOperationException">The protocol does not have a name specified in the Name tag.
+            /// -or-
+            /// The protocol does not have a version specified in the Version tag.</exception>
+            public static async Task<IAppPackageProtocol> FromRepositoryAsync(ILogCollector logCollector, string repositoryPath, string versionOverride)
+            {
                 if (repositoryPath == null) throw new ArgumentNullException(nameof(repositoryPath));
 
                 repositoryPath = Path.GetFullPath(repositoryPath);
@@ -53,13 +71,22 @@
                 ProtocolSolution solution = ProtocolSolution.Load(solutionFilePath, logCollector);
                 ProtocolModel protocolModel = new ProtocolModel(solution.ProtocolDocument);
 
-                string protocolName = protocolModel?.Protocol?.Name?.Value;
-                string protocolVersion = protocolModel?.Protocol?.Version?.Value;
+                string protocolName = protocolModel.Protocol?.Name?.Value;
+                string protocolVersion = protocolModel.Protocol?.Version?.Value;
 
                 if (protocolName == null) throw new InvalidOperationException("The protocol does not have a name specified in the Name tag.");
                 if (protocolVersion == null) throw new InvalidOperationException("The protocol does not have a version specified in the Version tag.");
 
-                var protocolBuilder = new ProtocolBuilder(solution, logCollector);
+                ProtocolBuilder protocolBuilder;
+                if (!String.IsNullOrWhiteSpace(versionOverride))
+                {
+                    protocolVersion = versionOverride;
+                    protocolBuilder = new ProtocolBuilder(solution, logCollector, versionOverride);
+                }
+                else
+                {
+                    protocolBuilder = new ProtocolBuilder(solution, logCollector);
+                }
 
                 var buildResultItems = await protocolBuilder.BuildAsync();
                 string document = buildResultItems.Document;

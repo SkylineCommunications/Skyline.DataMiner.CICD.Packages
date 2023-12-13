@@ -43,6 +43,11 @@ dataminer-package-create dmprotocol --help
 ### General options
 
 ```console
+Description:
+  This .NET tool allows you to create DataMiner application (.dmapp) and protocol (.dmprotocol) packages.
+
+Usage:
+  Skyline.DataMiner.CICD.Tools.Packager [command] [options]
 
 Options:
   -o, --output <OUTPUT_DIRECTORY> (REQUIRED)  Directory where the package will be stored.
@@ -52,7 +57,7 @@ Options:
 
 Commands:
   dmapp <directory>       Creates a DataMiner application (.dmapp) package based on the type.
-  dmprotocol <directory>  Creates a protocol (.dmprotocol) package based on a protocol solution
+  dmprotocol <directory>  Creates a protocol (.dmprotocol) package based on a protocol solution.
 
 ```
 
@@ -86,24 +91,17 @@ Options:
 
 ```console
 Description:
-  Creates a DataMiner application (.dmapp) package based on the type.
+  Creates a protocol package (.dmprotocol) based on a protocol solution.
 
 Usage:
-  Skyline.DataMiner.CICD.Tools.Packager dmapp [<directory>] [options]
+  Skyline.DataMiner.CICD.Tools.Packager dmprotocol [<directory>] [options]
 
 Arguments:
   <directory>  Directory containing the package items
 
 Options:
-  -t, --type <automation|dashboard|protocolvisio|visio>   Type of dmapp package.
-  (REQUIRED)
-  -bn, --build-number <BUILD_NUMBER>                      The build number.
-  -v, --version <VERSION>                                 The version number for the artifact. This takes precedence
-                                                          over 'build-number'. Supported formats: 'A.B.C', 'A.B.C.D',
-                                                          'A.B.C-suffix' and 'A.B.C.D-suffix'.
-  -pn, --protocolName <PROTOCOL_NAME>                     The protocol name. Only applicable for the 'protocolvisio'
-                                                          type.
-  -o, --output <OUTPUT_DIRECTORY> (REQUIRED)              Directory where the package will be stored.
-  -n, --name <OUTPUT_NAME>                                Name of the package.
-  -?, -h, --help                                          Show help and usage information
+  -vo, --versionOverride <VERSION_OVERRIDE>   Override the version in the protocol.
+  -o, --output <OUTPUT_DIRECTORY> (REQUIRED)  Directory where the package will be stored.
+  -n, --name <OUTPUT_NAME>                    Name of the package.
+  -?, -h, --help                              Show help and usage information
 ```
