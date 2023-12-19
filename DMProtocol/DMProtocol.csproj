@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
@@ -13,7 +13,10 @@
 		<PackageIcon>icon.png</PackageIcon>
 		<PackageProjectUrl>https://skyline.be/</PackageProjectUrl>
 		<PackageTags>Skyline;DataMiner;CICD</PackageTags>
-		<Description>Library providing methods to convert Visual Studio DIS connector solutions into DataMiner protocol packages (.dmprotocol) files.</Description>
+		<Description>
+            Library providing methods to convert Visual Studio DIS connector solutions into DataMiner protocol packages (.dmprotocol) files.
+            Code Entry Point: var creator = ProtocolPackageCreator.Factory.FromRepository(logCollector, repositoryPath);
+        </Description>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<RepositoryUrl>https://github.com/SkylineCommunications/Skyline.DataMiner.CICD.Packages</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
@@ -35,7 +38,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Skyline.DataMiner.CICD.Assemblers.Protocol" Version="1.0.3" />
-		<PackageReference Include="Skyline.DataMiner.Core.AppPackageCreator" Version="1.0.0.31" />
+		<PackageReference Include="Skyline.DataMiner.CICD.Assemblers.Protocol" Version="1.0.8" />
+		<PackageReference Include="Skyline.DataMiner.Core.AppPackageCreator" Version="1.0.0.32" />
 	</ItemGroup>
 </Project>

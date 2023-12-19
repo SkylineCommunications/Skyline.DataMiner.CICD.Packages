@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
@@ -13,17 +13,20 @@
 		<PackageIcon>icon.png</PackageIcon>
 		<PackageProjectUrl>https://skyline.be/</PackageProjectUrl>
 		<PackageTags>Skyline;DataMiner;CICD</PackageTags>
-		<Description>Library providing methods to convert Visual Studio DIS AutomationScript Solutions into DataMiner Application Packages (.DMApp) files.</Description>
+		<Description>
+            Library providing methods to convert Visual Studio DIS AutomationScript Solutions into DataMiner Application Packages (.DMApp) files.
+            Code Entry Point: var builder = AppPackageCreatorForAutomation.Factory.FromRepository(logCollector, repositoryPath, packageName, packageVersion);
+        </Description>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<RepositoryUrl>https://github.com/SkylineCommunications/Skyline.DataMiner.CICD.Packages</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Include="..\README.md">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
+        <None Include="..\README.md">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
 		<None Include="..\_NuGetItems\icon.png">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
@@ -35,7 +38,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Skyline.DataMiner.CICD.Assemblers.Automation" Version="1.0.3" />
+		<PackageReference Include="Skyline.DataMiner.CICD.Assemblers.Automation" Version="1.0.8" />
 	</ItemGroup>
 
 	<ItemGroup>

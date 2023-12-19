@@ -3,7 +3,7 @@
 		<OutputType>Exe</OutputType>
 		<TargetFramework>net6.0</TargetFramework>
 		<PackAsTool>true</PackAsTool>
-		<ToolCommandName>package create</ToolCommandName>
+		<ToolCommandName>dataminer-package-create</ToolCommandName>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<Nullable>disable</Nullable>
 		<AssemblyName>Skyline.DataMiner.CICD.Tools.Packager</AssemblyName>
