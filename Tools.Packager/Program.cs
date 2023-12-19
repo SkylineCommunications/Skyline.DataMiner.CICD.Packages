@@ -2,7 +2,6 @@
 {
     using System;
     using System.CommandLine;
-    using System.CommandLine.Invocation;
     using System.CommandLine.Parsing;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
@@ -16,8 +15,6 @@
     using Skyline.DataMiner.CICD.FileSystem;
     using Skyline.DataMiner.CICD.Loggers;
     using Skyline.DataMiner.CICD.Tools.Reporter;
-    using Skyline.DataMiner.Net.Connectivity;
-    using Skyline.DataMiner.Net.Messages.SLDataGateway;
 
     /// <summary>
     /// This .NET tool allows you to create dmapp and dmprotocol packages..
@@ -37,12 +34,6 @@
             {
                 IsHidden = true
             };
-
-            var metricsOption = new Option<bool>(
-                name: "--allowMetrics",
-                description: "Disables the collection of metrics for devopsmetrics.skyline.be",
-                getDefaultValue: () => true);
-            metricsOption.AddAlias("-m");
 
             var workspaceArgument = new Argument<string>(
                 name: "directory",
@@ -91,7 +82,6 @@
             rootCommand.AddGlobalOption(debugOption);
             rootCommand.AddGlobalOption(outputDirectory);
             rootCommand.AddGlobalOption(packageName);
-            rootCommand.AddGlobalOption(metricsOption);
 
             var versionOverride = new Option<string>(
                 name: "--versionOverride",
@@ -99,7 +89,7 @@
             {
                 ArgumentHelpName = "VERSION_OVERRIDE",
             };
-            versionOverride.AddAlias("-vo");z
+            versionOverride.AddAlias("-vo");
             versionOverride.AddValidator(result =>
             {
                 var value = result.GetValueForOption(versionOverride);
@@ -181,20 +171,8 @@
                 version,
                 protocolName
             };
-            
-            dmappSubCommand.SetHandler(async context =>
-            {
-                var w = context.ParseResult.GetValueForArgument(workspaceArgument);
-                var o = context.ParseResult.GetValueForOption(outputDirectory);
-                var n = context.ParseResult.GetValueForOption(packageName);
-                var debug = context.ParseResult.GetValueForOption(debugOption);
-                var t = context.ParseResult.GetValueForOption(dmappType);
-                var bn = context.ParseResult.GetValueForOption(buildNumber);
-                var v = context.ParseResult.GetValueForOption(version);
-                var pn = context.ParseResult.GetValueForOption(protocolName);
-                var m = context.ParseResult.GetValueForOption(metricsOption);
-                await ProcessDmAppAsync(w, o, n, debug, t, bn, v, pn, m);
-            });
+
+            dmappSubCommand.SetHandler(ProcessDmAppAsync, workspaceArgument, outputDirectory, packageName, debugOption, dmappType, buildNumber, version, protocolName);
 
             rootCommand.Add(dmappSubCommand);
             rootCommand.Add(dmprotocolSubCommand);
@@ -202,7 +180,7 @@
             return await rootCommand.InvokeAsync(args);
         }
 
-        private static async Task ProcessDmAppAsync(string workspace, string outputDirectory, string packageName, bool debug, string dmappType, uint buildNumber, string version, string protocolName, bool allowMetrics)
+        private static async Task ProcessDmAppAsync(string workspace, string outputDirectory, string packageName, bool debug, string dmappType, uint buildNumber, string version, string protocolName)
         {
             IAppPackageCreator appPackageCreator;
             DMAppVersion dmAppVersion;
@@ -262,7 +240,7 @@
 
             DMAppFileName dmAppFileName = new DMAppFileName(packageName + ".dmapp");
             await appPackageCreator.CreateAsync(outputDirectory, dmAppFileName);
-            await SendMetric(allowMetrics, "DMAPP", dmappType);
+            await SendMetric("DMAPP", dmappType);
         }
 
         private static async Task ProcessDmProtocolAsync(string workspace, string outputDirectory, string packageName, string versionOverride, bool debug)
@@ -285,16 +263,11 @@
             }
 
             package.CreatePackage(FileSystem.Instance.Path.Combine(outputDirectory, packageName + ".dmprotocol"));
-            await SendMetric(allowMetrics, "DMPROTOCOL");
+            await SendMetric("DMPROTOCOL");
         }
 
-        private static async Task SendMetric(bool allowMetrics, string type, string dmappType = null)
+        private static async Task SendMetric(string type, string dmappType = null)
         {
-            if (!allowMetrics)
-            {
-                return;
-            }
-
             try
             {
                 DevOpsMetrics metrics = new DevOpsMetrics();
