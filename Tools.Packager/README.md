@@ -80,7 +80,7 @@ Options:
   -v, --version <VERSION>                                 The version number for the artifact. This takes precedence
                                                           over 'build-number'. Supported formats: 'A.B.C', 'A.B.C.D',
                                                           'A.B.C-suffix' and 'A.B.C.D-suffix'.
-  -pn, --protocolName <PROTOCOL_NAME>                     The protocol name. Only applicable for the 'protocolvisio'
+  -pn, --protocol-name <PROTOCOL_NAME>                     The protocol name. Only applicable for the 'protocolvisio'
                                                           type.
   -o, --output <OUTPUT_DIRECTORY> (REQUIRED)              Directory where the package will be stored.kv
   -n, --name <OUTPUT_NAME>                                Name of the package.
@@ -100,7 +100,7 @@ Arguments:
   <directory>  Directory containing the package items
 
 Options:
-  -vo, --versionOverride <VERSION_OVERRIDE>   Override the version in the protocol.
+  -vo, --version-override <VERSION_OVERRIDE>   Override the version in the protocol.
   -o, --output <OUTPUT_DIRECTORY> (REQUIRED)  Directory where the package will be stored.
   -n, --name <OUTPUT_NAME>                    Name of the package.
   -?, -h, --help                              Show help and usage information

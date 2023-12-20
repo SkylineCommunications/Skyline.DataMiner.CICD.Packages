@@ -83,7 +83,7 @@
             rootCommand.AddGlobalOption(packageName);
 
             var versionOverride = new Option<string>(
-                name: "--versionOverride",
+                name: "--version-override",
                 description: "Override the version in the protocol.")
             {
                 ArgumentHelpName = "VERSION_OVERRIDE",
@@ -148,7 +148,7 @@
             });
 
             var protocolName = new Option<string>(
-                name: "--protocolName",
+                name: "--protocol-name",
                 description: "The protocol name. Only applicable for the 'protocolvisio' type.")
             {
                 ArgumentHelpName = "PROTOCOL_NAME"
