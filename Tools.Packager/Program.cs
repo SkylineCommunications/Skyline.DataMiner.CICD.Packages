@@ -240,7 +240,7 @@
 
             DMAppFileName dmAppFileName = new DMAppFileName(packageName + ".dmapp");
             await appPackageCreator.CreateAsync(outputDirectory, dmAppFileName);
-            await SendMetric("DMAPP", dmappType);
+            await SendMetricAsync("DMAPP", dmappType);
         }
 
         private static async Task ProcessDmProtocolAsync(string workspace, string outputDirectory, string packageName, string versionOverride, bool debug)
@@ -263,10 +263,10 @@
             }
 
             package.CreatePackage(FileSystem.Instance.Path.Combine(outputDirectory, packageName + ".dmprotocol"));
-            await SendMetric("DMPROTOCOL");
+            await SendMetricAsync("DMPROTOCOL");
         }
 
-        private static async Task SendMetric(string type, string dmappType = null)
+        private static async Task SendMetricAsync(string type, string dmappType = null)
         {
             try
             {
