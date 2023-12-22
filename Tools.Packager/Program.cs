@@ -14,6 +14,7 @@
     using Skyline.DataMiner.CICD.DMProtocol;
     using Skyline.DataMiner.CICD.FileSystem;
     using Skyline.DataMiner.CICD.Loggers;
+    using Skyline.DataMiner.CICD.Tools.Reporter;
 
     /// <summary>
     /// This .NET tool allows you to create dmapp and dmprotocol packages..
@@ -239,6 +240,7 @@
 
             DMAppFileName dmAppFileName = new DMAppFileName(packageName + ".dmapp");
             await appPackageCreator.CreateAsync(outputDirectory, dmAppFileName);
+            await SendMetricAsync("DMAPP", dmappType);
         }
 
         private static async Task ProcessDmProtocolAsync(string workspace, string outputDirectory, string packageName, string versionOverride, bool debug)
@@ -261,6 +263,26 @@
             }
 
             package.CreatePackage(FileSystem.Instance.Path.Combine(outputDirectory, packageName + ".dmprotocol"));
+            await SendMetricAsync("DMPROTOCOL");
+        }
+
+        private static async Task SendMetricAsync(string type, string dmappType = null)
+        {
+            try
+            {
+                DevOpsMetrics metrics = new DevOpsMetrics();
+                string message = $"Skyline.DataMiner.CICD.Tools.Packager|{type}";
+                if (dmappType != null)
+                {
+                    message += $"|{dmappType}";
+                }
+
+                await metrics.ReportAsync(message);
+            }
+            catch
+            {
+                // Silently catch as if the request fails due to network issues we don't want the tool to fail.
+            }
         }
     }
 
