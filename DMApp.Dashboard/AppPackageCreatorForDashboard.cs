@@ -1,7 +1,6 @@
 namespace Skyline.DataMiner.CICD.DMApp.Dashboard
 {
     using System;
-    using System.IO;
     using System.Threading.Tasks;
 
     using Skyline.DataMiner.CICD.DMApp.Common;
@@ -43,7 +42,7 @@ namespace Skyline.DataMiner.CICD.DMApp.Dashboard
                 string targetPath;
                 if (relativePath.Contains("\\"))
                 {
-                    targetPath = Path.Combine(@"C:\Skyline DataMiner\Dashboards", Path.GetDirectoryName(relativePath));
+                    targetPath = FileSystem.Path.Combine(@"C:\Skyline DataMiner\Dashboards", FileSystem.Path.GetDirectoryName(relativePath));
                 }
                 else
                 {

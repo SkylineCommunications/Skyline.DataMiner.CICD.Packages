@@ -1,7 +1,8 @@
 ﻿namespace Skyline.DataMiner.CICD.DMApp.Common
 {
     using System;
-    using System.IO;
+
+    using FileSystem;
 
     /// <summary>
     /// Represents an app package file name.
@@ -35,7 +36,7 @@
                 throw new ArgumentException("The specified file name must end with '.dmapp'.", nameof(fileName));
             }
 
-            if (Path.GetDirectoryName(fileName) != String.Empty)
+            if (FileSystem.Instance.Path.GetDirectoryName(fileName) != String.Empty)
             {
                 throw new ArgumentException("The specified file name can not have a directory structure.", nameof(fileName));
             }
