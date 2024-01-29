@@ -112,7 +112,7 @@
                     if (assembly.AssemblyPath != null)
                     {
                         string destinationFilePath = FileSystem.Instance.Path.Combine(destinationDllFolder, assembly.DllImport);
-                        string destinationFolderPath = FileSystem.Instance.Path.GetFullPath(destinationFilePath);
+                        string destinationFolderPath = FileSystem.Instance.Path.GetDirectoryName(destinationFilePath);
                         packageBuilder.WithAssembly(assembly.AssemblyPath, destinationFolderPath);
                     }
                 }
@@ -125,13 +125,13 @@
             /// <param name="packageBuilder">Protocol Package Builder.</param>
             /// <param name="destinationDllFolder">Destination folder on DataMiner.</param>
             /// <param name="repositoryPath">Solution location.</param>
-            private static void AddAssemblies(string dllsFolderPath, IAppPackageProtocolBuilder packageBuilder, string destinationDllFolder, string repositoryPath)
+            private static void AddAssemblies(string dllsFolder, IAppPackageProtocolBuilder packageBuilder, string destinationDllFolder, string repositoryPath)
             {
-                string destinationsDllsFolderPath = FileSystem.Instance.Path.Combine(FileSystem.Instance.Path.GetFullPath(repositoryPath), "Dlls");
+                string dllsFolderPath = FileSystem.Instance.Path.Combine(FileSystem.Instance.Path.GetFullPath(repositoryPath), "Dlls");
 
-                if (FileSystem.Instance.Directory.Exists(destinationsDllsFolderPath))
+                if (FileSystem.Instance.Directory.Exists(dllsFolderPath))
                 {
-                    foreach (var dll in FileSystem.Instance.Directory.EnumerateFiles(dllsFolderPath, "*.dll"))
+                    foreach (var dll in FileSystem.Instance.Directory.EnumerateFiles(dllsFolder, "*.dll"))
                     {
                         packageBuilder.WithAssembly(dll, destinationDllFolder);
                     }
