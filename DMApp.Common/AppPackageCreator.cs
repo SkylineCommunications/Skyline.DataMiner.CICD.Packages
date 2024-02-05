@@ -1,7 +1,6 @@
 namespace Skyline.DataMiner.CICD.DMApp.Common
 {
     using System;
-    using System.IO;
     using System.Threading.Tasks;
 
     using Skyline.AppInstaller;
@@ -59,7 +58,7 @@ namespace Skyline.DataMiner.CICD.DMApp.Common
 
             if (!fileSystem.Directory.Exists(repositoryPath))
             {
-                throw new DirectoryNotFoundException("The specified directory '" + repositoryPath + "' does not exist.");
+                throw new System.IO.DirectoryNotFoundException("The specified directory '" + repositoryPath + "' does not exist.");
             }
 
             RepositoryPath = fileSystem.Path.GetFullPath(repositoryPath);

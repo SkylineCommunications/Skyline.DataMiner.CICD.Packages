@@ -1,7 +1,6 @@
 ﻿namespace Skyline.DataMiner.CICD.DMProtocol
 {
     using System;
-    using System.IO;
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
@@ -12,6 +11,7 @@
     using Skyline.DataMiner.CICD.Loggers;
     using Skyline.DataMiner.CICD.Models.Protocol.Read;
     using Skyline.DataMiner.CICD.Parsers.Protocol.VisualStudio;
+    using Skyline.DataMiner.CICD.FileSystem;
 
     /// <summary>
     /// Package creator for Protocol solutions.
@@ -30,7 +30,7 @@
             /// <param name="repositoryPath">The path of the repository that contains the Protocol solution.</param>
             /// <returns>The <see cref="IAppPackageProtocol"/> instance.</returns>
             /// <exception cref="ArgumentNullException"><paramref name="logCollector"/>, <paramref name="repositoryPath"/> is <see langword="null"/>.</exception>
-            /// <exception cref="DirectoryNotFoundException">The directory specified in <paramref name="repositoryPath"/> does not exist.</exception>
+            /// <exception cref="System.IO.DirectoryNotFoundException">The directory specified in <paramref name="repositoryPath"/> does not exist.</exception>
             /// <exception cref="AssemblerException">Project with name could not be found.</exception>
             /// <exception cref="InvalidOperationException">The protocol does not have a name specified in the Name tag.
             /// -or-
@@ -57,12 +57,12 @@
             {
                 if (repositoryPath == null) throw new ArgumentNullException(nameof(repositoryPath));
 
-                repositoryPath = Path.GetFullPath(repositoryPath);
+                repositoryPath = FileSystem.Instance.Path.GetFullPath(repositoryPath);
 
                 if (String.IsNullOrWhiteSpace(repositoryPath)) throw new ArgumentException("Invalid repository path", nameof(repositoryPath));
-                if (!Directory.Exists(repositoryPath)) throw new DirectoryNotFoundException($"Directory '{repositoryPath}' not found.");
+                if (!FileSystem.Instance.Directory.Exists(repositoryPath)) throw new System.IO.DirectoryNotFoundException($"Directory '{repositoryPath}' not found.");
 
-                string solutionFilePath = Directory.GetFiles(repositoryPath, "*.sln", SearchOption.TopDirectoryOnly).FirstOrDefault();
+                string solutionFilePath = FileSystem.Instance.Directory.GetFiles(repositoryPath, "*.sln", System.IO.SearchOption.TopDirectoryOnly).FirstOrDefault();
 
                 if (solutionFilePath == null) throw new InvalidOperationException("The specified repository path does not contain a solution (.sln) file in the root folder.");
 
@@ -96,7 +96,7 @@
 
                 AddNuGetAssemblies(buildResultItems, destinationDllFolder, packageBuilder);
 
-                DirectoryInfo dllsFolder = new DirectoryInfo(Path.Combine(repositoryPath, "Dlls"));
+                string dllsFolder = FileSystem.Instance.Path.Combine(repositoryPath, "Dlls");
                 AddAssemblies(dllsFolder, packageBuilder, destinationDllFolder, repositoryPath);
 
                 IAppPackageProtocol protocolPackage = packageBuilder.Build();
@@ -111,8 +111,8 @@
                     // Can be null in cases where a DataMiner DLL must be included in the dllImport attribute but must not be included in the Dlls folder.
                     if (assembly.AssemblyPath != null)
                     {
-                        string destinationFilePath = Path.Combine(destinationDllFolder, assembly.DllImport);
-                        string destinationFolderPath = new FileInfo(destinationFilePath).Directory.FullName;
+                        string destinationFilePath = FileSystem.Instance.Path.Combine(destinationDllFolder, assembly.DllImport);
+                        string destinationFolderPath = FileSystem.Instance.Path.GetDirectoryName(destinationFilePath);
                         packageBuilder.WithAssembly(assembly.AssemblyPath, destinationFolderPath);
                     }
                 }
@@ -125,15 +125,15 @@
             /// <param name="packageBuilder">Protocol Package Builder.</param>
             /// <param name="destinationDllFolder">Destination folder on DataMiner.</param>
             /// <param name="repositoryPath">Solution location.</param>
-            private static void AddAssemblies(DirectoryInfo dllsFolder, IAppPackageProtocolBuilder packageBuilder, string destinationDllFolder, string repositoryPath)
+            private static void AddAssemblies(string dllsFolder, IAppPackageProtocolBuilder packageBuilder, string destinationDllFolder, string repositoryPath)
             {
-                string dllsFolderPath = Path.Combine(Path.GetFullPath(repositoryPath), "Dlls");
+                string dllsFolderPath = FileSystem.Instance.Path.Combine(FileSystem.Instance.Path.GetFullPath(repositoryPath), "Dlls");
 
-                if (Directory.Exists(dllsFolderPath))
+                if (FileSystem.Instance.Directory.Exists(dllsFolderPath))
                 {
-                    foreach (var dll in dllsFolder.GetFiles("*.dll"))
+                    foreach (var dll in FileSystem.Instance.Directory.EnumerateFiles(dllsFolder, "*.dll"))
                     {
-                        packageBuilder.WithAssembly(dll.FullName, destinationDllFolder);
+                        packageBuilder.WithAssembly(dll, destinationDllFolder);
                     }
                 }
             }

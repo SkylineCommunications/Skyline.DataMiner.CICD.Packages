@@ -1,8 +1,6 @@
 ﻿namespace Skyline.DataMiner.CICD.DMApp.Visio
 {
     using System;
-    using System.IO;
-    using System.Linq;
     using System.Threading.Tasks;
 
     using Skyline.AppInstaller;
