@@ -131,7 +131,7 @@
 
                 if (FileSystem.Instance.Directory.Exists(dllsFolderPath))
                 {
-                    foreach (var dll in FileSystem.Instance.Directory.EnumerateFiles(dllsFolder, "*.dll"))
+                    foreach (var dll in FileSystem.Instance.Directory.EnumerateFiles(dllsFolder, "*.dll", System.IO.SearchOption.AllDirectories))
                     {
                         packageBuilder.WithAssembly(dll, destinationDllFolder);
                     }
