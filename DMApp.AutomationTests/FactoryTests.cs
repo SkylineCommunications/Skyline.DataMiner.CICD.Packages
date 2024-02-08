@@ -15,7 +15,7 @@ namespace DMApp.AutomationTests
     using FluentAssertions;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Skyline.DataMiner.CICD.Common;
+
     using Skyline.DataMiner.CICD.DMApp.Automation;
     using Skyline.DataMiner.CICD.DMApp.Common;
     using Skyline.DataMiner.CICD.Loggers;

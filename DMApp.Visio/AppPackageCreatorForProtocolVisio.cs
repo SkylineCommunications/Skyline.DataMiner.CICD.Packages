@@ -34,9 +34,9 @@
         public override async Task AddItemsAsync(AppPackage.AppPackageBuilder appPackageBuilder)
         {
             /* Files from the "ExtraFiles" folder are not needed.
-			 * Those mostly are .png files and so on to show to customers what the VISIO will look like
-			 * But they are not actually used by VISIO, everything the VISIO file needs is embedded in the .vsdx files
-			 */
+             * Those mostly are .png files and so on to show to customers what the VISIO will look like
+             * But they are not actually used by VISIO, everything the VISIO file needs is embedded in the .vsdx files
+             */
             var visioFilesPath = FileSystem.Directory.GetFiles(RepositoryPath, "*.vsdx", System.IO.SearchOption.AllDirectories);
 
             if (_setAsActive || _markAsDefault && visioFilesPath.Length > 1)

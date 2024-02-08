@@ -1,43 +1,43 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<OutputType>Exe</OutputType>
-		<TargetFramework>net6.0</TargetFramework>
-		<PackAsTool>true</PackAsTool>
-		<ToolCommandName>dataminer-package-create</ToolCommandName>
-		<ImplicitUsings>disable</ImplicitUsings>
-		<Nullable>disable</Nullable>
-		<AssemblyName>Skyline.DataMiner.CICD.Tools.Packager</AssemblyName>
-		<RootNamespace>Skyline.DataMiner.CICD.Tools.Packager</RootNamespace>
-		<PackageTags>Skyline;DataMiner;CICD</PackageTags>
-		<PackageProjectUrl>https://skyline.be</PackageProjectUrl>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-		<PackageIcon>Icon.png</PackageIcon>
-		<GenerateDocumentationFile>True</GenerateDocumentationFile>
-		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<Authors>SkylineCommunications</Authors>
-		<Company>Skyline Communications</Company>
-		<Description>This .NET tool allows you to create application (.dmapp) and protocol (.dmprotocol) packages.</Description>
-		<RepositoryType>git</RepositoryType>
-		<RepositoryUrl>https://github.com/SkylineCommunications/Skyline.DataMiner.CICD.Packages</RepositoryUrl>
-	</PropertyGroup>
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>dataminer-package-create</ToolCommandName>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <AssemblyName>Skyline.DataMiner.CICD.Tools.Packager</AssemblyName>
+    <RootNamespace>Skyline.DataMiner.CICD.Tools.Packager</RootNamespace>
+    <PackageTags>Skyline;DataMiner;CICD</PackageTags>
+    <PackageProjectUrl>https://skyline.be</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageIcon>Icon.png</PackageIcon>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>SkylineCommunications</Authors>
+    <Company>Skyline Communications</Company>
+    <Description>This .NET tool allows you to create application (.dmapp) and protocol (.dmprotocol) packages.</Description>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/SkylineCommunications/Skyline.DataMiner.CICD.Packages</RepositoryUrl>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<None Include="README.md" Pack="true" PackagePath="" />
-		<None Include="LICENSE.txt" Pack="true" PackagePath="" />
-		<None Include="nuget\Icon.png" Pack="true" PackagePath="" />
-	</ItemGroup>
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="" />
+    <None Include="LICENSE.txt" Pack="true" PackagePath="" />
+    <None Include="nuget\Icon.png" Pack="true" PackagePath="" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="Skyline.DataMiner.CICD.Tools.Reporter" Version="1.0.1" />
-		<PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
-	</ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Skyline.DataMiner.CICD.Tools.Reporter" Version="1.0.1" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\DMApp.Automation\DMApp.Automation.csproj" />
-		<ProjectReference Include="..\DMApp.Dashboard\DMApp.Dashboard.csproj" />
-		<ProjectReference Include="..\DMApp.Visio\DMApp.Visio.csproj" />
-		<ProjectReference Include="..\DMProtocol\DMProtocol.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DMApp.Automation\DMApp.Automation.csproj" />
+    <ProjectReference Include="..\DMApp.Dashboard\DMApp.Dashboard.csproj" />
+    <ProjectReference Include="..\DMApp.Visio\DMApp.Visio.csproj" />
+    <ProjectReference Include="..\DMProtocol\DMProtocol.csproj" />
+  </ItemGroup>
 </Project>

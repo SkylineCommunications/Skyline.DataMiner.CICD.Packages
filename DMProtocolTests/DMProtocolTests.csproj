@@ -22,10 +22,10 @@
     <ProjectReference Include="..\DMProtocol\DMProtocol.csproj" />
   </ItemGroup>
 
-    <ItemGroup>
-      <None Update="TestFiles.zip">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-    </ItemGroup>
+  <ItemGroup>
+    <None Update="TestFiles.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>

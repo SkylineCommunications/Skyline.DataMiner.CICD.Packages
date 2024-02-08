@@ -94,7 +94,7 @@ namespace Skyline.DataMiner.CICD.DMApp.Automation
                 var automationScriptBuilderHelper = new AppPackageAutomationScriptBuilderHelper();
                 string dllsFolderPath = FileSystem.Path.Combine(RepositoryPath, "Dlls");
                 var dllFilesPath = FileSystem.Directory.EnumerateFiles(dllsFolderPath, "*.dll", SearchOption.AllDirectories).ToArray();
-                
+
                 AddScriptAssemblies(automationScriptBuilderHelper, content, dllFilesPath, appPackageAutomationScriptBuilder);
                 AddNuGetAssemblies(script, appPackageAutomationScriptBuilder);
 
