@@ -38,7 +38,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Skyline.DataMiner.CICD.Assemblers.Automation" Version="1.0.9" />
+		<PackageReference Include="Skyline.DataMiner.CICD.Assemblers.Automation" Version="1.0.10" />
 	</ItemGroup>
 
 	<ItemGroup>
