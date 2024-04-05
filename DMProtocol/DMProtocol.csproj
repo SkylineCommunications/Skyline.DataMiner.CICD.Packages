@@ -29,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Skyline.DataMiner.CICD.Assemblers.Protocol" Version="1.0.13" />
+    <PackageReference Include="Skyline.DataMiner.CICD.Assemblers.Protocol" Version="1.0.14" />
     <PackageReference Include="Skyline.DataMiner.Core.AppPackageCreator" Version="1.0.0.33" />
   </ItemGroup>
 </Project>
