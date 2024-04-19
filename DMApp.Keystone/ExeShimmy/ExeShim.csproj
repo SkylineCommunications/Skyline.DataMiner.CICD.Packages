@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Exe</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<PackAsTool>true</PackAsTool>
+		<ToolCommandName>$ToolCommand$</ToolCommandName>
+		<AssemblyName>$ToolName$</AssemblyName>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<Nullable>disable</Nullable>
+		<PackageVersion>$ToolVersion$</PackageVersion>
+		<Version>$ToolVersion$</Version>
+		<PackageTags>Skyline;DataMiner</PackageTags>
+		<PackageProjectUrl>https://skyline.be</PackageProjectUrl>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+		<PackageIcon>Icon.png</PackageIcon>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<Authors>$Authors$</Authors>
+		<Company>$Company$</Company>
+		<Description></Description>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="UserApplication\**\*">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="Icon.png">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
+	  </Content>
+	  <Content Include="LICENSE.txt">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
+	  </Content>
+	  <Content Include="README.md">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
+	  </Content>
+	</ItemGroup>
+
+</Project>

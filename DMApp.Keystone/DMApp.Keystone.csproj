@@ -1,0 +1,63 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>Skyline.DataMiner.CICD.DMApp.Keystone</AssemblyName>
+    <RootNamespace>Skyline.DataMiner.CICD.DMApp.Keystone</RootNamespace>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>SkylineCommunications</Authors>
+    <Company>Skyline Communications</Company>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageProjectUrl>https://skyline.be/</PackageProjectUrl>
+    <PackageTags>Skyline;DataMiner;CICD</PackageTags>
+    <Description>
+      Library to convert a directory with an executable into DataMiner Application Packages (.DMApp) file.
+      Code Entry Point: var builder = AppPackageCreatorForKeystone.Factory.FromDirectory(logCollector, repositoryPath, packageName, packageVersion);
+    </Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/SkylineCommunications/Skyline.DataMiner.CICD.Packages</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="ExeShimmy\Program.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="ExeShimmy\ExeShim.csproj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ExeShimmy\Program.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="" />
+    <None Include="..\_NuGetItems\icon.png" Pack="true" PackagePath="" />
+    <None Include="..\_NuGetItems\LICENSE.txt" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DMApp.Common\DMApp.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="ExeShimmy\Icon.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ExeShimmy\LICENSE.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ExeShimmy\README.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ExeShimmy\UserApplication\DataMinerKeystone.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
