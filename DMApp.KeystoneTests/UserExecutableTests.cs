@@ -34,6 +34,7 @@
         [DataRow("NetFramework")]
         [DataRow("Rust")]
         [DataRow("Go")]
+        [DataRow("WithUI")]
         public void WrapIntoDotnetToolTest_Integration_Core(string frameworkIdentifier)
         {
             // Arrange

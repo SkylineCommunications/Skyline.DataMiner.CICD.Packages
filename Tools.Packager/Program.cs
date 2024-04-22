@@ -166,13 +166,13 @@
             });
 
             var toolCommand = new Option<string>(
-            name: "--keystone-command",
-            description: "When installed you can invoke the keystone from CLI with this command. Only applicable for the 'keystone' type.")
+            name: "--keystone-wrapped-command",
+            description: "When installed you can invoke the keystone from CLI with this command. Only applicable for the 'keystone' type not pointing to a .nupkg.")
             {
                 ArgumentHelpName = "KEYSTONE_COMMAND"
             };
-            protocolName.AddAlias("-kcmd");
-            protocolName.AddValidator(result =>
+            toolCommand.AddAlias("-kcmd");
+            toolCommand.AddValidator(result =>
             {
                 if (String.IsNullOrWhiteSpace(result.GetValueForOption(toolCommand)))
                 {
@@ -181,13 +181,13 @@
             });
 
             var toolAuthors = new Option<string>(
-            name: "--keystone-authors",
-            description: "Who were the authors. Only applicable for the 'keystone' type.")
+            name: "--keystone-wrapped-authors",
+            description: "Who were the authors. Only applicable for the 'keystone' type not pointing to a .nupkg.")
             {
                 ArgumentHelpName = "KEYSTONE_AUTHORS"
             };
-            protocolName.AddAlias("-ka");
-            protocolName.AddValidator(result =>
+            toolAuthors.AddAlias("-ka");
+            toolAuthors.AddValidator(result =>
             {
                 if (String.IsNullOrWhiteSpace(result.GetValueForOption(toolCommand)))
                 {
@@ -196,13 +196,13 @@
             });
 
             var toolCompany = new Option<string>(
-            name: "--keystone-company",
-            description: "Who is the publishing company. Only applicable for the 'keystone' type.")
+            name: "--keystone-wrapped-company",
+            description: "Who is the publishing company. Only applicable for the 'keystone' type not pointing to a .nupkg.")
             {
                 ArgumentHelpName = "KEYSTONE_COMPANY"
             };
-            protocolName.AddAlias("-kc");
-            protocolName.AddValidator(result =>
+            toolCompany.AddAlias("-kc");
+            toolCompany.AddValidator(result =>
             {
                 if (String.IsNullOrWhiteSpace(result.GetValueForOption(toolCommand)))
                 {

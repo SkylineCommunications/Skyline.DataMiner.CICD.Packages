@@ -3,7 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
     using System.Text;
+    using System.Text.RegularExpressions;
 
     using Skyline.DataMiner.CICD.DMApp.Common;
     using Skyline.DataMiner.CICD.FileSystem;
@@ -43,11 +45,33 @@
             }
 
             string programName = fs.Path.GetFileNameWithoutExtension(programPath);
+
+            string assemblyFolder = fs.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string userProgramFolderName = "UserProgram";
             string shimmyName = programName + "Shimmy";
 
-            fs.Directory.CopyRecursive("ExeShimmy", shimmyName);
+
+
+            fs.Directory.CopyRecursive(fs.Path.Combine(assemblyFolder, "ExeShimmy"), shimmyName);
             fs.Directory.CopyRecursive(pathToUserExecutableDir, $"{shimmyName}/{userProgramFolderName}");
+
+            // Defaulting data:
+
+            if (String.IsNullOrWhiteSpace(toolMetaData.ToolName)) toolMetaData.ToolName = $"Skyline.DataMiner.Keystone.{programName}";
+            if (String.IsNullOrWhiteSpace(toolMetaData.ToolCommand))
+            {
+                string cleanedProgramName = Regex.Replace(programName, "[^a-zA-Z0-9 ]", "");
+                string cleanedCommandName = Regex.Replace(cleanedProgramName, @"\s+", "-").ToLower();
+                toolMetaData.ToolCommand = $"dataminer-keystone-{cleanedCommandName}";
+            }
+            if (String.IsNullOrWhiteSpace(toolMetaData.ToolVersion))
+            {
+                var exeVersion = fs.File.GetFileProductVersion(programPath);
+                toolMetaData.ToolVersion = exeVersion;
+            }
+
+            if (String.IsNullOrWhiteSpace(toolMetaData.Company)) toolMetaData.Company = "Undefined";
+            if (String.IsNullOrWhiteSpace(toolMetaData.Authors)) toolMetaData.Authors = "Undefined";
 
             try
             {

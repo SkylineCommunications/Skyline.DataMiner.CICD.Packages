@@ -19,10 +19,6 @@
         public AppPackageCreatorForKeystone(ToolMetaData toolMetaData, IFileSystem fileSystem, ILogCollector logCollector, string directoryPath, string packageName, DMAppVersion packageVersion) : base(fileSystem, logCollector, directoryPath, packageName, packageVersion)
         {
             this.toolMetaData = toolMetaData;
-
-            if (String.IsNullOrWhiteSpace(toolMetaData.Company)) toolMetaData.Company = "Undefined";
-            if (String.IsNullOrWhiteSpace(toolMetaData.Authors)) toolMetaData.Authors = "Undefined";
-            if (String.IsNullOrWhiteSpace(toolMetaData.ToolCommand)) toolMetaData.ToolCommand = packageName;
         }
 
         public override async Task AddItemsAsync(AppPackageBuilder appPackageBuilder)
@@ -44,11 +40,12 @@
                     tempDir = FileSystem.Directory.CreateTemporaryDirectory();
                     IUserExecutable userExecutable = new UserExecutable();
                     var dotnet = DotnetFactory.Create();
+
                     pathToCreatedTool = userExecutable.WrapIntoDotnetTool(FileSystem, tempDir, dotnet, RepositoryPath, toolMetaData);
                 }
 
-                //TODO: Update appPackageBuilder with the created .nupkg as a keystone.
-                //appPackageBuilder.WithKeyStone(pathToCreatedTool);
+                // TODO SOMETHING WRONG HERE. SPECIFIED FILE DOES NOT EXIST.
+                appPackageBuilder.WithKeystone(pathToCreatedTool);
             }
             finally
             {

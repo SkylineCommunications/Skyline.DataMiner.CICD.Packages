@@ -16,14 +16,13 @@
         /// <param name="toolVersion">The semantic version of the tool. This parameter cannot be null.</param>
         /// <param name="authors">The authors of the tool. This parameter cannot be null.</param>
         /// <param name="company">The company associated with the tool. This parameter cannot be null.</param>
-        /// <exception cref="ArgumentNullException">Thrown when any of the required parameters are null.</exception>
         public ToolMetaData(string toolCommand, string toolName, string toolVersion, string authors, string company)
         {
-            ToolCommand = toolCommand ?? throw new ArgumentNullException(nameof(toolCommand));
-            ToolName = toolName ?? throw new ArgumentNullException(nameof(toolName));
-            ToolVersion = toolVersion ?? throw new ArgumentNullException(nameof(toolVersion));
-            Authors = authors ?? throw new ArgumentNullException(nameof(authors));
-            Company = company ?? throw new ArgumentNullException(nameof(company));
+            ToolCommand = toolCommand;
+            ToolName = toolName;
+            ToolVersion = toolVersion;
+            Authors = authors;
+            Company = company;
         }
 
         /// <summary>
