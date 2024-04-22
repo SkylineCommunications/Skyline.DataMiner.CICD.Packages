@@ -65,7 +65,6 @@ namespace Skyline.DataMiner.CICD.DMApp.Keystone.Tests
         }
 
         [DataTestMethod]
-        [TestCategory("Integration")]
         [DataRow("Net6")]
         [DataRow("NetFramework")]
         [DataRow("Rust")]
