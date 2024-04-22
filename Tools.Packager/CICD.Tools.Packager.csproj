@@ -37,6 +37,7 @@
   <ItemGroup>
     <ProjectReference Include="..\DMApp.Automation\DMApp.Automation.csproj" />
     <ProjectReference Include="..\DMApp.Dashboard\DMApp.Dashboard.csproj" />
+    <ProjectReference Include="..\DMApp.Keystone\DMApp.Keystone.csproj" />
     <ProjectReference Include="..\DMApp.Visio\DMApp.Visio.csproj" />
     <ProjectReference Include="..\DMProtocol\DMProtocol.csproj" />
   </ItemGroup>

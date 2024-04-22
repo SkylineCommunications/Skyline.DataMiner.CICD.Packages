@@ -21,6 +21,10 @@
         public AppPackageCreatorForKeystone(ToolMetaData toolMetaData, IFileSystem fileSystem, ILogCollector logCollector, string directoryPath, string packageName, DMAppVersion packageVersion) : base(fileSystem, logCollector, directoryPath, packageName, packageVersion)
         {
             this.toolMetaData = toolMetaData;
+
+            if (String.IsNullOrWhiteSpace(toolMetaData.Company)) toolMetaData.Company = "Undefined";
+            if (String.IsNullOrWhiteSpace(toolMetaData.Authors)) toolMetaData.Authors = "Undefined";
+            if (String.IsNullOrWhiteSpace(toolMetaData.ToolCommand)) toolMetaData.ToolCommand = packageName;
         }
 
         public override async Task AddItemsAsync(AppPackageBuilder appPackageBuilder)
@@ -45,7 +49,7 @@
                     pathToCreatedTool = userExecutable.WrapIntoDotnetTool(FileSystem, tempDir, dotnet, RepositoryPath, toolMetaData);
                 }
 
-                // Update appPackageBuilder with the created .nupkg as a keystone.
+                //TODO: Update appPackageBuilder with the created .nupkg as a keystone.
                 //appPackageBuilder.WithKeyStone(pathToCreatedTool);
             }
             finally
@@ -54,6 +58,14 @@
                 {
                     FileSystem.Directory.DeleteDirectory(tempDir);
                 }
+            }
+        }
+
+        public static class Factory
+        {
+            public static IAppPackageCreator FromRepository(ToolMetaData metaData, IFileSystem filesystem, ILogCollector log, string directoryPath, string packageName, DMAppVersion packageVersion)
+            {
+                return new AppPackageCreatorForKeystone(metaData, filesystem, log, directoryPath, packageName, packageVersion);
             }
         }
     }
