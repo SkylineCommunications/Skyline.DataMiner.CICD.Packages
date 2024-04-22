@@ -1,8 +1,6 @@
 ﻿namespace Skyline.DataMiner.CICD.DMApp.Keystone
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
 
     using Skyline.DataMiner.CICD.DMApp.Common;
@@ -16,7 +14,7 @@
     /// </summary>
     public class AppPackageCreatorForKeystone : AppPackageCreator
     {
-        ToolMetaData toolMetaData;
+        private ToolMetaData toolMetaData;
 
         public AppPackageCreatorForKeystone(ToolMetaData toolMetaData, IFileSystem fileSystem, ILogCollector logCollector, string directoryPath, string packageName, DMAppVersion packageVersion) : base(fileSystem, logCollector, directoryPath, packageName, packageVersion)
         {

@@ -1,20 +1,25 @@
-﻿using System.Text.RegularExpressions;
-
-using FluentAssertions;
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using Moq;
-
-using Skyline.DataMiner.CICD.DMApp.Common;
-using Skyline.DataMiner.CICD.DMApp.Keystone;
-using Skyline.DataMiner.CICD.FileSystem;
-
-namespace Skyline.DataMiner.CICD.DMApp.Keystone.Tests
+﻿namespace Skyline.DataMiner.CICD.DMApp.Keystone.Tests
 {
+    using System.Text.RegularExpressions;
+
+    using FluentAssertions;
+
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+    using Moq;
+
+    using Skyline.DataMiner.CICD.DMApp.Common;
+    using Skyline.DataMiner.CICD.FileSystem;
+
     [TestClass()]
     public class UserExecutableTests
     {
+        [AssemblyCleanup()]
+        public static void AssemblyCleanup()
+        {
+            // remove tool manifest.
+            FileSystem.Instance.Directory.DeleteDirectory(".config");
+        }
 
         [AssemblyInitialize()]
         public static void AssemblyInit(TestContext context)
@@ -22,46 +27,6 @@ namespace Skyline.DataMiner.CICD.DMApp.Keystone.Tests
             // sets up the test framework with "local tools" support.
             var dotnet = DotnetFactory.Create();
             dotnet.Run("new tool-manifest", out _, out _);
-        }
-
-        [AssemblyCleanup()]
-        public static void AssemblyCleanup()
-        {
-            // remove tool manifest.
-            FileSystem.FileSystem.Instance.Directory.DeleteDirectory(".config");
-        }
-
-        [TestMethod()]
-        public void WrapIntoDotnetToolTest_TestReturnPath()
-        {
-            // Arrange
-
-            Mock<IFileSystem> fs = new Mock<IFileSystem>();
-            Mock<IDotnet> dotnet = new Mock<IDotnet>();
-            Mock<IDirectoryIO> directory = new Mock<IDirectoryIO>();
-            Mock<IFileIO> file = new Mock<IFileIO>();
-            Mock<IPathIO> path = new Mock<IPathIO>();
-            fs.Setup(f => f.Directory).Returns(directory.Object);
-            fs.Setup(f => f.File).Returns(file.Object);
-            fs.Setup(f => f.Path).Returns(path.Object);
-
-            string fullCommandName = "Skyline.DataMiner.Keystone.MyCommand";
-
-            string pathToUserExecutableDir = "fakedir/somewhere/ubuntu";
-            directory.Setup(d => d.IsDirectory(pathToUserExecutableDir)).Returns(true);
-            directory.Setup(d => d.EnumerateFiles(pathToUserExecutableDir, "*.exe")).Returns(new[] { "MyCustomProgram.exe" });
-            string outputPath = "TempDir";
-            path.Setup(p => p.Combine(outputPath, $"{fullCommandName}.2.0.1.nupkg")).Returns($"{outputPath}/fakedir/somewhere/ubuntu/Skyline.DataMiner.Keystone.MyCommand.2.0.1.nupkg");
-
-
-            ToolMetaData toolMetaData = new ToolMetaData("MyCommand", "Skyline.DataMiner.Keystone.MyCommand", "2.0.1", "SkylineCommunications", "Skyline Communications");
-
-            // Act
-            UserExecutable executable = new UserExecutable();
-            var result = executable.WrapIntoDotnetTool(fs.Object, outputPath, dotnet.Object, pathToUserExecutableDir, toolMetaData);
-
-            // Assert
-            result.Should().Be("TempDir/fakedir/somewhere/ubuntu/Skyline.DataMiner.Keystone.MyCommand.2.0.1.nupkg");
         }
 
         [DataTestMethod]
@@ -72,7 +37,7 @@ namespace Skyline.DataMiner.CICD.DMApp.Keystone.Tests
         public void WrapIntoDotnetToolTest_Integration_Core(string frameworkIdentifier)
         {
             // Arrange
-            var fs = FileSystem.FileSystem.Instance;
+            var fs = FileSystem.Instance;
             var dotnet = DotnetFactory.Create();
 
             // BUG: cannot use --no-cache. always need different version or name. Cannot uninstall & reinstall same version with different content
@@ -98,7 +63,6 @@ namespace Skyline.DataMiner.CICD.DMApp.Keystone.Tests
                 fs.Path.GetExtension(result).Should().Be(".nupkg");
 
                 // Test installing this
-
 
                 string outputInstall, errorsInstall;
                 dotnet.Run($"tool install {nameOfTool} --add-source {tempDir} --no-cache", out outputInstall, out errorsInstall);
@@ -143,6 +107,36 @@ namespace Skyline.DataMiner.CICD.DMApp.Keystone.Tests
             }
         }
 
+        [TestMethod()]
+        public void WrapIntoDotnetToolTest_TestReturnPath()
+        {
+            // Arrange
 
+            Mock<IFileSystem> fs = new Mock<IFileSystem>();
+            Mock<IDotnet> dotnet = new Mock<IDotnet>();
+            Mock<IDirectoryIO> directory = new Mock<IDirectoryIO>();
+            Mock<IFileIO> file = new Mock<IFileIO>();
+            Mock<IPathIO> path = new Mock<IPathIO>();
+            fs.Setup(f => f.Directory).Returns(directory.Object);
+            fs.Setup(f => f.File).Returns(file.Object);
+            fs.Setup(f => f.Path).Returns(path.Object);
+
+            string fullCommandName = "Skyline.DataMiner.Keystone.MyCommand";
+
+            string pathToUserExecutableDir = "fakedir/somewhere/ubuntu";
+            directory.Setup(d => d.IsDirectory(pathToUserExecutableDir)).Returns(true);
+            directory.Setup(d => d.EnumerateFiles(pathToUserExecutableDir, "*.exe")).Returns(new[] { "MyCustomProgram.exe" });
+            string outputPath = "TempDir";
+            path.Setup(p => p.Combine(outputPath, $"{fullCommandName}.2.0.1.nupkg")).Returns($"{outputPath}/fakedir/somewhere/ubuntu/Skyline.DataMiner.Keystone.MyCommand.2.0.1.nupkg");
+
+            ToolMetaData toolMetaData = new ToolMetaData("MyCommand", "Skyline.DataMiner.Keystone.MyCommand", "2.0.1", "SkylineCommunications", "Skyline Communications");
+
+            // Act
+            UserExecutable executable = new UserExecutable();
+            var result = executable.WrapIntoDotnetTool(fs.Object, outputPath, dotnet.Object, pathToUserExecutableDir, toolMetaData);
+
+            // Assert
+            result.Should().Be("TempDir/fakedir/somewhere/ubuntu/Skyline.DataMiner.Keystone.MyCommand.2.0.1.nupkg");
+        }
     }
 }

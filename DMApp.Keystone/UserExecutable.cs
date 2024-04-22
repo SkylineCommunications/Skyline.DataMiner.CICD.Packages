@@ -8,8 +8,21 @@
     using Skyline.DataMiner.CICD.DMApp.Common;
     using Skyline.DataMiner.CICD.FileSystem;
 
+    /// <summary>
+    /// Provides functionality to wrap a user executable into a .NET tool package.
+    /// </summary>
     public class UserExecutable : IUserExecutable
     {
+        /// <summary>
+        /// Wraps the specified directory or executable into a .NET tool.
+        /// </summary>
+        /// <param name="fs">The file system interface to interact with the file system.</param>
+        /// <param name="outputDir">The directory where the packaged tool will be output.</param>
+        /// <param name="dotnet">The interface to run dotnet commands.</param>
+        /// <param name="pathToUserExecutableDir">The path to the directory containing the executable or the executable itself.</param>
+        /// <param name="toolMetaData">Metadata for the tool being created.</param>
+        /// <returns>The path to the created .nupkg file.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if multiple executables are found or if the path is not valid.</exception>
         public string WrapIntoDotnetTool(IFileSystem fs, string outputDir, IDotnet dotnet, string pathToUserExecutableDir, ToolMetaData toolMetaData)
         {
             string programPath = null;
@@ -29,18 +42,15 @@
                 throw new InvalidOperationException("Provided Path. Expected either a .nupkg file or a directory containing an executable '.exe'");
             }
 
-            // Find program name
             string programName = fs.Path.GetFileNameWithoutExtension(programPath);
             string userProgramFolderName = "UserProgram";
             string shimmyName = programName + "Shimmy";
 
-            // duplicate ExeShimmy to allow parallel runs
             fs.Directory.CopyRecursive("ExeShimmy", shimmyName);
             fs.Directory.CopyRecursive(pathToUserExecutableDir, $"{shimmyName}/{userProgramFolderName}");
 
             try
             {
-                // Update the Shimmy placeholers
                 Dictionary<string, string> placeholdersToReplace = new Dictionary<string, string>()
                 {
                     {nameof(ToolMetaData.ToolName), toolMetaData.ToolName},
@@ -62,7 +72,6 @@
                     fs.File.WriteAllText(topLevelFile, fileContent);
                 }
 
-                // Run dotnet pack on that project      
                 string output, errors;
                 dotnet.Run($"pack \"{shimmyName}/ExeShim.csproj\" --output {outputDir}", out output, out errors);
 
@@ -73,7 +82,6 @@
                 {
                     throw new InvalidOperationException($"Failed to create dotnet tool with output: {output}");
                 }
-
             }
             finally
             {
@@ -83,6 +91,12 @@
             return fs.Path.Combine(outputDir, $"{toolMetaData.ToolName}.{toolMetaData.ToolVersion}.nupkg");
         }
 
+        /// <summary>
+        /// Replaces placeholders in a file content with the provided values.
+        /// </summary>
+        /// <param name="fileContent">The content of the file to replace placeholders in.</param>
+        /// <param name="placeholders">A dictionary containing placeholders and their replacement values.</param>
+        /// <returns>The modified file content.</returns>
         private static string ReplaceAllVariables(string fileContent, Dictionary<string, string> placeholders)
         {
             foreach (var placeholder in placeholders)
