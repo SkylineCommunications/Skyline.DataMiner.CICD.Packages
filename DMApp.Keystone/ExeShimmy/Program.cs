@@ -11,7 +11,7 @@
         static void Main(string[] args)
         {
             string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string pathTo = Path.Combine(assemblyFolder, "UserApplication", "$ProgramName$.exe"); // Specify the path to the executable
+            string pathTo = Path.Combine(assemblyFolder, "$ProgramNameShimmy$", "$ProgramName$.exe"); // Specify the path to the executable
             string arguments = string.Join(" ", args.Select(arg => $"\"{arg}\"")); // Prepare the arguments
             ProcessStartInfo details = new ProcessStartInfo(pathTo)
             {

@@ -64,12 +64,15 @@ namespace Skyline.DataMiner.CICD.DMApp.Keystone.Tests
             result.Should().Be("TempDir/fakedir/somewhere/ubuntu/Skyline.DataMiner.Keystone.MyCommand.2.0.1.nupkg");
         }
 
-
-        [TestMethod(), TestCategory("Integration")]
-        public void WrapIntoDotnetToolTest_Integration_WithRustExe()
+        [DataTestMethod]
+        [TestCategory("Integration")]
+        [DataRow("Net6")]
+        [DataRow("NetFramework")]
+        [DataRow("Rust")]
+        [DataRow("Go")]
+        public void WrapIntoDotnetToolTest_Integration_Core(string frameworkIdentifier)
         {
             // Arrange
-
             var fs = FileSystem.FileSystem.Instance;
             var dotnet = DotnetFactory.Create();
 
@@ -77,81 +80,10 @@ namespace Skyline.DataMiner.CICD.DMApp.Keystone.Tests
             // https://github.com/dotnet/sdk/issues/34508
 
             string uniqueShort = Regex.Replace(Convert.ToBase64String(Guid.NewGuid().ToByteArray()), "[/+=]", "");
-            string nameOfTool = $"Skyline.DataMiner.Keystone.Test.Rust.{uniqueShort}";
-            string commandOfTool = "RustIntegrationTest";
-
-            string pathToUserExecutableDir = "TestData/RustProgram";
-            ToolMetaData toolMetaData = new ToolMetaData(commandOfTool, nameOfTool, "1.0.1", "SkylineCommunications", "Skyline Communications");
-
-            var tempDir = fs.Directory.CreateTemporaryDirectory();
-
-            // Act
-            try
-            {
-                UserExecutable executable = new UserExecutable();
-                var result = executable.WrapIntoDotnetTool(fs, tempDir, dotnet, pathToUserExecutableDir, toolMetaData);
-
-                // Assert
-                fs.File.Exists(result).Should().BeTrue();
-                fs.Path.GetExtension(result).Should().Be(".nupkg");
-
-                // Test installing this
-
-
-                string outputInstall, errorsInstall;
-                dotnet.Run($"tool install {nameOfTool} --add-source {tempDir} --no-cache", out outputInstall, out errorsInstall);
-
-                Console.WriteLine("install out: " + outputInstall);
-                Console.WriteLine("install err: " + errorsInstall);
-                try
-                {
-                    // Test running this
-                    string outputRun, errorsRun;
-                    dotnet.Run($"tool run {commandOfTool} fromRust", out outputRun, out errorsRun);
-
-
-                    Console.WriteLine("run out: " + outputRun);
-                    Console.WriteLine("run err: " + errorsRun);
-
-                    if (!String.IsNullOrWhiteSpace(errorsRun))
-                    {
-                        Assert.Fail(errorsRun);
-                    }
-
-                    outputRun.Trim().Should().Be("Hello World\r\nfromRust");
-                }
-                finally
-                {
-                    // test uninstalling this
-                    string outputUninstall, errorsUninstall;
-                    dotnet.Run($"tool uninstall {nameOfTool}", out outputUninstall, out errorsUninstall);
-
-                    Console.WriteLine("uninstall out: " + outputUninstall);
-                    Console.WriteLine("uninstall err: " + errorsUninstall);
-                }
-            }
-            finally
-            {
-                fs.Directory.DeleteDirectory(tempDir);
-            }
-        }
-
-        [TestMethod(), TestCategory("Integration")]
-        public void WrapIntoDotnetToolTest_Integration_WithNet6()
-        {
-            // Arrange
-
-            var fs = FileSystem.FileSystem.Instance;
-            var dotnet = DotnetFactory.Create();
-
-            // BUG: cannot use --no-cache. always need different version or name. Cannot uninstall & reinstall same version with different content
-            // https://github.com/dotnet/sdk/issues/34508
-
-            string uniqueShort = Regex.Replace(Convert.ToBase64String(Guid.NewGuid().ToByteArray()), "[/+=]", "");
-            string nameOfTool = $"Skyline.DataMiner.Keystone.Test.Net6.{uniqueShort}";
+            string nameOfTool = $"Skyline.DataMiner.Keystone.Test.{frameworkIdentifier}.{uniqueShort}";
             string commandOfTool = "Net6IntegrationTest";
 
-            string pathToUserExecutableDir = "TestData/Net6Program";
+            string pathToUserExecutableDir = $"TestData/{frameworkIdentifier}Program";
             ToolMetaData toolMetaData = new ToolMetaData(commandOfTool, nameOfTool, "1.0.1", "SkylineCommunications", "Skyline Communications");
 
             var tempDir = fs.Directory.CreateTemporaryDirectory();
@@ -172,24 +104,27 @@ namespace Skyline.DataMiner.CICD.DMApp.Keystone.Tests
                 string outputInstall, errorsInstall;
                 dotnet.Run($"tool install {nameOfTool} --add-source {tempDir} --no-cache", out outputInstall, out errorsInstall);
 
+                Console.WriteLine("---------");
                 Console.WriteLine("install out: " + outputInstall);
                 Console.WriteLine("install err: " + errorsInstall);
+                Console.WriteLine("---------");
                 try
                 {
                     // Test running this
                     string outputRun, errorsRun;
-                    dotnet.Run($"tool run {commandOfTool} fromNet6", out outputRun, out errorsRun);
+                    dotnet.Run($"tool run {commandOfTool} from{frameworkIdentifier}", out outputRun, out errorsRun);
 
-
+                    Console.WriteLine("---------");
                     Console.WriteLine("run out: " + outputRun);
                     Console.WriteLine("run err: " + errorsRun);
+                    Console.WriteLine("---------");
 
                     if (!String.IsNullOrWhiteSpace(errorsRun))
                     {
                         Assert.Fail(errorsRun);
                     }
 
-                    outputRun.Trim().Should().Be("Hello World\r\nfromNet6");
+                    outputRun.Trim().Should().Be($"Hello World\r\nfrom{frameworkIdentifier}");
                 }
                 finally
                 {
@@ -197,8 +132,10 @@ namespace Skyline.DataMiner.CICD.DMApp.Keystone.Tests
                     string outputUninstall, errorsUninstall;
                     dotnet.Run($"tool uninstall {nameOfTool}", out outputUninstall, out errorsUninstall);
 
+                    Console.WriteLine("---------");
                     Console.WriteLine("uninstall out: " + outputUninstall);
                     Console.WriteLine("uninstall err: " + errorsUninstall);
+                    Console.WriteLine("---------");
                 }
             }
             finally

@@ -55,7 +55,7 @@
     <None Update="ExeShimmy\README.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="ExeShimmy\UserApplication\DataMinerKeystone.txt">
+    <None Update="ExeShimmy\ProgramNameShimmy\DataMinerKeystone.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

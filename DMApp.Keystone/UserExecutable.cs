@@ -15,7 +15,13 @@
             string programPath = null;
             if (fs.Directory.IsDirectory(pathToUserExecutableDir))
             {
-                programPath = fs.Directory.EnumerateFiles(pathToUserExecutableDir, "*.exe").FirstOrDefault();
+                var allExecutables = fs.Directory.EnumerateFiles(pathToUserExecutableDir, "*.exe");
+                if (allExecutables.Count() > 1)
+                {
+                    throw new InvalidOperationException($"Multiple executables are not supported. Detected: {String.Join(";", allExecutables)}");
+                }
+
+                programPath = allExecutables.FirstOrDefault();
             }
 
             if (programPath == null)
@@ -23,15 +29,19 @@
                 throw new InvalidOperationException("Provided Path. Expected either a .nupkg file or a directory containing an executable '.exe'");
             }
 
-            string programName = fs.Path.GetFileNameWithoutExtension(programPath);
-
-            // Copy content to ExeShimmy\\UserApplication folder.
-            fs.Directory.CopyRecursive(pathToUserExecutableDir, "ExeShimmy/UserApplication");
-
             // Find program name
+            string programName = fs.Path.GetFileNameWithoutExtension(programPath);
+            string userProgramFolderName = "UserProgram";
+            string shimmyName = programName + "Shimmy";
 
-            // Update the Shimmy placeholers
-            Dictionary<string, string> placeholdersToReplace = new Dictionary<string, string>()
+            // duplicate ExeShimmy to allow parallel runs
+            fs.Directory.CopyRecursive("ExeShimmy", shimmyName);
+            fs.Directory.CopyRecursive(pathToUserExecutableDir, $"{shimmyName}/{userProgramFolderName}");
+
+            try
+            {
+                // Update the Shimmy placeholers
+                Dictionary<string, string> placeholdersToReplace = new Dictionary<string, string>()
                 {
                     {nameof(ToolMetaData.ToolName), toolMetaData.ToolName},
                     {nameof(ToolMetaData.ToolCommand), toolMetaData.ToolCommand},
@@ -39,28 +49,35 @@
                     {nameof(ToolMetaData.Company), toolMetaData.Company},
                     {nameof(ToolMetaData.ToolVersion), toolMetaData.ToolVersion},
                     { "ProgramName",programName },
+                    {"ProgramNameShimmy",userProgramFolderName }
                 };
 
-            foreach (var topLevelFile in fs.Directory.EnumerateFiles("ExeShimmy"))
-            {
-                var extension = fs.Path.GetExtension(topLevelFile);
-                if (extension != ".md" && extension != ".cs" && extension != ".txt" && extension != ".csproj") continue;
+                foreach (var topLevelFile in fs.Directory.EnumerateFiles(shimmyName))
+                {
+                    var extension = fs.Path.GetExtension(topLevelFile);
+                    if (extension != ".md" && extension != ".cs" && extension != ".txt" && extension != ".csproj") continue;
 
-                string fileContent = fs.File.ReadAllText(topLevelFile);
-                fileContent = ReplaceAllVariables(fileContent, placeholdersToReplace);
-                fs.File.WriteAllText(topLevelFile, fileContent);
+                    string fileContent = fs.File.ReadAllText(topLevelFile);
+                    fileContent = ReplaceAllVariables(fileContent, placeholdersToReplace);
+                    fs.File.WriteAllText(topLevelFile, fileContent);
+                }
+
+                // Run dotnet pack on that project      
+                string output, errors;
+                dotnet.Run($"pack \"{shimmyName}/ExeShim.csproj\" --output {outputDir}", out output, out errors);
+
+                Console.WriteLine(output);
+                Console.WriteLine(errors);
+
+                if (!String.IsNullOrWhiteSpace(errors) || (output != null && output.Contains("error")))
+                {
+                    throw new InvalidOperationException($"Failed to create dotnet tool with output: {output}");
+                }
+
             }
-
-            // Run dotnet pack on that project      
-            string output, errors;
-            dotnet.Run($"pack \"ExeShimmy/ExeShim.csproj\" --output {outputDir}", out output, out errors);
-
-            Console.WriteLine(output);
-            Console.WriteLine(errors);
-
-            if (!String.IsNullOrWhiteSpace(errors) || (output != null && output.Contains("error")))
+            finally
             {
-                throw new InvalidOperationException($"Failed to create dotnet tool with output: {output}");
+                fs.Directory.DeleteDirectory(shimmyName);
             }
 
             return fs.Path.Combine(outputDir, $"{toolMetaData.ToolName}.{toolMetaData.ToolVersion}.nupkg");
