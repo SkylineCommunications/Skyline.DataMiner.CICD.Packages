@@ -1,6 +1,7 @@
 namespace Skyline.DataMiner.CICD.DMApp.Common
 {
     using System;
+    using System.Linq;
     using System.Threading.Tasks;
 
     using Skyline.AppInstaller;

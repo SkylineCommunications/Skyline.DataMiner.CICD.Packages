@@ -1,6 +1,7 @@
 ﻿namespace Skyline.DataMiner.CICD.DMApp.Keystone
 {
     using System;
+    using System.Diagnostics;
     using System.Threading.Tasks;
 
     using Skyline.DataMiner.CICD.DMApp.Common;
@@ -24,36 +25,51 @@
         public override async Task AddItemsAsync(AppPackageBuilder appPackageBuilder)
         {
             if (appPackageBuilder == null) throw new ArgumentNullException(nameof(appPackageBuilder));
-
             string pathToCreatedTool;
-            string tempDir = null;
-            try
-            {
-                if (RepositoryPath.EndsWith(".nupkg"))
-                {
-                    // Already provided a nuget dotnet tool?
-                    pathToCreatedTool = RepositoryPath;
-                }
-                else
-                {
-                    // dotnet tools cannot directly run .exe files. They make their own .exe that runs the Main method from a .dll. So we make our "in-between" tool that then executes the user application.
-                    tempDir = FileSystem.Directory.CreateTemporaryDirectory();
-                    IUserExecutable userExecutable = new UserExecutable();
-                    var dotnet = DotnetFactory.Create();
 
-                    pathToCreatedTool = userExecutable.WrapIntoDotnetTool(FileSystem, tempDir, dotnet, RepositoryPath, toolMetaData);
-                }
-
-                // TODO SOMETHING WRONG HERE. SPECIFIED FILE DOES NOT EXIST.
-                appPackageBuilder.WithKeystone(pathToCreatedTool);
-            }
-            finally
+            if (RepositoryPath.EndsWith(".nupkg"))
             {
-                if (tempDir != null)
-                {
-                    FileSystem.Directory.DeleteDirectory(tempDir);
-                }
+                // Already provided a nuget dotnet tool?
+                pathToCreatedTool = RepositoryPath;
             }
+            else
+            {
+                // dotnet tools cannot directly run .exe files. They make their own .exe that runs the Main method from a .dll. So we make our "in-between" tool that then executes the user application.
+                IUserExecutable userExecutable = new UserExecutable();
+
+                DataReceivedEventHandler onOutput = (sender, e) =>
+                {
+                    if (!string.IsNullOrEmpty(e.Data))
+                    {
+                        Console.WriteLine(e.Data);
+                    }
+                };
+
+                DataReceivedEventHandler onError = (sender, e) =>
+                {
+                    if (!string.IsNullOrEmpty(e.Data))
+                    {
+                        Console.Error.WriteLine(e.Data); // Write the error data to the console
+                    }
+                };
+
+                var dotnet = DotnetFactory.Create(onOutput, onError);
+
+                pathToCreatedTool = userExecutable.WrapIntoDotnetTool(FileSystem, dotnet, RepositoryPath, toolMetaData);
+            }
+
+            Console.WriteLine($"Creating dmapp from keystone file {pathToCreatedTool}");
+
+            if (FileSystem.File.Exists(pathToCreatedTool))
+            {
+                Console.WriteLine($"File Exists: {pathToCreatedTool}");
+            }
+            else
+            {
+                Console.WriteLine($"File does not exist: {pathToCreatedTool}");
+            }
+
+            appPackageBuilder.WithKeystone(pathToCreatedTool);
         }
 
         public static class Factory

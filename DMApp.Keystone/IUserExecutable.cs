@@ -12,7 +12,6 @@
         /// Wraps the specified directory or executable into a .NET tool.
         /// </summary>
         /// <param name="fs">The file system interface to interact with the file system.</param>
-        /// <param name="outputDir">The directory where the packaged tool will be output.</param>
         /// <param name="dotnet">The interface to run dotnet commands.</param>
         /// <param name="pathToUserExecutableDir">The path to the directory containing the executable or the executable itself.</param>
         /// <param name="toolMetaData">Metadata for the tool being created.</param>
@@ -22,6 +21,6 @@
         /// It ensures the executable is correctly wrapped along with its metadata, facilitating its deployment and distribution.
         /// Implementors must handle scenarios where multiple executables are found or the provided path does not meet expectations.
         /// </remarks>
-        string WrapIntoDotnetTool(IFileSystem fs, string outputDir, IDotnet dotnet, string pathToUserExecutableDir, ToolMetaData toolMetaData);
+        string WrapIntoDotnetTool(IFileSystem fs, IDotnet dotnet, string pathToUserExecutableDir, ToolMetaData toolMetaData);
     }
 }

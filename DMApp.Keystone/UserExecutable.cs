@@ -9,6 +9,7 @@
 
     using Skyline.DataMiner.CICD.DMApp.Common;
     using Skyline.DataMiner.CICD.FileSystem;
+    using Skyline.DataMiner.Net.Messages;
 
     /// <summary>
     /// Provides functionality to wrap a user executable into a .NET tool package.
@@ -19,13 +20,12 @@
         /// Wraps the specified directory or executable into a .NET tool.
         /// </summary>
         /// <param name="fs">The file system interface to interact with the file system.</param>
-        /// <param name="outputDir">The directory where the packaged tool will be output.</param>
         /// <param name="dotnet">The interface to run dotnet commands.</param>
         /// <param name="pathToUserExecutableDir">The path to the directory containing the executable or the executable itself.</param>
         /// <param name="toolMetaData">Metadata for the tool being created.</param>
         /// <returns>The path to the created .nupkg file.</returns>
         /// <exception cref="InvalidOperationException">Thrown if multiple executables are found or if the path is not valid.</exception>
-        public string WrapIntoDotnetTool(IFileSystem fs, string outputDir, IDotnet dotnet, string pathToUserExecutableDir, ToolMetaData toolMetaData)
+        public string WrapIntoDotnetTool(IFileSystem fs, IDotnet dotnet, string pathToUserExecutableDir, ToolMetaData toolMetaData)
         {
             string programPath = null;
             if (fs.Directory.IsDirectory(pathToUserExecutableDir))
@@ -50,10 +50,13 @@
             string userProgramFolderName = "UserProgram";
             string shimmyName = programName + "Shimmy";
 
+            var locationForPackaging = fs.Directory.CreateTemporaryDirectory();
+            var shimmyPathForPackaging = fs.Path.Combine(locationForPackaging, shimmyName);
+            var userProgramPathForPackaging = fs.Path.Combine(shimmyPathForPackaging, userProgramFolderName);
 
 
-            fs.Directory.CopyRecursive(fs.Path.Combine(assemblyFolder, "ExeShimmy"), shimmyName);
-            fs.Directory.CopyRecursive(pathToUserExecutableDir, $"{shimmyName}/{userProgramFolderName}");
+            fs.Directory.CopyRecursive(fs.Path.Combine(assemblyFolder, "ExeShimmy"), shimmyPathForPackaging);
+            fs.Directory.CopyRecursive(pathToUserExecutableDir, userProgramPathForPackaging);
 
             // Defaulting data:
 
@@ -67,6 +70,16 @@
             if (String.IsNullOrWhiteSpace(toolMetaData.ToolVersion))
             {
                 var exeVersion = fs.File.GetFileProductVersion(programPath);
+                if (String.IsNullOrWhiteSpace(exeVersion))
+                {
+                    exeVersion = fs.File.GetFileVersion(programPath);
+                }
+
+                if (String.IsNullOrWhiteSpace(exeVersion))
+                {
+                    exeVersion = "1.0.0";
+                }
+
                 toolMetaData.ToolVersion = exeVersion;
             }
 
@@ -86,7 +99,7 @@
                     {"ProgramNameShimmy",userProgramFolderName }
                 };
 
-                foreach (var topLevelFile in fs.Directory.EnumerateFiles(shimmyName))
+                foreach (var topLevelFile in fs.Directory.EnumerateFiles(shimmyPathForPackaging))
                 {
                     var extension = fs.Path.GetExtension(topLevelFile);
                     if (extension != ".md" && extension != ".cs" && extension != ".txt" && extension != ".csproj") continue;
@@ -96,23 +109,20 @@
                     fs.File.WriteAllText(topLevelFile, fileContent);
                 }
 
-                string output, errors;
-                dotnet.Run($"pack \"{shimmyName}/ExeShim.csproj\" --output {outputDir}", out output, out errors);
 
-                Console.WriteLine(output);
-                Console.WriteLine(errors);
+                var packResult = dotnet.Run($"pack \"{shimmyPathForPackaging}/ExeShim.csproj\" --output \"{toolMetaData.OutputDirectory}\"");
 
-                if (!String.IsNullOrWhiteSpace(errors) || (output != null && output.Contains("error")))
+                if (!String.IsNullOrWhiteSpace(packResult.errors) || (packResult.output != null && packResult.output.Contains("error")))
                 {
-                    throw new InvalidOperationException($"Failed to create dotnet tool with output: {output}");
+                    throw new InvalidOperationException($"Failed to create dotnet tool");
                 }
             }
             finally
             {
-                fs.Directory.DeleteDirectory(shimmyName);
+                fs.Directory.DeleteDirectory(locationForPackaging);
             }
 
-            return fs.Path.Combine(outputDir, $"{toolMetaData.ToolName}.{toolMetaData.ToolVersion}.nupkg");
+            return fs.Path.Combine(toolMetaData.OutputDirectory, $"{toolMetaData.ToolName}.{toolMetaData.ToolVersion}.nupkg");
         }
 
         /// <summary>

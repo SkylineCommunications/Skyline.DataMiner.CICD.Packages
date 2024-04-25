@@ -1,5 +1,6 @@
 ﻿namespace Skyline.DataMiner.CICD.DMApp.Keystone.Tests
 {
+    using System.Diagnostics;
     using System.Text.RegularExpressions;
 
     using FluentAssertions;
@@ -25,8 +26,17 @@
         public static void AssemblyInit(TestContext context)
         {
             // sets up the test framework with "local tools" support.
-            var dotnet = DotnetFactory.Create();
-            dotnet.Run("new tool-manifest", out _, out _);
+
+            DataReceivedEventHandler onOutput = (sender, e) =>
+            {
+            };
+
+            DataReceivedEventHandler onError = (sender, e) =>
+            {
+            };
+
+            var dotnet = DotnetFactory.Create(onOutput, onError);
+            dotnet.Run("new tool-manifest", true);
         }
 
         [DataTestMethod]
@@ -39,7 +49,24 @@
         {
             // Arrange
             var fs = FileSystem.Instance;
-            var dotnet = DotnetFactory.Create();
+
+            DataReceivedEventHandler onOutput = (sender, e) =>
+            {
+                if (!string.IsNullOrEmpty(e.Data))
+                {
+                    Console.WriteLine(e.Data);
+                }
+            };
+
+            DataReceivedEventHandler onError = (sender, e) =>
+            {
+                if (!string.IsNullOrEmpty(e.Data))
+                {
+                    Console.Error.WriteLine(e.Data); // Write the error data to the console
+                }
+            };
+
+            var dotnet = DotnetFactory.Create(onOutput, onError);
 
             // BUG: cannot use --no-cache. always need different version or name. Cannot uninstall & reinstall same version with different content
             // https://github.com/dotnet/sdk/issues/34508
@@ -49,15 +76,16 @@
             string commandOfTool = "Net6IntegrationTest";
 
             string pathToUserExecutableDir = $"TestData/{frameworkIdentifier}Program";
-            ToolMetaData toolMetaData = new ToolMetaData(commandOfTool, nameOfTool, "1.0.1", "SkylineCommunications", "Skyline Communications");
-
             var tempDir = fs.Directory.CreateTemporaryDirectory();
+
+            ToolMetaData toolMetaData = new ToolMetaData(commandOfTool, nameOfTool, "1.0.1", "SkylineCommunications", "Skyline Communications", tempDir);
+
 
             // Act
             try
             {
                 UserExecutable executable = new UserExecutable();
-                var result = executable.WrapIntoDotnetTool(fs, tempDir, dotnet, pathToUserExecutableDir, toolMetaData);
+                var result = executable.WrapIntoDotnetTool(fs, dotnet, pathToUserExecutableDir, toolMetaData);
 
                 // Assert
                 fs.File.Exists(result).Should().BeTrue();
@@ -65,41 +93,24 @@
 
                 // Test installing this
 
-                string outputInstall, errorsInstall;
-                dotnet.Run($"tool install {nameOfTool} --add-source {tempDir} --no-cache", out outputInstall, out errorsInstall);
+                dotnet.Run($"tool install {nameOfTool} --add-source {tempDir} --no-cache");
 
-                Console.WriteLine("---------");
-                Console.WriteLine("install out: " + outputInstall);
-                Console.WriteLine("install err: " + errorsInstall);
-                Console.WriteLine("---------");
                 try
                 {
                     // Test running this
-                    string outputRun, errorsRun;
-                    dotnet.Run($"tool run {commandOfTool} from{frameworkIdentifier}", out outputRun, out errorsRun);
+                   var runResult = dotnet.Run($"tool run {commandOfTool} from{frameworkIdentifier}");
 
-                    Console.WriteLine("---------");
-                    Console.WriteLine("run out: " + outputRun);
-                    Console.WriteLine("run err: " + errorsRun);
-                    Console.WriteLine("---------");
-
-                    if (!String.IsNullOrWhiteSpace(errorsRun))
+                    if (!String.IsNullOrWhiteSpace(runResult.errors))
                     {
-                        Assert.Fail(errorsRun);
+                        Assert.Fail(runResult.errors);
                     }
 
-                    outputRun.Trim().Should().Be($"Hello World\r\nfrom{frameworkIdentifier}");
+                    runResult.output.Trim().Should().Be($"Hello World\r\nfrom{frameworkIdentifier}");
                 }
                 finally
                 {
                     // test uninstalling this
-                    string outputUninstall, errorsUninstall;
-                    dotnet.Run($"tool uninstall {nameOfTool}", out outputUninstall, out errorsUninstall);
-
-                    Console.WriteLine("---------");
-                    Console.WriteLine("uninstall out: " + outputUninstall);
-                    Console.WriteLine("uninstall err: " + errorsUninstall);
-                    Console.WriteLine("---------");
+                    dotnet.Run($"tool uninstall {nameOfTool}");
                 }
             }
             finally
@@ -109,7 +120,7 @@
         }
 
         [TestMethod()]
-        public void WrapIntoDotnetToolTest_TestReturnPath()
+        public void WrapIntoDotnetToolTest_TestReturnPath_AllProvided()
         {
             // Arrange
 
@@ -130,14 +141,56 @@
             string outputPath = "TempDir";
             path.Setup(p => p.Combine(outputPath, $"{fullCommandName}.2.0.1.nupkg")).Returns($"{outputPath}/fakedir/somewhere/ubuntu/Skyline.DataMiner.Keystone.MyCommand.2.0.1.nupkg");
 
-            ToolMetaData toolMetaData = new ToolMetaData("MyCommand", "Skyline.DataMiner.Keystone.MyCommand", "2.0.1", "SkylineCommunications", "Skyline Communications");
+            ToolMetaData toolMetaData = new ToolMetaData("MyCommand", "Skyline.DataMiner.Keystone.MyCommand", "2.0.1", "SkylineCommunications", "Skyline Communications", outputPath);
 
             // Act
             UserExecutable executable = new UserExecutable();
-            var result = executable.WrapIntoDotnetTool(fs.Object, outputPath, dotnet.Object, pathToUserExecutableDir, toolMetaData);
+            var result = executable.WrapIntoDotnetTool(fs.Object, dotnet.Object, pathToUserExecutableDir, toolMetaData);
 
             // Assert
             result.Should().Be("TempDir/fakedir/somewhere/ubuntu/Skyline.DataMiner.Keystone.MyCommand.2.0.1.nupkg");
+        }
+
+        [TestMethod()]
+        public void WrapIntoDotnetToolTest_TestReturnPath_Default()
+        {
+            // Arrange
+
+            Mock<IFileSystem> fs = new Mock<IFileSystem>();
+            Mock<IDotnet> dotnet = new Mock<IDotnet>();
+            Mock<IDirectoryIO> directory = new Mock<IDirectoryIO>();
+            Mock<IFileIO> file = new Mock<IFileIO>();
+            Mock<IPathIO> path = new Mock<IPathIO>();
+            fs.Setup(f => f.Directory).Returns(directory.Object);
+            fs.Setup(f => f.File).Returns(file.Object);
+            fs.Setup(f => f.Path).Returns(path.Object);
+
+            string fullCommandName = "Skyline.DataMiner.Keystone.MyCustomProgram";
+
+            string pathToUserExecutableDir = "fakedir/somewhere/ubuntu";
+            directory.Setup(d => d.IsDirectory(pathToUserExecutableDir)).Returns(true);
+            directory.Setup(d => d.EnumerateFiles(pathToUserExecutableDir, "*.exe")).Returns(new[] { "MyCustomProgram.exe" });
+            string outputPath = "TempDir";
+            path.Setup(p => p.Combine(outputPath, $"{fullCommandName}.1.0.0.nupkg")).Returns($"{outputPath}/fakedir/somewhere/ubuntu/Skyline.DataMiner.Keystone.MyCustomProgram.1.0.0.nupkg");
+
+            path.Setup(p => p.GetFileNameWithoutExtension("MyCustomProgram.exe")).Returns("MyCustomProgram");
+
+            file.Setup(p => p.GetFileProductVersion("MyCustomProgram.exe")).Returns("1.0.0");
+
+            ToolMetaData toolMetaData = new ToolMetaData(
+                "",
+                "",
+                "",
+                "",
+                "",
+                outputPath);
+
+            // Act
+            UserExecutable executable = new UserExecutable();
+            var result = executable.WrapIntoDotnetTool(fs.Object, dotnet.Object, pathToUserExecutableDir, toolMetaData);
+
+            // Assert
+            result.Should().Be("TempDir/fakedir/somewhere/ubuntu/Skyline.DataMiner.Keystone.MyCustomProgram.1.0.0.nupkg");
         }
     }
 }

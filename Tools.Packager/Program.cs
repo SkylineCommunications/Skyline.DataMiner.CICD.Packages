@@ -222,7 +222,7 @@
                 toolCommand
             };
 
-            dmappSubCommand.SetHandler(ProcessDmAppAsync, new DmappStandardOptionsBinder(workspaceArgument, outputDirectory, packageName, dmappType, version, buildNumber), debugOption, protocolName, new ToolMetaDataBinder(toolAuthors, toolCompany, toolCommand, packageName, version));
+            dmappSubCommand.SetHandler(ProcessDmAppAsync, new DmappStandardOptionsBinder(workspaceArgument, outputDirectory, packageName, dmappType, version, buildNumber), debugOption, protocolName, new ToolMetaDataBinder(toolAuthors, toolCompany, toolCommand, packageName, version, outputDirectory));
 
             rootCommand.Add(dmappSubCommand);
             rootCommand.Add(dmprotocolSubCommand);
@@ -452,17 +452,19 @@
         private readonly Option<string> toolCommand;
         private readonly Option<string> toolName;
         private readonly Option<string> toolVersion;
+        private readonly Option<string> outputPath;
 
         /// <summary>
         /// Binds command line options to <see cref="ToolMetaData"/>.
         /// </summary>
-        public ToolMetaDataBinder(Option<string> authors, Option<string> company, Option<string> toolCommand, Option<string> toolName, Option<string> toolVersion)
+        public ToolMetaDataBinder(Option<string> authors, Option<string> company, Option<string> toolCommand, Option<string> toolName, Option<string> toolVersion, Option<string> outputPath)
         {
             this.authors = authors;
             this.company = company;
             this.toolCommand = toolCommand;
             this.toolName = toolName;
             this.toolVersion = toolVersion;
+            this.outputPath = outputPath;
         }
 
         /// <summary>
@@ -481,7 +483,8 @@
                 bindingContext.ParseResult.GetValueForOption(toolName),
                 bindingContext.ParseResult.GetValueForOption(toolVersion),
                 bindingContext.ParseResult.GetValueForOption(company),
-                bindingContext.ParseResult.GetValueForOption(authors)
+                bindingContext.ParseResult.GetValueForOption(authors),
+                bindingContext.ParseResult.GetValueForOption(outputPath)
                 );
         }
     }

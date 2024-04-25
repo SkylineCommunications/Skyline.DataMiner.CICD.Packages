@@ -11,19 +11,29 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="ToolMetaData"/> class with specified metadata.
         /// </summary>
-        /// <param name="toolCommand">The command used to execute the tool. This parameter cannot be null.</param>
-        /// <param name="toolName">The name of the tool. This parameter cannot be null.</param>
-        /// <param name="toolVersion">The semantic version of the tool. This parameter cannot be null.</param>
-        /// <param name="authors">The authors of the tool. This parameter cannot be null.</param>
-        /// <param name="company">The company associated with the tool. This parameter cannot be null.</param>
-        public ToolMetaData(string toolCommand, string toolName, string toolVersion, string authors, string company)
+        /// <param name="toolCommand">The command used to execute the tool.</param>
+        /// <param name="toolName">The name of the tool.</param>
+        /// <param name="toolVersion">The semantic version of the tool.</param>
+        /// <param name="authors">The authors of the tool.</param>
+        /// <param name="company">The company associated with the tool.</param>
+        /// <param name="outputDirectory">The directory that will contain the resulting wrapped .nupkg tool.</param>
+        public ToolMetaData(string toolCommand, string toolName, string toolVersion, string authors, string company, string outputDirectory)
         {
             ToolCommand = toolCommand;
             ToolName = toolName;
             ToolVersion = toolVersion;
             Authors = authors;
             Company = company;
+            OutputDirectory = outputDirectory ?? throw new ArgumentNullException(nameof(outputDirectory), "Output path is a required argument.");
         }
+
+        /// <summary>
+        /// Gets or sets the output path of the keystone tool. Specifically the location where a .nupkg will be added when wrapping an executable.
+        /// </summary>
+        /// <value>
+        /// A string listing the directory path that will hold the dotnet tool.
+        /// </value>
+        public string OutputDirectory { get; set; }
 
         /// <summary>
         /// Gets or sets the authors of the Keystone tool.
