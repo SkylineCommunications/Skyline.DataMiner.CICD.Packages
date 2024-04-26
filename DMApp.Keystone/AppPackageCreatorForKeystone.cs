@@ -73,16 +73,6 @@
             }
 
             Console.WriteLine($"Creating dmapp from keystone file {pathToCreatedTool}");
-
-            if (FileSystem.File.Exists(pathToCreatedTool))
-            {
-                Console.WriteLine($"File Exists: {pathToCreatedTool}");
-            }
-            else
-            {
-                Console.WriteLine($"File does not exist: {pathToCreatedTool}");
-            }
-
             appPackageBuilder.WithKeystone(pathToCreatedTool);
         }
 
