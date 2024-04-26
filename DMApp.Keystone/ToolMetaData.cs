@@ -28,14 +28,6 @@
         }
 
         /// <summary>
-        /// Gets or sets the output path of the keystone tool. Specifically the location where a .nupkg will be added when wrapping an executable.
-        /// </summary>
-        /// <value>
-        /// A string listing the directory path that will hold the dotnet tool.
-        /// </value>
-        public string OutputDirectory { get; set; }
-
-        /// <summary>
         /// Gets or sets the authors of the Keystone tool.
         /// </summary>
         /// <value>
@@ -50,6 +42,14 @@
         /// The company or organization under which the tool is released or maintained.
         /// </value>
         public string Company { get; set; }
+
+        /// <summary>
+        /// Gets or sets the output path of the keystone tool. Specifically the location where a .nupkg will be added when wrapping an executable.
+        /// </summary>
+        /// <value>
+        /// A string listing the directory path that will hold the dotnet tool.
+        /// </value>
+        public string OutputDirectory { get; set; }
 
         /// <summary>
         /// Gets or sets the command used to execute the Keystone tool.

@@ -18,12 +18,6 @@
         ILogCollector LogCollector { get; }
 
         /// <summary>
-        /// Gets the path of the folder containing the items to be added to the package.
-        /// </summary>
-        /// <value>The path of the folder containing the items to be added to the package.</value>
-        string RepositoryPath { get; }
-
-        /// <summary>
         /// Gets the package name.
         /// </summary>
         /// <value>The package name.</value>
@@ -34,6 +28,12 @@
         /// </summary>
         /// <value>The package version.</value>
         DMAppVersion PackageVersion { get; }
+
+        /// <summary>
+        /// Gets the path of the folder containing the items to be added to the package.
+        /// </summary>
+        /// <value>The path of the folder containing the items to be added to the package.</value>
+        string RepositoryPath { get; }
 
         /// <summary>
         /// Adds the items to the package.

@@ -11,17 +11,31 @@
     using static Skyline.AppInstaller.AppPackage;
 
     /// <summary>
-    /// App package creator for Dashboards.
+    /// Represents a creator for application packages specifically for Keystone dashboards within the DataMiner System.
     /// </summary>
     public class AppPackageCreatorForKeystone : AppPackageCreator
     {
-        private ToolMetaData toolMetaData;
+        private readonly ToolMetaData toolMetaData;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AppPackageCreatorForKeystone"/> class.
+        /// </summary>
+        /// <param name="toolMetaData">Metadata associated with the tool.</param>
+        /// <param name="fileSystem">File system interface to manage file operations.</param>
+        /// <param name="logCollector">Log collector to capture logs during operations.</param>
+        /// <param name="directoryPath">The directory path where packages are to be created.</param>
+        /// <param name="packageName">The name of the package.</param>
+        /// <param name="packageVersion">The version of the package.</param>
         public AppPackageCreatorForKeystone(ToolMetaData toolMetaData, IFileSystem fileSystem, ILogCollector logCollector, string directoryPath, string packageName, DMAppVersion packageVersion) : base(fileSystem, logCollector, directoryPath, packageName, packageVersion)
         {
             this.toolMetaData = toolMetaData;
         }
 
+        /// <summary>
+        /// Asynchronously adds items to the application package.
+        /// </summary>
+        /// <param name="appPackageBuilder">The application package builder to which the items are added.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         public override async Task AddItemsAsync(AppPackageBuilder appPackageBuilder)
         {
             if (appPackageBuilder == null) throw new ArgumentNullException(nameof(appPackageBuilder));
@@ -37,21 +51,21 @@
                 // dotnet tools cannot directly run .exe files. They make their own .exe that runs the Main method from a .dll. So we make our "in-between" tool that then executes the user application.
                 IUserExecutable userExecutable = new UserExecutable();
 
-                DataReceivedEventHandler onOutput = (sender, e) =>
+                static void onOutput(object sender, DataReceivedEventArgs e)
                 {
                     if (!string.IsNullOrEmpty(e.Data))
                     {
                         Console.WriteLine(e.Data);
                     }
-                };
+                }
 
-                DataReceivedEventHandler onError = (sender, e) =>
+                static void onError(object sender, DataReceivedEventArgs e)
                 {
                     if (!string.IsNullOrEmpty(e.Data))
                     {
                         Console.Error.WriteLine(e.Data); // Write the error data to the console
                     }
-                };
+                }
 
                 var dotnet = DotnetFactory.Create(onOutput, onError);
 
@@ -72,8 +86,21 @@
             appPackageBuilder.WithKeystone(pathToCreatedTool);
         }
 
+        /// <summary>
+        /// Contains methods to facilitate the creation of <see cref="AppPackageCreatorForKeystone"/> instances.
+        /// </summary>
         public static class Factory
         {
+            /// <summary>
+            /// Creates an instance of <see cref="AppPackageCreatorForKeystone"/> from a repository with specified parameters.
+            /// </summary>
+            /// <param name="metaData">Metadata associated with the tool.</param>
+            /// <param name="filesystem">File system interface to manage file operations.</param>
+            /// <param name="log">Log collector to capture logs during operations.</param>
+            /// <param name="directoryPath">The directory path where packages are to be created.</param>
+            /// <param name="packageName">The name of the package.</param>
+            /// <param name="packageVersion">The version of the package.</param>
+            /// <returns>Returns a new instance of <see cref="AppPackageCreatorForKeystone"/>.</returns>
             public static IAppPackageCreator FromRepository(ToolMetaData metaData, IFileSystem filesystem, ILogCollector log, string directoryPath, string packageName, DMAppVersion packageVersion)
             {
                 return new AppPackageCreatorForKeystone(metaData, filesystem, log, directoryPath, packageName, packageVersion);

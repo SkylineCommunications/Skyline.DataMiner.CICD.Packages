@@ -13,6 +13,7 @@ The following packages are available:
 - Skyline.DataMiner.CICD.DMApp.Dashboard
 - Skyline.DataMiner.CICD.DMApp.Visio
 - Skyline.DataMiner.CICD.DMProtocol
+- Skyline.DataMiner.CICD.DMApp.Keystone
 
 Depending on the chosen NuGet, these libraries will provide the ability to easily convert from a DIS-provided Visual Studio Solution of your chosen type into either a *.dmapp* or *.dmprotocol* file. These files can then be installed on a DataMiner system.
 

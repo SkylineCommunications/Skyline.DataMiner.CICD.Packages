@@ -88,7 +88,7 @@
 
             try
             {
-                Dictionary<string, string> placeholdersToReplace = new Dictionary<string, string>()
+                Dictionary<string, string> placeholdersToReplace = new()
                 {
                     {nameof(ToolMetaData.ToolName), toolMetaData.ToolName},
                     {nameof(ToolMetaData.ToolCommand), toolMetaData.ToolCommand},
