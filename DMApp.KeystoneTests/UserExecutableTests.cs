@@ -12,34 +12,35 @@
     using Skyline.DataMiner.CICD.DMApp.Common;
     using Skyline.DataMiner.CICD.FileSystem;
 
-    [TestClass()]
+    [TestClass]
     public class UserExecutableTests
     {
-        [AssemblyCleanup()]
+        [AssemblyCleanup]
         public static void AssemblyCleanup()
         {
             // remove tool manifest.
             FileSystem.Instance.Directory.DeleteDirectory(".config");
         }
 
-        [AssemblyInitialize()]
+        [AssemblyInitialize]
         public static void AssemblyInit(TestContext context)
         {
             // sets up the test framework with "local tools" support.
 
-            DataReceivedEventHandler onOutput = (sender, e) =>
-            {
-            };
-
-            DataReceivedEventHandler onError = (sender, e) =>
-            {
-            };
-
-            var dotnet = DotnetFactory.Create(onOutput, onError);
+            var dotnet = DotnetFactory.Create(OnOutput, OnError);
             dotnet.Run("new tool-manifest", true);
+            return;
+
+            void OnError(object sender, DataReceivedEventArgs e)
+            {
+            }
+
+            void OnOutput(object sender, DataReceivedEventArgs e)
+            {
+            }
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("Net6")]
         [DataRow("NetFramework")]
         [DataRow("Rust")]
@@ -50,23 +51,7 @@
             // Arrange
             var fs = FileSystem.Instance;
 
-            DataReceivedEventHandler onOutput = (sender, e) =>
-            {
-                if (!string.IsNullOrEmpty(e.Data))
-                {
-                    Console.WriteLine(e.Data);
-                }
-            };
-
-            DataReceivedEventHandler onError = (sender, e) =>
-            {
-                if (!string.IsNullOrEmpty(e.Data))
-                {
-                    Console.Error.WriteLine(e.Data); // Write the error data to the console
-                }
-            };
-
-            var dotnet = DotnetFactory.Create(onOutput, onError);
+            var dotnet = DotnetFactory.Create(OnOutput, OnError);
 
             // BUG: cannot use --no-cache. always need different version or name. Cannot uninstall & reinstall same version with different content
             // https://github.com/dotnet/sdk/issues/34508
@@ -117,13 +102,30 @@
             {
                 fs.Directory.DeleteDirectory(tempDir);
             }
+
+            return;
+
+            void OnOutput(object sender, DataReceivedEventArgs e)
+            {
+                if (!String.IsNullOrEmpty(e.Data))
+                {
+                    Console.WriteLine(e.Data);
+                }
+            }
+
+            void OnError(object sender, DataReceivedEventArgs e)
+            {
+                if (!String.IsNullOrEmpty(e.Data))
+                {
+                    Console.Error.WriteLine(e.Data); // Write the error data to the console
+                }
+            }
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void WrapIntoDotnetToolTest_TestReturnPath_AllProvided()
         {
             // Arrange
-
             Mock<IFileSystem> fs = new Mock<IFileSystem>();
             Mock<IDotnet> dotnet = new Mock<IDotnet>();
             Mock<IDirectoryIO> directory = new Mock<IDirectoryIO>();
@@ -151,11 +153,10 @@
             result.Should().Be("TempDir/fakedir/somewhere/ubuntu/Skyline.DataMiner.Keystone.MyCommand.2.0.1.nupkg");
         }
 
-        [TestMethod()]
+        [TestMethod]
         public void WrapIntoDotnetToolTest_TestReturnPath_Default()
         {
             // Arrange
-
             Mock<IFileSystem> fs = new Mock<IFileSystem>();
             Mock<IDotnet> dotnet = new Mock<IDotnet>();
             Mock<IDirectoryIO> directory = new Mock<IDirectoryIO>();

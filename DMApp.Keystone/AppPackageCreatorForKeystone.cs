@@ -48,26 +48,26 @@
             }
             else
             {
-                // dotnet tools cannot directly run .exe files. They make their own .exe that runs the Main method from a .dll. So we make our "in-between" tool that then executes the user application.
+                // Dotnet tools cannot directly run .exe files. They make their own .exe that runs the Main method from a .dll. So we make our "in-between" tool that then executes the user application.
                 IUserExecutable userExecutable = new UserExecutable();
 
-                static void onOutput(object sender, DataReceivedEventArgs e)
+                static void OnOutput(object sender, DataReceivedEventArgs e)
                 {
-                    if (!string.IsNullOrEmpty(e.Data))
+                    if (!String.IsNullOrEmpty(e.Data))
                     {
                         Console.WriteLine(e.Data);
                     }
                 }
 
-                static void onError(object sender, DataReceivedEventArgs e)
+                static void OnError(object sender, DataReceivedEventArgs e)
                 {
-                    if (!string.IsNullOrEmpty(e.Data))
+                    if (!String.IsNullOrEmpty(e.Data))
                     {
                         Console.Error.WriteLine(e.Data); // Write the error data to the console
                     }
                 }
 
-                var dotnet = DotnetFactory.Create(onOutput, onError);
+                var dotnet = DotnetFactory.Create(OnOutput, OnError);
 
                 pathToCreatedTool = userExecutable.WrapIntoDotnetTool(FileSystem, dotnet, RepositoryPath, toolMetaData);
             }

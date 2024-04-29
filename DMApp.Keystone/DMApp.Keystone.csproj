@@ -23,16 +23,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="ExeShimmy\Program.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="ExeShimmy\ExeShim.csproj">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="ExeShimmy\Program.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <Compile Remove="ExeShimmy\**" />
+    <Content Include="ExeShimmy\**" CopyToOutputDirectory="Always" />
   </ItemGroup>
 
   <ItemGroup>
@@ -42,26 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Skyline.DataMiner.CICD.FileSystem" Version="1.0.4" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\DMApp.Common\DMApp.Common.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="ExeShimmy\Icon.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ExeShimmy\LICENSE.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ExeShimmy\README.md">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="ExeShimmy\ProgramNameShimmy\DataMinerKeystone.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

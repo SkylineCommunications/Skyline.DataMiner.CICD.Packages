@@ -1,117 +1,108 @@
 ﻿namespace Skyline.DataMiner.CICD.DMApp.Common
 {
-	using System.Diagnostics;
-	using System.Text;
+    using System;
+    using System.Diagnostics;
+    using System.Text;
 
-	internal class Dotnet : IDotnet
-	{
-		private readonly DataReceivedEventHandler onOutput;
-		private readonly DataReceivedEventHandler onError;
+    internal class Dotnet : IDotnet
+    {
+        private readonly DataReceivedEventHandler onOutput;
+        private readonly DataReceivedEventHandler onError;
 
-		public Dotnet(DataReceivedEventHandler onOutput, DataReceivedEventHandler onError)
-		{
-			this.onOutput = onOutput;
-			this.onError = onError;
-		}
+        public Dotnet(DataReceivedEventHandler onOutput, DataReceivedEventHandler onError)
+        {
+            this.onOutput = onOutput;
+            this.onError = onError;
+        }
 
-		public bool Run(string command, bool ignoreOutput)
-		{
-			bool success = false;
+        public bool Run(string command, bool ignoreOutput)
+        {
+            bool success = ignoreOutput
+                ? Run(command, null, null)
+                : Run(command).succes;
 
-			if (!ignoreOutput)
-			{
-				success = Run(command).succes;
-			}
-			else
-			{
-				string pathTo = "dotnet";
-				ProcessStartInfo details = new ProcessStartInfo(pathTo, command);
+            return success;
+        }
 
-				details.CreateNoWindow = true;
-				details.UseShellExecute = false;
+        public (bool succes, string output, string errors) Run(string command)
+        {
+            StringBuilder totalOutput = new StringBuilder();
+            StringBuilder totalErrors = new StringBuilder();
 
-				using (var process = new Process())
-				{
-					process.StartInfo = details;
+            bool success = Run(command, OnOutputWrapped, OnErrorWrapped);
 
-					if (process.Start())
-					{
-						process.WaitForExit();
-						success = process.ExitCode == 0;
-					}
-					else
-					{
-						success = false;
-					}
-				}
-			}
+            return (success, totalOutput.ToString(), totalErrors.ToString());
 
-			return success;
-		}
+            void OnOutputWrapped(object sender, DataReceivedEventArgs e)
+            {
+                if (!String.IsNullOrEmpty(e.Data))
+                {
+                    totalOutput.AppendLine(e.Data);
+                    onOutput(sender, e);
+                }
+            }
 
-		public (bool succes, string output, string errors) Run(string command)
-		{
-			StringBuilder totalOutput = new StringBuilder();
-			StringBuilder totalErrors = new StringBuilder();
+            void OnErrorWrapped(object sender, DataReceivedEventArgs e)
+            {
+                if (!String.IsNullOrEmpty(e.Data))
+                {
+                    totalErrors.AppendLine(e.Data);
+                    onError(sender, e);
+                }
+            }
+        }
 
-			DataReceivedEventHandler onOutputWrapped = (sender, e) =>
-			{
-				if (!string.IsNullOrEmpty(e.Data))
-				{
-					totalOutput.AppendLine(e.Data);
-					onOutput(sender, e);
-				}
-			};
+        private static bool Run(string command, DataReceivedEventHandler overrideOnOutput, DataReceivedEventHandler overrideOnError)
+        {
+            bool useOutput = overrideOnOutput != null;
+            bool useError = overrideOnError != null;
 
-			DataReceivedEventHandler onErrorWrapped = (sender, e) =>
-			{
-				if (!string.IsNullOrEmpty(e.Data))
-				{
-					totalErrors.AppendLine(e.Data);
-					onError(sender, e);
-				}
-			};
+            const string pathTo = "dotnet";
+            ProcessStartInfo details = new ProcessStartInfo(pathTo, command)
+            {
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                RedirectStandardError = useError,
+                RedirectStandardOutput = useOutput
+            };
 
-			bool success = Run(command, onOutputWrapped, onErrorWrapped);
+            bool success;
+            using (var process = new Process())
+            {
+                process.StartInfo = details;
 
-			return (success, totalOutput.ToString(), totalErrors.ToString());
-		}
+                if (useError)
+                {
+                    process.ErrorDataReceived += overrideOnError;
+                }
 
-		public bool Run(string command, DataReceivedEventHandler overrideOnOutput, DataReceivedEventHandler overrideOnError)
-		{
-			string pathTo = "dotnet";
-			ProcessStartInfo details = new ProcessStartInfo(pathTo, command);
+                if (useOutput)
+                {
+                    process.OutputDataReceived += overrideOnOutput;
+                }
 
-			details.CreateNoWindow = true;
-			details.UseShellExecute = false;
-			details.RedirectStandardError = true;
-			details.RedirectStandardOutput = true;
-		
-			bool success = false;
+                if (process.Start())
+                {
+                    if (useOutput)
+                    {
+                        process.BeginOutputReadLine();
+                    }
 
+                    if (useError)
+                    {
+                        process.BeginErrorReadLine();
+                    }
 
-			using (var process = new Process())
-			{
-				process.StartInfo = details;
+                    process.WaitForExit();
+                    success = process.ExitCode == 0;
+                }
+                else
+                {
+                    success = false;
+                }
+            }
 
-				process.OutputDataReceived += overrideOnOutput;
-				process.ErrorDataReceived += overrideOnError;
-
-				if (process.Start())
-				{
-					process.BeginOutputReadLine();
-					process.BeginErrorReadLine();
-
-					process.WaitForExit();
-					success = process.ExitCode == 0;
-				}
-				else
-				{
-					success = false;
-				}
-			}
-
-			return success;
-		}
-	}
+            return success;
+        }
+    }
 }

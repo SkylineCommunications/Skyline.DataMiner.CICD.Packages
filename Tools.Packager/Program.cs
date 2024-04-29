@@ -2,7 +2,6 @@
 {
     using System;
     using System.CommandLine;
-    using System.CommandLine.Binding;
     using System.CommandLine.Parsing;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
@@ -15,7 +14,6 @@
     using Skyline.DataMiner.CICD.DMApp.Visio;
     using Skyline.DataMiner.CICD.DMProtocol;
     using Skyline.DataMiner.CICD.FileSystem;
-    using Skyline.DataMiner.CICD.Loggers;
     using Skyline.DataMiner.CICD.Tools.Reporter;
 
     /// <summary>
@@ -338,154 +336,6 @@
             {
                 // Silently catch as if the request fails due to network issues we don't want the tool to fail.
             }
-        }
-    }
-
-    public class StandardDmappOptions
-    {
-        public uint BuildNumber { get; set; }
-
-        public string DmappType { get; set; }
-
-        public string OutputDirectory { get; set; }
-
-        public string PackageName { get; set; }
-
-        public string Version { get; set; }
-
-        public string Workspace { get; set; }
-    }
-
-    /// <summary>
-    /// Represents a collection of arguments required for standard dmapp data.
-    /// </summary>
-    internal class DmappStandardOptionsBinder : BinderBase<StandardDmappOptions>
-    {
-        private readonly Option<uint> buildNumber;
-        private readonly Option<string> dmappType;
-        private readonly Option<string> outputDirectory;
-        private readonly Option<string> packageName;
-        private readonly Option<string> version;
-        private readonly Argument<string> workspace;
-
-        /// <summary>
-        /// Binds command line options to <see cref="StandardDmappOptions"/>.
-        /// </summary>
-        public DmappStandardOptionsBinder(Argument<string> workspace, Option<string> outputDirectory, Option<string> packageName, Option<string> dmappType, Option<string> version, Option<uint> buildnumber)
-        {
-            this.workspace = workspace;
-            this.outputDirectory = outputDirectory;
-            this.packageName = packageName;
-            this.dmappType = dmappType;
-            this.version = version;
-            this.buildNumber = buildnumber;
-        }
-
-        /// <summary>
-        /// Retrieves the bound value of <see cref="StandardDmappOptions"/> from the <see cref="BindingContext"/>.
-        /// </summary>
-        /// <param name="bindingContext">The context containing parsed command line arguments.</param>
-        /// <returns>An instance of <see cref="StandardDmappOptions"/> populated with values obtained from the command line options.</returns>
-        /// <remarks>
-        /// This method overrides the base <see cref="BinderBase{T}.GetBoundValue"/> method to provide specific logic for binding command line options to the properties of <see cref="AzureArguments"/>.
-        /// It extracts values for each option defined in the command line arguments and assigns them to the corresponding properties of a new <see cref="AzureArguments"/> instance.
-        /// </remarks>
-        protected override StandardDmappOptions GetBoundValue(BindingContext bindingContext)
-        {
-            return new StandardDmappOptions()
-            {
-                Workspace = bindingContext.ParseResult.GetValueForArgument(workspace),
-                OutputDirectory = bindingContext.ParseResult.GetValueForOption(outputDirectory),
-                PackageName = bindingContext.ParseResult.GetValueForOption(packageName),
-                DmappType = bindingContext.ParseResult.GetValueForOption(dmappType),
-                Version = bindingContext.ParseResult.GetValueForOption(version),
-                BuildNumber = bindingContext.ParseResult.GetValueForOption(buildNumber),
-            };
-        }
-    }
-
-    internal class Logging : ILogCollector
-    {
-        private readonly bool debug;
-
-        public Logging(bool debug)
-        {
-            this.debug = debug;
-        }
-
-        public void ReportDebug(string debug)
-        {
-            ReportLog($"DEBUG|{debug}");
-        }
-
-        public void ReportError(string error)
-        {
-            ReportLog($"ERROR|{error}");
-        }
-
-        public void ReportLog(string message)
-        {
-            if (debug)
-            {
-                Console.WriteLine(message);
-            }
-        }
-
-        public void ReportStatus(string status)
-        {
-            ReportLog($"STATUS|{status}");
-        }
-
-        public void ReportWarning(string warning)
-        {
-            ReportLog($"WARNING|{warning}");
-        }
-    }
-
-    /// <summary>
-    /// Represents a collection of arguments required for keystones.
-    /// </summary>
-    internal class ToolMetaDataBinder : BinderBase<ToolMetaData>
-    {
-        private readonly Option<string> authors;
-        private readonly Option<string> company;
-        private readonly Option<string> toolCommand;
-        private readonly Option<string> toolName;
-        private readonly Option<string> toolVersion;
-        private readonly Option<string> outputPath;
-
-        /// <summary>
-        /// Binds command line options to <see cref="ToolMetaData"/>.
-        /// </summary>
-        public ToolMetaDataBinder(Option<string> authors, Option<string> company, Option<string> toolCommand, Option<string> toolName, Option<string> toolVersion, Option<string> outputPath)
-        {
-            this.authors = authors;
-            this.company = company;
-            this.toolCommand = toolCommand;
-            this.toolName = toolName;
-            this.toolVersion = toolVersion;
-            this.outputPath = outputPath;
-        }
-
-        /// <summary>
-        /// Retrieves the bound value of <see cref="ToolMetaData"/> from the <see cref="BindingContext"/>.
-        /// </summary>
-        /// <param name="bindingContext">The context containing parsed command line arguments.</param>
-        /// <returns>An instance of <see cref="ToolMetaData"/> populated with values obtained from the command line options.</returns>
-        /// <remarks>
-        /// This method overrides the base <see cref="BinderBase{T}.GetBoundValue"/> method to provide specific logic for binding command line options to the properties of <see cref="AzureArguments"/>.
-        /// It extracts values for each option defined in the command line arguments and assigns them to the corresponding properties of a new <see cref="AzureArguments"/> instance.
-        /// </remarks>
-        protected override ToolMetaData GetBoundValue(BindingContext bindingContext)
-        {
-            return new ToolMetaData(
-                bindingContext.ParseResult.GetValueForOption(toolCommand),
-                bindingContext.ParseResult.GetValueForOption(toolName),
-                bindingContext.ParseResult.GetValueForOption(toolVersion),
-                bindingContext.ParseResult.GetValueForOption(company),
-                bindingContext.ParseResult.GetValueForOption(authors),
-                bindingContext.ParseResult.GetValueForOption(outputPath)
-                );
         }
     }
 }

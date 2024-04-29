@@ -31,7 +31,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Skyline.DataMiner.CICD.FileSystem" Version="1.0.4" />
     <PackageReference Include="Skyline.DataMiner.CICD.Tools.Reporter" Version="1.0.1" />
     <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
   </ItemGroup>

@@ -12,7 +12,7 @@
         {
             string assemblyFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string pathTo = Path.Combine(assemblyFolder, "$ProgramNameShimmy$", "$ProgramName$.exe"); // Specify the path to the executable
-            string arguments = string.Join(" ", args.Select(arg => $"\"{arg}\"")); // Prepare the arguments
+            string arguments = String.Join(" ", args.Select(arg => $"\"{arg}\"")); // Prepare the arguments
             ProcessStartInfo details = new ProcessStartInfo(pathTo)
             {
                 CreateNoWindow = true,
@@ -28,7 +28,7 @@
 
                 process.OutputDataReceived += (sender, e) =>
                 {
-                    if (!string.IsNullOrEmpty(e.Data))
+                    if (!String.IsNullOrEmpty(e.Data))
                     {
                         Console.WriteLine(e.Data); // Write the output data to the console
                     }
@@ -36,7 +36,7 @@
 
                 process.ErrorDataReceived += (sender, e) =>
                 {
-                    if (!string.IsNullOrEmpty(e.Data))
+                    if (!String.IsNullOrEmpty(e.Data))
                     {
                         Console.Error.WriteLine(e.Data); // Write the error data to the console
                     }

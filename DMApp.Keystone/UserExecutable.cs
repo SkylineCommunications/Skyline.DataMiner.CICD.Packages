@@ -4,12 +4,10 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
-    using System.Text;
     using System.Text.RegularExpressions;
 
     using Skyline.DataMiner.CICD.DMApp.Common;
     using Skyline.DataMiner.CICD.FileSystem;
-    using Skyline.DataMiner.Net.Messages;
 
     /// <summary>
     /// Provides functionality to wrap a user executable into a .NET tool package.
@@ -30,8 +28,8 @@
             string programPath = null;
             if (fs.Directory.IsDirectory(pathToUserExecutableDir))
             {
-                var allExecutables = fs.Directory.EnumerateFiles(pathToUserExecutableDir, "*.exe");
-                if (allExecutables.Count() > 1)
+                var allExecutables = fs.Directory.EnumerateFiles(pathToUserExecutableDir, "*.exe").ToList();
+                if (allExecutables.Count > 1)
                 {
                     throw new InvalidOperationException($"Multiple executables are not supported. Detected: {String.Join(";", allExecutables)}");
                 }
@@ -54,12 +52,10 @@
             var shimmyPathForPackaging = fs.Path.Combine(locationForPackaging, shimmyName);
             var userProgramPathForPackaging = fs.Path.Combine(shimmyPathForPackaging, userProgramFolderName);
 
-
             fs.Directory.CopyRecursive(fs.Path.Combine(assemblyFolder, "ExeShimmy"), shimmyPathForPackaging);
             fs.Directory.CopyRecursive(pathToUserExecutableDir, userProgramPathForPackaging);
 
             // Defaulting data:
-
             if (String.IsNullOrWhiteSpace(toolMetaData.ToolName)) toolMetaData.ToolName = $"Skyline.DataMiner.Keystone.{programName}";
             if (String.IsNullOrWhiteSpace(toolMetaData.ToolCommand))
             {
@@ -67,6 +63,7 @@
                 string cleanedCommandName = Regex.Replace(cleanedProgramName, @"\s+", "-").ToLower();
                 toolMetaData.ToolCommand = $"dataminer-keystone-{cleanedCommandName}";
             }
+
             if (String.IsNullOrWhiteSpace(toolMetaData.ToolVersion))
             {
                 var exeVersion = fs.File.GetFileProductVersion(programPath);
@@ -90,13 +87,13 @@
             {
                 Dictionary<string, string> placeholdersToReplace = new()
                 {
-                    {nameof(ToolMetaData.ToolName), toolMetaData.ToolName},
-                    {nameof(ToolMetaData.ToolCommand), toolMetaData.ToolCommand},
-                    {nameof(ToolMetaData.Authors), toolMetaData.Authors},
-                    {nameof(ToolMetaData.Company), toolMetaData.Company},
-                    {nameof(ToolMetaData.ToolVersion), toolMetaData.ToolVersion},
-                    { "ProgramName",programName },
-                    {"ProgramNameShimmy",userProgramFolderName }
+                    { nameof(ToolMetaData.ToolName), toolMetaData.ToolName },
+                    { nameof(ToolMetaData.ToolCommand), toolMetaData.ToolCommand },
+                    { nameof(ToolMetaData.Authors), toolMetaData.Authors },
+                    { nameof(ToolMetaData.Company), toolMetaData.Company },
+                    { nameof(ToolMetaData.ToolVersion), toolMetaData.ToolVersion },
+                    { "ProgramName", programName },
+                    { "ProgramNameShimmy", userProgramFolderName }
                 };
 
                 foreach (var topLevelFile in fs.Directory.EnumerateFiles(shimmyPathForPackaging))
@@ -109,12 +106,11 @@
                     fs.File.WriteAllText(topLevelFile, fileContent);
                 }
 
-
                 var packResult = dotnet.Run($"pack \"{shimmyPathForPackaging}/ExeShim.csproj\" --output \"{toolMetaData.OutputDirectory}\"");
 
                 if (!String.IsNullOrWhiteSpace(packResult.errors) || (packResult.output != null && packResult.output.Contains("error")))
                 {
-                    throw new InvalidOperationException($"Failed to create dotnet tool");
+                    throw new InvalidOperationException("Failed to create dotnet tool");
                 }
             }
             finally
