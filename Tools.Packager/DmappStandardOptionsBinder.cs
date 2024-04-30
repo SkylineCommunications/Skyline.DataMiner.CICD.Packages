@@ -34,8 +34,8 @@
         /// <param name="bindingContext">The context containing parsed command line arguments.</param>
         /// <returns>An instance of <see cref="StandardDmappOptions"/> populated with values obtained from the command line options.</returns>
         /// <remarks>
-        /// This method overrides the base <see cref="BinderBase{T}.GetBoundValue"/> method to provide specific logic for binding command line options to the properties of <see cref="AzureArguments"/>.
-        /// It extracts values for each option defined in the command line arguments and assigns them to the corresponding properties of a new <see cref="AzureArguments"/> instance.
+        /// This method overrides the base <see cref="BinderBase{T}.GetBoundValue"/> method to provide specific logic for binding command line options to the properties of <see cref="StandardDmappOptions"/>.
+        /// It extracts values for each option defined in the command line arguments and assigns them to the corresponding properties of a new <see cref="StandardDmappOptions"/> instance.
         /// </remarks>
         protected override StandardDmappOptions GetBoundValue(BindingContext bindingContext)
         {
