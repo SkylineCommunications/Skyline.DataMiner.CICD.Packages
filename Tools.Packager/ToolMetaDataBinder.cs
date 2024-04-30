@@ -35,8 +35,8 @@
         /// <param name="bindingContext">The context containing parsed command line arguments.</param>
         /// <returns>An instance of <see cref="ToolMetaData"/> populated with values obtained from the command line options.</returns>
         /// <remarks>
-        /// This method overrides the base <see cref="BinderBase{T}.GetBoundValue"/> method to provide specific logic for binding command line options to the properties of <see cref="AzureArguments"/>.
-        /// It extracts values for each option defined in the command line arguments and assigns them to the corresponding properties of a new <see cref="AzureArguments"/> instance.
+        /// This method overrides the base <see cref="BinderBase{T}.GetBoundValue"/> method to provide specific logic for binding command line options to the properties of <see cref="ToolMetaData"/>.
+        /// It extracts values for each option defined in the command line arguments and assigns them to the corresponding properties of a new <see cref="ToolMetaData"/> instance.
         /// </remarks>
         protected override ToolMetaData GetBoundValue(BindingContext bindingContext)
         {
