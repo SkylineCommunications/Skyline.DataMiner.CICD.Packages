@@ -66,7 +66,8 @@
 
             if (String.IsNullOrWhiteSpace(toolMetaData.ToolVersion))
             {
-                var exeVersion = fs.File.GetFileProductVersion(programPath);
+                // Handles IncludeSourceRevisionInInformationalVersion scenarios.
+                var exeVersion = fs.File.GetFileProductVersion(programPath).Split('+')[0];
                 if (String.IsNullOrWhiteSpace(exeVersion))
                 {
                     exeVersion = fs.File.GetFileVersion(programPath);
