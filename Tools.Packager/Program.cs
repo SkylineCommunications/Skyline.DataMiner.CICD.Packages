@@ -36,13 +36,13 @@
             };
 
             var workspaceArgument = new Argument<string>(
-                name: "directory",
-                description: "Directory containing the package items");
+                name: "input-path",
+                description: "Directory or file path containing the package items.");
             workspaceArgument.AddValidator(result =>
             {
                 if (String.IsNullOrWhiteSpace(result.GetValueForArgument(workspaceArgument)))
                 {
-                    result.ErrorMessage = "Directory can not be null, empty or whitespace.";
+                    result.ErrorMessage = "input-path can not be null, empty or whitespace.";
                 }
             });
 

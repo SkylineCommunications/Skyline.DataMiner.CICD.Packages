@@ -56,9 +56,9 @@ namespace Skyline.DataMiner.CICD.DMApp.Common
                 throw new ArgumentException("Value can not be empty or whitespace.", nameof(packageName));
             }
 
-            if (!fileSystem.Directory.Exists(repositoryPath))
+            if (!fileSystem.Directory.Exists(repositoryPath) && !fileSystem.File.Exists(repositoryPath))
             {
-                throw new System.IO.DirectoryNotFoundException("The specified directory '" + repositoryPath + "' does not exist.");
+                throw new System.IO.DirectoryNotFoundException("The specified file or directory '" + repositoryPath + "' does not exist.");
             }
 
             RepositoryPath = fileSystem.Path.GetFullPath(repositoryPath);

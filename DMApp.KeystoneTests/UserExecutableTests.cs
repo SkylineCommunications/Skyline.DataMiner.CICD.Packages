@@ -58,7 +58,7 @@
 
             string uniqueShort = Regex.Replace(Convert.ToBase64String(Guid.NewGuid().ToByteArray()), "[/+=]", "");
             string nameOfTool = $"Skyline.DataMiner.Keystone.Test.{frameworkIdentifier}.{uniqueShort}";
-            string commandOfTool = "Net6IntegrationTest";
+            string commandOfTool = "KeystoneIntegrationTest";
 
             string pathToUserExecutableDir = $"TestData/{frameworkIdentifier}Program";
             var tempDir = fs.Directory.CreateTemporaryDirectory();
