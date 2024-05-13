@@ -1,6 +1,7 @@
 ﻿namespace Skyline.DataMiner.CICD.DMApp.Keystone
 {
     using System;
+    using System.Text.RegularExpressions;
 
     /// <summary>
     /// Represents metadata for a DataMiner Keystone executable command-line tool.
@@ -8,6 +9,9 @@
     /// </summary>
     public class ToolMetaData
     {
+        private string toolCommand;
+        private string toolName;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ToolMetaData"/> class with specified metadata.
         /// </summary>
@@ -52,20 +56,51 @@
         public string OutputDirectory { get; set; }
 
         /// <summary>
-        /// Gets or sets the command used to execute the Keystone tool.
+        /// Gets or sets the command used to execute the Keystone tool. The input value is sanitized and formatted 
+        /// to ensure it adheres to valid command-line syntax by replacing spaces with hyphens, converting to lowercase,
+        /// and removing invalid characters.
         /// </summary>
         /// <value>
-        /// The command string that is executed in the command-line to run the tool.
+        /// The sanitized command string that is executed in the command-line to run the tool.
         /// </value>
-        public string ToolCommand { get; set; }
+        public string ToolCommand
+        {
+            get => toolCommand;
+            set
+            {
+                if (value != null)
+                {
+                    toolCommand = Regex.Replace(value.Replace(" ", "-").ToLower(), "[^a-zA-Z0-9-]", "");
+                }
+                else
+                {
+                    toolCommand = null;
+                }
+            }
+        }
 
         /// <summary>
-        /// Gets or sets the name of the Keystone tool.
+        /// Gets or sets the name of the Keystone tool. The input value is sanitized by removing any characters 
+        /// not suitable for dotnet tool identifiers, preserving only alphanumeric characters and dots.
         /// </summary>
         /// <value>
-        /// The name representing the tool, typically used for display and reference purposes within the system.
+        /// The sanitized name representing the tool, typically used for installing the package.
         /// </value>
-        public string ToolName { get; set; }
+        public string ToolName
+        {
+            get => toolName;
+            set
+            {
+                if (value != null)
+                {
+                    toolName = Regex.Replace(value, "[^a-zA-Z0-9.]", "");
+                }
+                else
+                {
+                    toolName = null;
+                }
+            }
+        }
 
         /// <summary>
         /// Gets or sets the version of the Keystone tool.

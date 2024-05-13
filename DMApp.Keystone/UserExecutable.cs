@@ -42,11 +42,14 @@
                 throw new InvalidOperationException("Provided Path. Expected either a .nupkg file or a directory containing an executable '.exe'");
             }
 
+            // Important that programName remains the exact name of the .exe
             string programName = fs.Path.GetFileNameWithoutExtension(programPath);
 
             string assemblyFolder = fs.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string userProgramFolderName = "UserProgram";
-            string shimmyName = programName + "Shimmy";
+
+            string cleanedProgramNameForShimmy = Regex.Replace(programName, "[^a-zA-Z0-9]", "");
+            string shimmyName = cleanedProgramNameForShimmy + "Shimmy";
 
             var locationForPackaging = fs.Directory.CreateTemporaryDirectory();
             var shimmyPathForPackaging = fs.Path.Combine(locationForPackaging, shimmyName);
@@ -59,9 +62,7 @@
             if (String.IsNullOrWhiteSpace(toolMetaData.ToolName)) toolMetaData.ToolName = $"Skyline.DataMiner.Keystone.{programName}";
             if (String.IsNullOrWhiteSpace(toolMetaData.ToolCommand))
             {
-                string cleanedProgramName = Regex.Replace(programName, "[^a-zA-Z0-9 ]", "");
-                string cleanedCommandName = Regex.Replace(cleanedProgramName, @"\s+", "-").ToLower();
-                toolMetaData.ToolCommand = $"dataminer-keystone-{cleanedCommandName}";
+                toolMetaData.ToolCommand = $"dataminer-keystone-{programName}";
             }
 
             if (String.IsNullOrWhiteSpace(toolMetaData.ToolVersion))
@@ -93,7 +94,7 @@
                     { nameof(ToolMetaData.Authors), toolMetaData.Authors },
                     { nameof(ToolMetaData.Company), toolMetaData.Company },
                     { nameof(ToolMetaData.ToolVersion), toolMetaData.ToolVersion },
-                    { "ProgramName", programName },
+                    { "ProgramName", programName },   // Important that programName remains the exact name of the .exe
                     { "ProgramNameShimmy", userProgramFolderName }
                 };
 

@@ -83,7 +83,7 @@
                 try
                 {
                     // Test running this
-                   var runResult = dotnet.Run($"tool run {commandOfTool} from{frameworkIdentifier}");
+                    var runResult = dotnet.Run($"tool run {commandOfTool} from{frameworkIdentifier}");
 
                     if (!String.IsNullOrWhiteSpace(runResult.errors))
                     {
@@ -134,7 +134,7 @@
             fs.Setup(f => f.Directory).Returns(directory.Object);
             fs.Setup(f => f.File).Returns(file.Object);
             fs.Setup(f => f.Path).Returns(path.Object);
-
+          
             string fullCommandName = "Skyline.DataMiner.Keystone.MyCommand";
 
             string pathToUserExecutableDir = "fakedir/somewhere/ubuntu";
@@ -142,6 +142,7 @@
             directory.Setup(d => d.EnumerateFiles(pathToUserExecutableDir, "*.exe")).Returns(new[] { "MyCustomProgram.exe" });
             string outputPath = "TempDir";
             path.Setup(p => p.Combine(outputPath, $"{fullCommandName}.2.0.1.nupkg")).Returns($"{outputPath}/fakedir/somewhere/ubuntu/Skyline.DataMiner.Keystone.MyCommand.2.0.1.nupkg");
+            path.Setup(p => p.GetFileNameWithoutExtension($"MyCustomProgram.exe")).Returns("MyCustomProgram");
 
             ToolMetaData toolMetaData = new ToolMetaData("MyCommand", "Skyline.DataMiner.Keystone.MyCommand", "2.0.1", "SkylineCommunications", "Skyline Communications", outputPath);
 
@@ -152,6 +153,39 @@
             // Assert
             result.Should().Be("TempDir/fakedir/somewhere/ubuntu/Skyline.DataMiner.Keystone.MyCommand.2.0.1.nupkg");
         }
+
+        [TestMethod]
+        public void WrapIntoDotnetToolTest_TestReturnPath_AllProvided_SpacesInProgramName()
+        {
+            // Arrange
+            Mock<IFileSystem> fs = new Mock<IFileSystem>();
+            Mock<IDotnet> dotnet = new Mock<IDotnet>();
+            Mock<IDirectoryIO> directory = new Mock<IDirectoryIO>();
+            Mock<IFileIO> file = new Mock<IFileIO>();
+            Mock<IPathIO> path = new Mock<IPathIO>();
+            fs.Setup(f => f.Directory).Returns(directory.Object);
+            fs.Setup(f => f.File).Returns(file.Object);
+            fs.Setup(f => f.Path).Returns(path.Object);
+
+            string fullCommandName = "Skyline.DataMiner.Keystone.MyCommand";
+
+            string pathToUserExecutableDir = "fakedir/somewhere/ubuntu";
+            directory.Setup(d => d.IsDirectory(pathToUserExecutableDir)).Returns(true);
+            directory.Setup(d => d.EnumerateFiles(pathToUserExecutableDir, "*.exe")).Returns(new[] { "My Custom Program.exe" });
+            string outputPath = "TempDir";
+            path.Setup(p => p.Combine(outputPath, $"{fullCommandName}.2.0.1.nupkg")).Returns($"{outputPath}/fakedir/somewhere/ubuntu/Skyline.DataMiner.Keystone.MyCommand.2.0.1.nupkg");
+            path.Setup(p => p.GetFileNameWithoutExtension($"My Custom Program.exe")).Returns("My Custom Program");
+
+            ToolMetaData toolMetaData = new ToolMetaData("MyCommand", "Skyline.DataMiner.Keystone.MyCommand", "2.0.1", "SkylineCommunications", "Skyline Communications", outputPath);
+
+            // Act
+            UserExecutable executable = new UserExecutable();
+            var result = executable.WrapIntoDotnetTool(fs.Object, dotnet.Object, pathToUserExecutableDir, toolMetaData);
+
+            // Assert
+            result.Should().Be("TempDir/fakedir/somewhere/ubuntu/Skyline.DataMiner.Keystone.MyCommand.2.0.1.nupkg");
+        }
+
 
         [TestMethod]
         public void WrapIntoDotnetToolTest_TestReturnPath_Default()
