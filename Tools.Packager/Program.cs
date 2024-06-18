@@ -11,6 +11,7 @@
     using Skyline.DataMiner.CICD.DMApp.Common;
     using Skyline.DataMiner.CICD.DMApp.Dashboard;
     using Skyline.DataMiner.CICD.DMApp.Keystone;
+    using Skyline.DataMiner.CICD.DMApp.Protocol;
     using Skyline.DataMiner.CICD.DMApp.Visio;
     using Skyline.DataMiner.CICD.DMProtocol;
     using Skyline.DataMiner.CICD.FileSystem;
@@ -113,7 +114,7 @@
                 description: "Type of dmapp package.")
             {
                 IsRequired = true,
-            }.FromAmong("automation", "visio", "dashboard", "protocolvisio", "keystone");
+            }.FromAmong("automation", "visio", "dashboard", "protocolvisio", "keystone", "connector");
             dmappType.AddAlias("-t");
 
             var buildNumber = new Option<uint>(
@@ -285,6 +286,11 @@
                 case "keystone":
                     appPackageCreator =
                         AppPackageCreatorForKeystone.Factory.FromRepository(metaData, FileSystem.Instance, new Logging(debug), opt.Workspace, opt.PackageName, dmAppVersion);
+                    break;
+
+                case "connector":
+                    appPackageCreator =
+                       AppPackageCreatorForProtocol.Factory.FromRepository(FileSystem.Instance, new Logging(debug), opt.Workspace, opt.PackageName, dmAppVersion);
                     break;
 
                 default:

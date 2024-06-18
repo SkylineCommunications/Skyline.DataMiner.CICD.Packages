@@ -11,7 +11,7 @@
     using static Skyline.AppInstaller.AppPackage;
 
     /// <summary>
-    /// Represents a creator for application packages specifically for Keystone dashboards within the DataMiner System.
+    /// Represents a creator for application packages specifically for Keystone within the DataMiner System.
     /// </summary>
     public class AppPackageCreatorForKeystone : AppPackageCreator
     {

@@ -42,7 +42,7 @@
             return new StandardDmappOptions
             {
                 Workspace = bindingContext.ParseResult.GetValueForArgument(workspace),
-                OutputDirectory = bindingContext.ParseResult.GetValueForOption(outputDirectory),
+                OutputDirectory = bindingContext.ParseResult.GetValueForOption(outputDirectory).TrimEnd('/', '\\'),
                 PackageName = bindingContext.ParseResult.GetValueForOption(packageName),
                 DmappType = bindingContext.ParseResult.GetValueForOption(dmappType),
                 Version = bindingContext.ParseResult.GetValueForOption(version),

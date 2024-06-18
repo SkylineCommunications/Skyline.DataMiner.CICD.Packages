@@ -88,11 +88,19 @@
                     protocolBuilder = new ProtocolBuilder(solution, logCollector);
                 }
 
+                // AppPackage line 834 in PackageBuilderDefaultScripts needs to change to allow byte[]
+                // WithProtocol --> ValidateContent needs to change to allow byte[] and not enforce a file.
+                // Workaround until then
+
                 var buildResultItems = await protocolBuilder.BuildAsync();
                 string document = buildResultItems.Document;
-                byte[] bytes = Encoding.UTF8.GetBytes(document);
 
-                IAppPackageProtocolBuilder packageBuilder = new AppPackageProtocol.AppPackageProtocolBuilder(protocolName, protocolVersion, bytes);
+                var tempDir = FileSystem.Instance.Directory.CreateTemporaryDirectory();
+                string pathToTempFile = FileSystem.Instance.Path.Combine(tempDir, "protocol.xml");
+                FileSystem.Instance.File.WriteAllText(pathToTempFile, document);
+
+                // byte[] bytes = Encoding.UTF8.GetBytes(document);
+                IAppPackageProtocolBuilder packageBuilder = new AppPackageProtocol.AppPackageProtocolBuilder(protocolName, protocolVersion, pathToTempFile);
 
                 AddNuGetAssemblies(buildResultItems, destinationDllFolder, packageBuilder);
 

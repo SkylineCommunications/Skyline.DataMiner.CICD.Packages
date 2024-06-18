@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <AssemblyName>Skyline.DataMiner.CICD.DMApp.Protocol</AssemblyName>
+    <RootNamespace>Skyline.DataMiner.CICD.DMApp.Protocol</RootNamespace>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>SkylineCommunications</Authors>
+    <Company>Skyline Communications</Company>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageProjectUrl>https://skyline.be/</PackageProjectUrl>
+    <PackageTags>Skyline;DataMiner;CICD</PackageTags>
+    <Description>
+      Library to convert a directory with a connector and keystones into DataMiner Application Packages (.DMApp) file.
+      Code Entry Point: var builder = AppPackageCreatorForProtocol.Factory.FromDirectory(logCollector, repositoryPath, packageName, packageVersion);
+    </Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/SkylineCommunications/Skyline.DataMiner.CICD.Packages</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="" />
+    <None Include="..\_NuGetItems\icon.png" Pack="true" PackagePath="" />
+    <None Include="..\_NuGetItems\LICENSE.txt" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DMApp.Common\DMApp.Common.csproj" />
+    <ProjectReference Include="..\DMProtocol\DMProtocol.csproj" />
+  </ItemGroup>
+
+</Project>

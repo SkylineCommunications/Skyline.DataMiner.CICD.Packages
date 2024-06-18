@@ -5,7 +5,7 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dataminer-package-create</ToolCommandName>
     <ImplicitUsings>disable</ImplicitUsings>
-    <Version>1.1.8-beta1</Version>
+    <Version>1.1.8-beta2</Version>
     <Nullable>disable</Nullable>
     <AssemblyName>Skyline.DataMiner.CICD.Tools.Packager</AssemblyName>
     <RootNamespace>Skyline.DataMiner.CICD.Tools.Packager</RootNamespace>
@@ -39,6 +39,7 @@
     <ProjectReference Include="..\DMApp.Automation\DMApp.Automation.csproj" />
     <ProjectReference Include="..\DMApp.Dashboard\DMApp.Dashboard.csproj" />
     <ProjectReference Include="..\DMApp.Keystone\DMApp.Keystone.csproj" />
+    <ProjectReference Include="..\DMApp.Protocol\DMApp.Protocol.csproj" />
     <ProjectReference Include="..\DMApp.Visio\DMApp.Visio.csproj" />
     <ProjectReference Include="..\DMProtocol\DMProtocol.csproj" />
   </ItemGroup>
