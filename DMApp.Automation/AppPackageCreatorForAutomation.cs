@@ -93,9 +93,14 @@ namespace Skyline.DataMiner.CICD.DMApp.Automation
 
                 var automationScriptBuilderHelper = new AppPackageAutomationScriptBuilderHelper();
                 string dllsFolderPath = FileSystem.Path.Combine(RepositoryPath, "Dlls");
-                var dllFilesPath = FileSystem.Directory.EnumerateFiles(dllsFolderPath, "*.dll", SearchOption.AllDirectories).ToArray();
+                if (FileSystem.Directory.Exists(dllsFolderPath))
+                {
+                    // For GQI, the Dlls folder is not present.
+                    var dllFilesPath = FileSystem.Directory.EnumerateFiles(dllsFolderPath, "*.dll", SearchOption.AllDirectories).ToArray();
 
-                AddScriptAssemblies(automationScriptBuilderHelper, content, dllFilesPath, appPackageAutomationScriptBuilder);
+                    AddScriptAssemblies(automationScriptBuilderHelper, content, dllFilesPath, appPackageAutomationScriptBuilder);
+                }
+
                 AddNuGetAssemblies(script, appPackageAutomationScriptBuilder);
 
                 // Build
