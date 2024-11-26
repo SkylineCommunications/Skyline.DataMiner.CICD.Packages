@@ -1,1 +1,36 @@
-﻿<?xml version="1.0" encoding="utf-8" ?> 
+﻿<Trending>
+	<Name>Template1</Name>
+	<Description></Description>
+	<Protocol>
+		<Name>ExampleProtocol</Name>
+		<Version>1.0.0.1</Version>
+	</Protocol>
+	<Id id="65000" rttrending="false" avgtrending="false" filter="" centraldbdisablert="false" centraldbdisableavg="false" />
+	<Id id="65002" rttrending="false" avgtrending="false" filter="" centraldbdisablert="false" centraldbdisableavg="false" />
+	<Id id="65003" rttrending="false" avgtrending="false" filter="" centraldbdisablert="false" centraldbdisableavg="false" />
+	<Id id="65004" rttrending="false" avgtrending="false" filter="" centraldbdisablert="false" centraldbdisableavg="false" />
+	<Id id="65005" rttrending="false" avgtrending="false" filter="" centraldbdisablert="false" centraldbdisableavg="false" />
+	<Id id="65006" rttrending="false" avgtrending="false" filter="" centraldbdisablert="false" centraldbdisableavg="false" />
+	<Id id="65007" rttrending="false" avgtrending="false" filter="" centraldbdisablert="false" centraldbdisableavg="false" />
+	<Id id="65008" rttrending="false" avgtrending="false" filter="" centraldbdisablert="false" centraldbdisableavg="false" />
+	<Id id="65009" rttrending="false" avgtrending="false" filter="" centraldbdisablert="false" centraldbdisableavg="false" />
+	<Id id="65077" rttrending="false" avgtrending="false" filter="" centraldbdisablert="false" centraldbdisableavg="false" />
+	<Id id="65079" rttrending="false" avgtrending="false" filter="" centraldbdisablert="false" centraldbdisableavg="false" />
+	<Id id="65080" rttrending="false" avgtrending="false" filter="" centraldbdisablert="false" centraldbdisableavg="false" />
+	<Id id="65118" rttrending="false" avgtrending="false" filter="" centraldbdisablert="false" centraldbdisableavg="false" />
+	<Id id="65119" rttrending="false" avgtrending="false" filter="" centraldbdisablert="false" centraldbdisableavg="false" />
+	<Id id="65120" rttrending="false" avgtrending="false" filter="" centraldbdisablert="false" centraldbdisableavg="false" />
+	<Id id="65121" rttrending="false" avgtrending="false" filter="" centraldbdisablert="false" centraldbdisableavg="false" />
+	<Id id="65130" rttrending="false" avgtrending="false" filter="" centraldbdisablert="false" centraldbdisableavg="false" />
+	<Id id="66154" rttrending="false" avgtrending="false" filter="" centraldbdisablert="false" centraldbdisableavg="false" />
+	<Id id="66189" rttrending="false" avgtrending="false" filter="" centraldbdisablert="false" centraldbdisableavg="false" />
+	<Id id="65082" rttrending="false" avgtrending="false" filter="*" centraldbdisablert="false" centraldbdisableavg="false" />
+	<Id id="65083" rttrending="false" avgtrending="false" filter="*" centraldbdisablert="false" centraldbdisableavg="false" />
+	<Id id="65123" rttrending="false" avgtrending="false" filter="*" centraldbdisablert="false" centraldbdisableavg="false" />
+	<Id id="65124" rttrending="false" avgtrending="false" filter="*" centraldbdisablert="false" centraldbdisableavg="false" />
+	<Id id="65125" rttrending="false" avgtrending="false" filter="*" centraldbdisablert="false" centraldbdisableavg="false" />
+	<Id id="65126" rttrending="false" avgtrending="false" filter="*" centraldbdisablert="false" centraldbdisableavg="false" />
+	<Id id="65127" rttrending="false" avgtrending="false" filter="*" centraldbdisablert="false" centraldbdisableavg="false" />
+	<Id id="65136" rttrending="false" avgtrending="false" filter="*" centraldbdisablert="false" centraldbdisableavg="false" />
+	<Id id="65137" rttrending="false" avgtrending="false" filter="*" centraldbdisablert="false" centraldbdisableavg="false" />
+</Trending>
