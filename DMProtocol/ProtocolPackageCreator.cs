@@ -1,10 +1,11 @@
 ﻿namespace Skyline.DataMiner.CICD.DMProtocol
 {
     using System;
+    using System.IO;
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
-
+    using Microsoft.Extensions.FileSystemGlobbing.Internal.PatternContexts;
     using Skyline.AppInstaller;
     using Skyline.DataMiner.CICD.Assemblers.Common;
     using Skyline.DataMiner.CICD.Assemblers.Protocol;
@@ -12,6 +13,7 @@
     using Skyline.DataMiner.CICD.Models.Protocol.Read;
     using Skyline.DataMiner.CICD.Parsers.Protocol.VisualStudio;
     using Skyline.DataMiner.CICD.FileSystem;
+    using FileInfo = Skyline.DataMiner.CICD.FileSystem.FileInfoWrapper.FileInfo;
 
     /// <summary>
     /// Package creator for Protocol solutions.
@@ -87,7 +89,7 @@
                 {
                     protocolBuilder = new ProtocolBuilder(solution, logCollector);
                 }
-
+                
                 var buildResultItems = await protocolBuilder.BuildAsync();
                 string document = buildResultItems.Document;
                 byte[] bytes = Encoding.UTF8.GetBytes(document);
@@ -99,9 +101,41 @@
                 string dllsFolder = FileSystem.Instance.Path.Combine(repositoryPath, "Dlls");
                 AddAssemblies(dllsFolder, packageBuilder, destinationDllFolder, repositoryPath);
 
+                AddTemplates(solution, packageBuilder);
+
                 IAppPackageProtocol protocolPackage = packageBuilder.Build();
 
                 return protocolPackage;
+            }
+
+            private static void AddTemplates(ProtocolSolution solution, IAppPackageProtocolBuilder packageBuilder)
+            {
+                string templatesFolder = FileSystem.Instance.Path.Combine(solution.SolutionDirectory, "DefaultTemplates");
+                if (!Directory.Exists(templatesFolder))
+                {
+                    // No templates folder found.
+                    return;
+                }
+
+                FileInfo alarmTemplateFile = new FileInfo(Path.Combine(templatesFolder, "Template_Alarm_Default.xml"));
+                FileInfo trendTemplateFile = new FileInfo(Path.Combine(templatesFolder, "Trending_Template_Default.xml"));
+                FileInfo informationTemplateFile = new FileInfo(Path.Combine(templatesFolder, "Information_Template_Default.xml"));
+
+                if (alarmTemplateFile.Exists)
+                {
+                    packageBuilder.WithAlarmTemplate(alarmTemplateFile.FullName, true);
+                }
+
+                if (trendTemplateFile.Exists)
+                {
+                    packageBuilder.WithTrendTemplate(trendTemplateFile.FullName, true);
+                }
+
+                if (informationTemplateFile.Exists)
+                {
+                    // Will not be part of the protocol package, but is already future-proof.
+                    packageBuilder.WithInformationTemplate(informationTemplateFile.FullName, true);
+                }
             }
 
             private static void AddNuGetAssemblies(BuildResultItems buildResultItems, string destinationDllFolder, IAppPackageProtocolBuilder packageBuilder)
