@@ -43,6 +43,9 @@
 
             // Verify assembly from DLLs folder is included.
             Assert.IsNotNull(builder.Assemblies.FirstOrDefault(a => a.AssemblyFilePath.EndsWith("ClassLibX.dll")));
+
+            // Verify if Trending template is present
+            Assert.AreEqual(1, builder.TrendTemplates.Count);
         }
 
         [TestMethod]
@@ -76,6 +79,9 @@
 
             // Verify assembly from DLLs folder is included.
             Assert.IsNotNull(builder.Assemblies.FirstOrDefault(a => a.AssemblyFilePath.EndsWith("ClassLibX.dll")));
+
+            // Verify if Trending template is present
+            Assert.AreEqual(1, builder.TrendTemplates.Count);
         }
     }
 }
