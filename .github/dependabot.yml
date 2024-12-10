@@ -10,9 +10,6 @@ updates:
     schedule:
       interval: "daily"
     groups:
-      mstest:
-        patterns:
-          - "MSTest.*"
       skyline-cicd:
         patterns:
           - "Skyline.DataMiner.CICD.*"
