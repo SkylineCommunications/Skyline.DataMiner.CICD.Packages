@@ -1,11 +1,9 @@
 ﻿namespace Skyline.DataMiner.CICD.Tools.Packager
 {
     using System;
-    using System.Collections.Generic;
     using System.CommandLine;
     using System.CommandLine.Parsing;
     using System.Diagnostics;
-    using System.IO;
     using System.Linq;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
@@ -18,7 +16,10 @@
     using Skyline.DataMiner.CICD.DMProtocol;
     using Skyline.DataMiner.CICD.FileSystem;
     using Skyline.DataMiner.CICD.Loggers;
+    using Skyline.DataMiner.CICD.Parsers.Common.VisualStudio;
     using Skyline.DataMiner.CICD.Tools.Reporter;
+
+    using Solution = Skyline.DataMiner.CICD.Parsers.Common.VisualStudio.Solution;
 
     /// <summary>
     /// This .NET tool allows you to create dmapp and dmprotocol packages..
@@ -114,7 +115,7 @@
 
             var dmappType = new Option<string>(
                 name: "--type",
-                description: "Can be ignored for Skyline.DataMiner.Sdk Projects. In case of Legacy Solutions this defined the type of dmapp package created by the solution.")
+                description: "Can be ignored for Skyline.DataMiner.Sdk Projects. In case of Legacy Solutions this defines the type of dmapp package created by the solution.")
             {
                 IsRequired = false,
             }.FromAmong("automation", "visio", "dashboard", "protocolvisio", "sdk");
@@ -192,49 +193,54 @@
                 var fs = FileSystem.Instance;
 
                 // sdk type means we just perform dotnet build then move all the .dmapp created to the outputDirectory
-                // Supporting multiple solutions in the same workspace here, then this tool has some additional functionalty beyond dotnet build
+                // Supporting multiple solutions in the same workspace here, then this tool has some additional functionality beyond dotnet build
                 var allSolutions = fs.Directory.EnumerateFiles(workspace, "*.sln", System.IO.SearchOption.AllDirectories);
-                string dmappVersion;
 
-                if (!String.IsNullOrWhiteSpace(version))
-                {
-                    dmappVersion = version;
-                }
-                else
-                {
-                    dmappVersion = $"0.0.{buildNumber}";
-                }
+                string dmappVersion = String.IsNullOrWhiteSpace(version) ? $"0.0.{buildNumber}" : version;
 
                 foreach (var solution in allSolutions)
                 {
-                    ProcessStartInfo psi;
+                    Solution loadedSolution = Solution.Load(solution);
 
-                    // No support for --ouput or similar. BaseOutput has bad behavior, the other outputs aren't processed by the SDK
-                    psi = new ProcessStartInfo
+                    foreach (ProjectInSolution projectInSolution in loadedSolution.Projects)
                     {
-                        FileName = "dotnet",
-                        Arguments = $"build \"{solution}\" -p:Version={dmappVersion}",
-                        UseShellExecute = false
-                    };
+                        if (loadedSolution.LoadProject(projectInSolution).DataMinerProjectType == null)
+                        {
+                            // Not a Skyline.DataMiner.Sdk project
+                            continue;
+                        }
+                        
+                        // --output is currently not supported yet. Needs changes on the Skyline.DataMiner.Sdk for that.
+                        ProcessStartInfo psi = new()
+                        {
+                            FileName = "dotnet",
+                            Arguments = $"build \"{projectInSolution.AbsolutePath}\" -p:Version={dmappVersion} -target:DmappCreation;CatalogInformation",
+                            UseShellExecute = false
+                        };
 
-                    using (Process process = Process.Start(psi))
-                    {
-                        process.WaitForExit();
-                        Console.WriteLine($"Build exited with code {process.ExitCode}");
+                        using Process process = Process.Start(psi);
+                        if (process is not null)
+                        {
+                            await process.WaitForExitAsync();
+                            Console.WriteLine($"DmappCreation/CatalogInformation exited with code {process.ExitCode}");
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException("Failed to start process to create package.");
+                        }
                     }
                 }
 
                 var allDmapps = fs.Directory.EnumerateFiles(workspace, "*.dmapp", System.IO.SearchOption.AllDirectories)
-     .Where(file => file.Contains($"bin"));
+                                  .Where(file => file.Contains("bin"));
                 var allZips = fs.Directory.EnumerateFiles(workspace, "*.zip", System.IO.SearchOption.AllDirectories)
-.Where(file => file.Contains($"bin"));
+                                .Where(file => file.Contains("bin"));
 
                 fs.Directory.CreateDirectory(outputDirectory);
 
                 foreach (var dmappFile in allDmapps)
                 {
-                    string parentDirectory = fs.Path.GetDirectoryName(dmappFile);
-                    fs.File.MoveFile(dmappFile, parentDirectory, outputDirectory, true);
+                    fs.File.MoveFile(dmappFile, fs.Path.GetDirectoryName(dmappFile), outputDirectory, true);
                 }
 
                 foreach (var zipFile in allZips)
