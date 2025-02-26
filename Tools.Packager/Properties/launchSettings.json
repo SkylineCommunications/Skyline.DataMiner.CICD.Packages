@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "CICD.Tools.Packager": {
+      "commandName": "Project"
+    }
+  }
+}
