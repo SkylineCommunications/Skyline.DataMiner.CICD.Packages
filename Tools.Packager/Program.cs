@@ -190,63 +190,7 @@
         {
             if (dmappType == "sdk")
             {
-                var fs = FileSystem.Instance;
-
-                // sdk type means we just perform dotnet build then move all the .dmapp created to the outputDirectory
-                // Supporting multiple solutions in the same workspace here, then this tool has some additional functionality beyond dotnet build
-                var allSolutions = fs.Directory.EnumerateFiles(workspace, "*.sln", System.IO.SearchOption.AllDirectories);
-
-                string dmappVersion = String.IsNullOrWhiteSpace(version) ? $"0.0.{buildNumber}" : version;
-
-                foreach (var solution in allSolutions)
-                {
-                    Solution loadedSolution = Solution.Load(solution);
-
-                    foreach (ProjectInSolution projectInSolution in loadedSolution.Projects)
-                    {
-                        if (loadedSolution.LoadProject(projectInSolution).DataMinerProjectType == null)
-                        {
-                            // Not a Skyline.DataMiner.Sdk project
-                            continue;
-                        }
-                        
-                        // --output is currently not supported yet. Needs changes on the Skyline.DataMiner.Sdk for that.
-                        ProcessStartInfo psi = new()
-                        {
-                            FileName = "dotnet",
-                            Arguments = $"build \"{projectInSolution.AbsolutePath}\" -p:Version={dmappVersion} -target:DmappCreation;CatalogInformation",
-                            UseShellExecute = false
-                        };
-
-                        using Process process = Process.Start(psi);
-                        if (process is not null)
-                        {
-                            await process.WaitForExitAsync();
-                            Console.WriteLine($"DmappCreation/CatalogInformation exited with code {process.ExitCode}");
-                        }
-                        else
-                        {
-                            throw new InvalidOperationException("Failed to start process to create package.");
-                        }
-                    }
-                }
-
-                var allDmapps = fs.Directory.EnumerateFiles(workspace, "*.dmapp", System.IO.SearchOption.AllDirectories)
-                                  .Where(file => file.Contains("bin"));
-                var allZips = fs.Directory.EnumerateFiles(workspace, "*.zip", System.IO.SearchOption.AllDirectories)
-                                .Where(file => file.Contains("bin"));
-
-                fs.Directory.CreateDirectory(outputDirectory);
-
-                foreach (var dmappFile in allDmapps)
-                {
-                    fs.File.MoveFile(dmappFile, fs.Path.GetDirectoryName(dmappFile), outputDirectory, true);
-                }
-
-                foreach (var zipFile in allZips)
-                {
-                    fs.File.MoveFile(zipFile, fs.Path.GetDirectoryName(zipFile), outputDirectory, true);
-                }
+                await ProcessDmappSdkAsync(workspace, outputDirectory, buildNumber, version);
             }
             else
             {
@@ -308,6 +252,68 @@
                 DMAppFileName dmAppFileName = new DMAppFileName(packageName + ".dmapp");
                 await appPackageCreator.CreateAsync(outputDirectory, dmAppFileName);
                 await SendMetricAsync("DMAPP", dmappType);
+            }
+        }
+
+        private static async Task ProcessDmappSdkAsync(string workspace, string outputDirectory, uint buildNumber, string version)
+        {
+            var fs = FileSystem.Instance;
+
+            // sdk type means we just perform dotnet build then move all the .dmapp created to the outputDirectory
+            // Supporting multiple solutions in the same workspace here, then this tool has some additional functionality beyond dotnet build
+            var allSolutions = fs.Directory.EnumerateFiles(workspace, "*.sln", System.IO.SearchOption.AllDirectories);
+
+            string dmappVersion = String.IsNullOrWhiteSpace(version) ? $"0.0.{buildNumber}" : version;
+
+            string temporaryDirectory = FileSystem.Instance.Directory.CreateTemporaryDirectory();
+
+            try
+            {
+                foreach (var solution in allSolutions)
+                {
+                    Solution loadedSolution = Solution.Load(solution);
+
+                    foreach (ProjectInSolution projectInSolution in loadedSolution.Projects)
+                    {
+                        if (loadedSolution.LoadProject(projectInSolution).DataMinerProjectType == null)
+                        {
+                            // Not a Skyline.DataMiner.Sdk project
+                            continue;
+                        }
+
+                        ProcessStartInfo psi = new()
+                        {
+                            FileName = "dotnet",
+                            Arguments = $"build \"{projectInSolution.AbsolutePath}\" -p:Version={dmappVersion} -target:DmappCreation;CatalogInformation --output \"{temporaryDirectory}\"",
+                            UseShellExecute = false
+                        };
+
+                        using Process process = Process.Start(psi);
+                        if (process is not null)
+                        {
+                            await process.WaitForExitAsync();
+                            Console.WriteLine($"DmappCreation/CatalogInformation exited with code {process.ExitCode}");
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException("Failed to start process to create package.");
+                        }
+                    }
+                }
+                
+                var allFiles = fs.Directory.EnumerateFiles(temporaryDirectory, "*.dmapp", System.IO.SearchOption.AllDirectories)
+                                  .Union(fs.Directory.EnumerateFiles(temporaryDirectory, "*.zip", System.IO.SearchOption.AllDirectories));
+
+                fs.Directory.CreateDirectory(outputDirectory);
+
+                foreach (var file in allFiles)
+                {
+                    fs.File.MoveFile(file, fs.Path.GetDirectoryName(file), outputDirectory, true);
+                }
+            }
+            finally
+            {
+                FileSystem.Instance.Directory.DeleteDirectory(temporaryDirectory);
             }
         }
 
