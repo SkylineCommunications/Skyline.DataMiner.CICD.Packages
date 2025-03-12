@@ -3,6 +3,8 @@
     using System;
     using System.CommandLine;
     using System.CommandLine.Parsing;
+    using System.Diagnostics;
+    using System.Linq;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
 
@@ -14,7 +16,10 @@
     using Skyline.DataMiner.CICD.DMProtocol;
     using Skyline.DataMiner.CICD.FileSystem;
     using Skyline.DataMiner.CICD.Loggers;
+    using Skyline.DataMiner.CICD.Parsers.Common.VisualStudio;
     using Skyline.DataMiner.CICD.Tools.Reporter;
+
+    using Solution = Skyline.DataMiner.CICD.Parsers.Common.VisualStudio.Solution;
 
     /// <summary>
     /// This .NET tool allows you to create dmapp and dmprotocol packages..
@@ -64,7 +69,7 @@
 
             var packageName = new Option<string>(
                 name: "--name",
-                description: "Name of the package.")
+                description: "Name of the package. Can be ignored for Skyline.DataMiner.Sdk Projects as this is not used.")
             {
                 IsRequired = false,
                 ArgumentHelpName = "OUTPUT_NAME"
@@ -110,11 +115,12 @@
 
             var dmappType = new Option<string>(
                 name: "--type",
-                description: "Type of dmapp package.")
+                description: "Can be ignored for Skyline.DataMiner.Sdk Projects. In case of Legacy Solutions this defines the type of dmapp package created by the solution.")
             {
-                IsRequired = true,
-            }.FromAmong("automation", "visio", "dashboard", "protocolvisio");
+                IsRequired = false,
+            }.FromAmong("automation", "visio", "dashboard", "protocolvisio", "sdk");
             dmappType.AddAlias("-t");
+            dmappType.SetDefaultValue("sdk");
 
             var buildNumber = new Option<uint>(
                 name: "--build-number",
@@ -182,65 +188,133 @@
 
         private static async Task ProcessDmAppAsync(string workspace, string outputDirectory, string packageName, bool debug, string dmappType, uint buildNumber, string version, string protocolName)
         {
-            IAppPackageCreator appPackageCreator;
-            DMAppVersion dmAppVersion;
-
-            if (!String.IsNullOrWhiteSpace(version))
+            if (dmappType == "sdk")
             {
-                if (Regex.IsMatch(version, "^[0-9]+.[0-9]+.[0-9]+(-CU[0-9]+)?$"))
-                {
-                    dmAppVersion = DMAppVersion.FromDataMinerVersion(version);
-                }
-                else if (Regex.IsMatch(version, "[0-9]+.[0-9]+.[0-9]+.[0-9]+$"))
-                {
-                    dmAppVersion = DMAppVersion.FromProtocolVersion(version);
-                }
-                else
-                {
-                    // Supports pre-releases
-                    dmAppVersion = DMAppVersion.FromPreRelease(version);
-                }
+                await ProcessDmappSdkAsync(workspace, outputDirectory, buildNumber, version);
             }
             else
             {
-                dmAppVersion = DMAppVersion.FromBuildNumber(buildNumber);
-            }
+                IAppPackageCreator appPackageCreator;
+                DMAppVersion dmAppVersion;
 
-            if (String.IsNullOrWhiteSpace(packageName))
+                if (!String.IsNullOrWhiteSpace(version))
+                {
+                    if (Regex.IsMatch(version, "^[0-9]+.[0-9]+.[0-9]+(-CU[0-9]+)?$"))
+                    {
+                        dmAppVersion = DMAppVersion.FromDataMinerVersion(version);
+                    }
+                    else if (Regex.IsMatch(version, "[0-9]+.[0-9]+.[0-9]+.[0-9]+$"))
+                    {
+                        dmAppVersion = DMAppVersion.FromProtocolVersion(version);
+                    }
+                    else
+                    {
+                        // Supports pre-releases
+                        dmAppVersion = DMAppVersion.FromPreRelease(version);
+                    }
+                }
+                else
+                {
+                    dmAppVersion = DMAppVersion.FromBuildNumber(buildNumber);
+                }
+
+                if (String.IsNullOrWhiteSpace(packageName))
+                {
+                    // Create default name if no custom name was used.
+                    packageName = $"Package {dmAppVersion}";
+                }
+
+                switch (dmappType)
+                {
+                    case "automation":
+                        appPackageCreator =
+                            AppPackageCreatorForAutomation.Factory.FromRepository(new Logging(debug), workspace, packageName, dmAppVersion);
+                        break;
+
+                    case "visio":
+                        appPackageCreator =
+                            AppPackageCreatorForVisio.Factory.FromRepository(new Logging(debug), workspace, packageName, dmAppVersion);
+                        break;
+
+                    case "protocolvisio":
+                        appPackageCreator = AppPackageCreatorForProtocolVisio.Factory.FromRepository(FileSystem.Instance, new Logging(debug),
+                            workspace, packageName, dmAppVersion, protocolName);
+                        break;
+
+                    case "dashboard":
+                        appPackageCreator =
+                            AppPackageCreatorForDashboard.Factory.FromRepository(new Logging(debug), workspace, packageName, dmAppVersion);
+                        break;
+                    default:
+                        throw new NotImplementedException($"DMApp type '{dmappType}' has not been implemented yet.");
+                }
+
+                DMAppFileName dmAppFileName = new DMAppFileName(packageName + ".dmapp");
+                await appPackageCreator.CreateAsync(outputDirectory, dmAppFileName);
+                await SendMetricAsync("DMAPP", dmappType);
+            }
+        }
+
+        private static async Task ProcessDmappSdkAsync(string workspace, string outputDirectory, uint buildNumber, string version)
+        {
+            var fs = FileSystem.Instance;
+
+            // sdk type means we just perform dotnet build then move all the .dmapp created to the outputDirectory
+            // Supporting multiple solutions in the same workspace here, then this tool has some additional functionality beyond dotnet build
+            var allSolutions = fs.Directory.EnumerateFiles(workspace, "*.sln", System.IO.SearchOption.AllDirectories);
+
+            string dmappVersion = String.IsNullOrWhiteSpace(version) ? $"0.0.{buildNumber}" : version;
+
+            string temporaryDirectory = FileSystem.Instance.Directory.CreateTemporaryDirectory();
+
+            try
             {
-                // Create default name if no custom name was used.
-                packageName = $"Package {dmAppVersion}";
-            }
+                foreach (var solution in allSolutions)
+                {
+                    Solution loadedSolution = Solution.Load(solution);
 
-            switch (dmappType)
+                    foreach (ProjectInSolution projectInSolution in loadedSolution.Projects)
+                    {
+                        if (loadedSolution.LoadProject(projectInSolution).DataMinerProjectType == null)
+                        {
+                            // Not a Skyline.DataMiner.Sdk project
+                            continue;
+                        }
+
+                        ProcessStartInfo psi = new()
+                        {
+                            FileName = "dotnet",
+                            Arguments = $"build \"{projectInSolution.AbsolutePath}\" -p:Version={dmappVersion} -target:DmappCreation;CatalogInformation --output \"{temporaryDirectory}\"",
+                            UseShellExecute = false
+                        };
+
+                        using Process process = Process.Start(psi);
+                        if (process is not null)
+                        {
+                            await process.WaitForExitAsync();
+                            Console.WriteLine($"DmappCreation/CatalogInformation exited with code {process.ExitCode}");
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException("Failed to start process to create package.");
+                        }
+                    }
+                }
+                
+                var allFiles = fs.Directory.EnumerateFiles(temporaryDirectory, "*.dmapp", System.IO.SearchOption.AllDirectories)
+                                  .Union(fs.Directory.EnumerateFiles(temporaryDirectory, "*.zip", System.IO.SearchOption.AllDirectories));
+
+                fs.Directory.CreateDirectory(outputDirectory);
+
+                foreach (var file in allFiles)
+                {
+                    fs.File.MoveFile(file, fs.Path.GetDirectoryName(file), outputDirectory, true);
+                }
+            }
+            finally
             {
-                case "automation":
-                    appPackageCreator =
-                        AppPackageCreatorForAutomation.Factory.FromRepository(new Logging(debug), workspace, packageName, dmAppVersion);
-                    break;
-
-                case "visio":
-                    appPackageCreator =
-                        AppPackageCreatorForVisio.Factory.FromRepository(new Logging(debug), workspace, packageName, dmAppVersion);
-                    break;
-
-                case "protocolvisio":
-                    appPackageCreator = AppPackageCreatorForProtocolVisio.Factory.FromRepository(FileSystem.Instance, new Logging(debug),
-                        workspace, packageName, dmAppVersion, protocolName);
-                    break;
-
-                case "dashboard":
-                    appPackageCreator =
-                        AppPackageCreatorForDashboard.Factory.FromRepository(new Logging(debug), workspace, packageName, dmAppVersion);
-                    break;
-
-                default:
-                    throw new NotImplementedException($"DMApp type '{dmappType}' has not been implemented yet.");
+                FileSystem.Instance.Directory.DeleteDirectory(temporaryDirectory);
             }
-
-            DMAppFileName dmAppFileName = new DMAppFileName(packageName + ".dmapp");
-            await appPackageCreator.CreateAsync(outputDirectory, dmAppFileName);
-            await SendMetricAsync("DMAPP", dmappType);
         }
 
         private static async Task ProcessDmProtocolAsync(string workspace, string outputDirectory, string packageName, string versionOverride, bool debug)
