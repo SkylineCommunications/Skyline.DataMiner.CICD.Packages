@@ -69,7 +69,7 @@
 
             var packageName = new Option<string>(
                 name: "--name",
-                description: "Name of the package.")
+                description: "Name of the package. Can be ignored for Skyline.DataMiner.Sdk Projects as this is not used.")
             {
                 IsRequired = false,
                 ArgumentHelpName = "OUTPUT_NAME"
