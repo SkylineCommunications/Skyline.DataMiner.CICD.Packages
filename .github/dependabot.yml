@@ -10,9 +10,9 @@ updates:
     schedule:
       interval: "daily"
     groups:
-      skyline-cicd:
+      skyline-cicd-assemblers:
         patterns:
-          - "Skyline.DataMiner.CICD.*"
+          - "Skyline.DataMiner.CICD.Assemblers.*"
     ignore:
       - dependency-name: "FluentAssertions"
         versions: [ ">=8.0.0" ]
