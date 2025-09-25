@@ -13,8 +13,29 @@ The following packages are available:
 - Skyline.DataMiner.CICD.DMApp.Dashboard
 - Skyline.DataMiner.CICD.DMApp.Visio
 - Skyline.DataMiner.CICD.DMProtocol
+- Skyline.DataMiner.CICD.Assemblers.Common
+- Skyline.DataMiner.CICD.Assemblers.Automation
+- Skyline.DataMiner.CICD.Assemblers.Protocol
+- Skyline.DataMiner.CICD.Parsers.Common
+- Skyline.DataMiner.CICD.Parsers.Automation
+- Skyline.DataMiner.CICD.Parsers.Protocol
 
 Depending on the chosen NuGet, these libraries will provide the ability to easily convert from a DIS-provided Visual Studio Solution of your chosen type into either a *.dmapp* or *.dmprotocol* file. These files can then be installed on a DataMiner system.
+
+## Repository Structure
+
+This repository contains multiple related packages that have been merged from separate repositories to streamline development and maintenance:
+
+### Main Packages
+- **DMApp.*** - Application package creation functionality
+- **DMProtocol** - Protocol package creation functionality  
+- **Tools.Packager** - Command-line tool for package creation
+
+### Integrated Components
+- **Assemblers.*** - Previously from `Skyline.DataMiner.CICD.Assemblers` repository
+- **Parsers.*** - Previously from `Skyline.DataMiner.CICD.Parsers` repository
+
+The integration allows for better dependency management and more efficient development workflows.
 
 ### About DataMiner
 
