@@ -29,11 +29,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Skyline.DataMiner.CICD.Assemblers.Automation" Version="1.3.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DMApp.Common\DMApp.Common.csproj" />
+    <ProjectReference Include="..\Assemblers.Automation\Assemblers.Automation.csproj" />
   </ItemGroup>
 
 </Project>
