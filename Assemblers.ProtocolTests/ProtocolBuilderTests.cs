@@ -38,7 +38,7 @@
             var buildResultItems = await protocolBuilder.BuildAsync();
 
             Assert.IsNotNull(buildResultItems.Assemblies);
-            Assert.AreEqual(1, buildResultItems.Assemblies.Count);
+            Assert.HasCount(1, buildResultItems.Assemblies);
             Assert.AreEqual(@"microsoft.visualstudio.validation\17.8.8\lib\netstandard2.0\Microsoft.VisualStudio.Validation.dll", buildResultItems.Assemblies.First().DllImport);
         }
 
@@ -57,7 +57,7 @@
             var buildResultItems = await protocolBuilder.BuildAsync();
 
             Assert.IsNotNull(buildResultItems.Assemblies);
-            Assert.AreEqual(18, buildResultItems.Assemblies.Count);
+            Assert.HasCount(18, buildResultItems.Assemblies);
         }
 
         [TestMethod]

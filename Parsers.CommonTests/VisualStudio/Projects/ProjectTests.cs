@@ -301,7 +301,7 @@ namespace Parsers.CommonTests.VisualStudio.Projects
             Assert.AreEqual(path, project.Path);
             Assert.AreEqual("QAction_1", project.AssemblyName);
 
-            Assert.AreEqual(2, project.ProjectReferences.Count());
+            Assert.HasCount(2, project.ProjectReferences);
 
             var refHelper = project.ProjectReferences.FirstOrDefault(r => r.Name == "QAction_Helper");
             Assert.AreEqual(@"..\QAction_Helper\QAction_Helper.csproj", refHelper.Path);
@@ -325,7 +325,7 @@ namespace Parsers.CommonTests.VisualStudio.Projects
             Assert.AreEqual(path, project.Path);
             Assert.AreEqual("QAction_2", project.AssemblyName);
 
-            Assert.AreEqual(3, project.ProjectReferences.Count());
+            Assert.HasCount(3, project.ProjectReferences);
 
             var refQA1 = project.ProjectReferences.FirstOrDefault(r => r.Name == "QAction_1");
             Assert.AreEqual(@"..\QAction_1\QAction_1.csproj", refQA1.Path);
@@ -353,7 +353,7 @@ namespace Parsers.CommonTests.VisualStudio.Projects
             Assert.AreEqual(path, project.Path);
             Assert.AreEqual("QAction_3", project.AssemblyName);
 
-            Assert.AreEqual(2, project.ProjectReferences.Count());
+            Assert.HasCount(2, project.ProjectReferences);
 
             var refHelper = project.ProjectReferences.FirstOrDefault(r => r.Name == "QAction_Helper");
             Assert.AreEqual(@"..\QAction_Helper\QAction_Helper.csproj", refHelper.Path);

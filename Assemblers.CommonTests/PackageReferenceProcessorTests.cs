@@ -33,15 +33,15 @@
             var result = await packageReferenceProcessor.ProcessAsync(projectPackages, targetFrameworkMoniker, DevPackHelper.ProtocolDevPackNuGetDependenciesIncludingTransitive);
 
             Assert.IsNotNull(result);
-            Assert.AreEqual(0, result.ImplicitDllImportDirectoryReferences.Count);
-            Assert.AreEqual(0, result.DllImportFrameworkAssemblyReferences.Count);
-            Assert.AreEqual(0, result.DllImportDirectoryReferences.Count);
-            Assert.AreEqual(0, result.DllImportDirectoryReferencesAssembly.Count);
+            Assert.IsEmpty(result.ImplicitDllImportDirectoryReferences);
+            Assert.IsEmpty(result.DllImportFrameworkAssemblyReferences);
+            Assert.IsEmpty(result.DllImportDirectoryReferences);
+            Assert.IsEmpty(result.DllImportDirectoryReferencesAssembly);
 
-            Assert.AreEqual(0, result.NugetAssemblies.Count);    // Assembly must not be included in package, only needs to be added to dllImport.
-            Assert.AreEqual(2, result.DllImportNugetAssemblyReferences.Count);
+            Assert.IsEmpty(result.NugetAssemblies);    // Assembly must not be included in package, only needs to be added to dllImport.
+            Assert.HasCount(2, result.DllImportNugetAssemblyReferences);
 
-            Assert.AreEqual(2, result.ProcessedAssemblies.Count);
+            Assert.HasCount(2, result.ProcessedAssemblies);
         }
 
         [TestMethod]
@@ -61,15 +61,15 @@
             var result = await packageReferenceProcessor.ProcessAsync(projectPackages, targetFrameworkMoniker, DevPackHelper.AutomationDevPackNuGetDependenciesIncludingTransitive);
 
             Assert.IsNotNull(result);
-            Assert.AreEqual(0, result.ImplicitDllImportDirectoryReferences.Count);
-            Assert.AreEqual(0, result.DllImportFrameworkAssemblyReferences.Count);
-            Assert.AreEqual(0, result.DllImportDirectoryReferences.Count);
-            Assert.AreEqual(0, result.DllImportDirectoryReferencesAssembly.Count);
+            Assert.IsEmpty(result.ImplicitDllImportDirectoryReferences);
+            Assert.IsEmpty(result.DllImportFrameworkAssemblyReferences);
+            Assert.IsEmpty(result.DllImportDirectoryReferences);
+            Assert.IsEmpty(result.DllImportDirectoryReferencesAssembly);
 
-            Assert.AreEqual(0, result.NugetAssemblies.Count);    // Assembly must not be included in package, only needs to be added to dllImport.
-            Assert.AreEqual(2, result.DllImportNugetAssemblyReferences.Count);
+            Assert.IsEmpty(result.NugetAssemblies);    // Assembly must not be included in package, only needs to be added to dllImport.
+            Assert.HasCount(2, result.DllImportNugetAssemblyReferences);
 
-            Assert.AreEqual(2, result.ProcessedAssemblies.Count);
+            Assert.HasCount(2, result.ProcessedAssemblies);
         }
 
         [TestMethod]

@@ -31,12 +31,12 @@
             Assert.AreEqual(path, solution.SolutionPath);
             Assert.AreEqual(FileSystem.Instance.Path.GetDirectoryName(path), solution.SolutionDirectory);
 
-            Assert.AreEqual(3, solution.Projects.Count());
-            Assert.AreEqual(2, solution.Scripts.Count());
+            Assert.HasCount(3, solution.Projects);
+            Assert.HasCount(2, solution.Scripts);
 
             var script1 = solution.Scripts.FirstOrDefault(s => s.Script.Name == "Script_1").Script;
             Assert.IsNotNull(script1);
-            Assert.AreEqual(2, script1.ScriptExes.Count());
+            Assert.HasCount(2, script1.ScriptExes);
             var exes1 = script1.ScriptExes.ToList();
             Assert.AreEqual("[Project:Script_1a]", exes1[0].Code);
             Assert.AreEqual("[Project:Script_1b]", exes1[1].Code);
@@ -44,7 +44,7 @@
 
             var script2 = solution.Scripts.FirstOrDefault(s => s.Script.Name == "Script_2").Script;
             Assert.IsNotNull(script2);
-            Assert.AreEqual(1, script2.ScriptExes.Count());
+            Assert.HasCount(1, script2.ScriptExes);
             Assert.AreEqual("[Project:Script_2]", script2.ScriptExes.First().Code);
         }
 
@@ -66,12 +66,12 @@
             Assert.AreEqual(path, solution.SolutionPath);
             Assert.AreEqual(FileSystem.Instance.Path.GetDirectoryName(path), solution.SolutionDirectory);
 
-            Assert.AreEqual(3, solution.Projects.Count());
-            Assert.AreEqual(2, solution.Scripts.Count());
+            Assert.HasCount(3, solution.Projects);
+            Assert.HasCount(2, solution.Scripts);
 
             var script1 = solution.Scripts.FirstOrDefault(s => s.Script.Name == "Script_1").Script;
             Assert.IsNotNull(script1);
-            Assert.AreEqual(2, script1.ScriptExes.Count());
+            Assert.HasCount(2, script1.ScriptExes);
             var exes1 = script1.ScriptExes.ToList();
             Assert.AreEqual("[Project:Script_1a]", exes1[0].Code);
             Assert.AreEqual("[Project:Script_1b]", exes1[1].Code);
@@ -79,7 +79,7 @@
 
             var script2 = solution.Scripts.FirstOrDefault(s => s.Script.Name == "Script_2").Script;
             Assert.IsNotNull(script2);
-            Assert.AreEqual(1, script2.ScriptExes.Count());
+            Assert.HasCount(1, script2.ScriptExes);
             Assert.AreEqual("[Project:Script_2]", script2.ScriptExes.First().Code);
         }
 
@@ -101,12 +101,12 @@
             Assert.AreEqual(path, solution.SolutionPath);
             Assert.AreEqual(FileSystem.Instance.Path.GetDirectoryName(path), solution.SolutionDirectory);
 
-            Assert.AreEqual(3, solution.Projects.Count());
-            Assert.AreEqual(2, solution.Scripts.Count());
+            Assert.HasCount(3, solution.Projects);
+            Assert.HasCount(2, solution.Scripts);
 
             var script1 = solution.Scripts.FirstOrDefault(s => s.Script.Name == "Script_1").Script;
             Assert.IsNotNull(script1);
-            Assert.AreEqual(2, script1.ScriptExes.Count());
+            Assert.HasCount(2, script1.ScriptExes);
             var exes1 = script1.ScriptExes.ToList();
             Assert.AreEqual("[Project:Script_1a]", exes1[0].Code);
             Assert.AreEqual("[Project:Script_1b]", exes1[1].Code);
@@ -114,7 +114,7 @@
 
             var script2 = solution.Scripts.FirstOrDefault(s => s.Script.Name == "Script_2").Script;
             Assert.IsNotNull(script2);
-            Assert.AreEqual(1, script2.ScriptExes.Count());
+            Assert.HasCount(1, script2.ScriptExes);
             Assert.AreEqual("[Project:Script_2]", script2.ScriptExes.First().Code);
         }
 
@@ -153,12 +153,12 @@
             Assert.AreEqual(path, solution.SolutionPath);
             Assert.AreEqual(FileSystem.Instance.Path.GetDirectoryName(path), solution.SolutionDirectory);
 
-            Assert.AreEqual(1, solution.Projects.Count());
-            Assert.AreEqual(1, solution.Scripts.Count());
+            Assert.HasCount(1, solution.Projects);
+            Assert.HasCount(1, solution.Scripts);
 
             var script1 = solution.Scripts.FirstOrDefault(s => s.Script.Name == "New").Script;
             Assert.IsNotNull(script1);
-            Assert.AreEqual(1, script1.ScriptExes.Count());
+            Assert.HasCount(1, script1.ScriptExes);
             var exes1 = script1.ScriptExes.ToList();
             Assert.AreEqual("[Project:New_1]", exes1[0].Code);
             //CollectionAssert.AreEquivalent(new[] { "Newtonsoft.Json.dll" }, exes1[0].DllImports.ToArray());

@@ -68,6 +68,7 @@
 
         private void LoadProtocol()
         {
+            logCollector?.ReportDebug("Load protocol");
             var solutionItems = GetSubFolder("Solution Items");
             if (solutionItems == null)
             {
@@ -88,6 +89,7 @@
 
         private void LoadQActions()
         {
+            logCollector?.ReportDebug("Load QActions");
             var qactions = new List<QAction>();
 
             var xmlQActions = ProtocolDocument?.Element["Protocol"]?.Element["QActions"]?.Elements["QAction"];

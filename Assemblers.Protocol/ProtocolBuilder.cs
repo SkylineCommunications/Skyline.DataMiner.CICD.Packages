@@ -161,6 +161,7 @@
         /// Cannot replace QAction, because the target XML node is not empty.</exception>
         public async Task<BuildResultItems> BuildAsync()
         {
+            logCollector?.ReportStatus("Building the protocol.");
             var protocolEdit = new ProtocolDocumentEdit(Document, Model);
             return await BuildResultsAsync(protocolEdit).ConfigureAwait(false);
         }
@@ -219,6 +220,7 @@
 
         private async Task BuildQActions(ProtocolDocumentEdit protocolEdit, BuildResultItems buildResultItems, ICompliancies compliancies)
         {
+            logCollector?.ReportDebug("Building QActions");
             var packageReferenceProcessor = new PackageReferenceProcessor(directoryForNuGetConfig: null);
 
             var qactions = protocolEdit.Protocol?.QActions;
@@ -383,57 +385,58 @@
         private static void ProcessReferences(Project project, PackageReferenceProcessor packageReferenceProcessor, ICompliancies compliancies,
             NuGetPackageAssemblyData nugetAssemblyData, string dllsFolder, HashSet<string> dllImports, BuildResultItems buildResultItems)
         {
-            if (project.References != null)
+            if (project.References == null)
             {
-                foreach (Reference r in project.References)
+                return;
+            }
+
+            foreach (Reference r in project.References)
+            {
+                string dllName = r.GetDllName();
+
+                if (IsDllDefaultInQAction(dllName, compliancies) || DevPackHelper.IsDevPackDllReference(r) ||
+                    (nugetAssemblyData != null && nugetAssemblyData.ProcessedAssemblies.Contains(dllName)))
                 {
-                    string dllName = r.GetDllName();
+                    continue;
+                }
 
-                    if (IsDllDefaultInQAction(dllName, compliancies) || DevPackHelper.IsDevPackDllReference(r) ||
-                        (nugetAssemblyData != null && nugetAssemblyData.ProcessedAssemblies.Contains(dllName)))
+                if (r.HintPath?.Contains(packageReferenceProcessor.NuGetRootPath) == true)
+                {
+                    // DLL is from a NuGet but is transitive from precompile or other project reference.
+                    // These can be ignored.
+                    continue;
+                }
+
+                if (r.HintPath != null && FileSystem.Instance.Path.IsPathRooted(r.HintPath))
+                {
+                    string absolutePath = r.HintPath;
+
+                    if (absolutePath.StartsWith(@"C:\Skyline DataMiner\ProtocolScripts\DllImport\"))
                     {
-                        continue;
+                        dllName = absolutePath.Substring(47);
                     }
-
-                    if (r.HintPath?.Contains(packageReferenceProcessor.NuGetRootPath) == true)
+                    else if (absolutePath.StartsWith(@"C:\Skyline DataMiner\ProtocolScripts\"))
                     {
-                        // DLL is from a NuGet but is transitive from precompile or other project reference.
-                        // These can be ignored.
+                        dllName = absolutePath.Substring(37);
                     }
-                    else
+                    else if (absolutePath.StartsWith(@"C:\Skyline DataMiner\Files\"))
                     {
-                        if (r.HintPath != null && FileSystem.Instance.Path.IsPathRooted(r.HintPath))
-                        {
-                            string absolutePath = r.HintPath;
-
-                            if (absolutePath.StartsWith(@"C:\Skyline DataMiner\ProtocolScripts\DllImport\"))
-                            {
-                                dllName = absolutePath.Substring(47);
-                            }
-                            else if (absolutePath.StartsWith(@"C:\Skyline DataMiner\ProtocolScripts\"))
-                            {
-                                dllName = absolutePath.Substring(37);
-                            }
-                            else if (absolutePath.StartsWith(@"C:\Skyline DataMiner\Files\"))
-                            {
-                                dllName = absolutePath.Substring(27);
-                            }
-                            else if (dllsFolder != null && absolutePath.StartsWith(dllsFolder))
-                            {
-                                dllName = absolutePath.Substring(dllsFolder.Length);
-                            }
-                        }
-
-                        dllImports.Add(dllName);
-
-                        // If custom DLL
-                        if (r.HintPath != null && project.ProjectStyle == ProjectStyle.Sdk)
-                        {
-                            string dllPath = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(project.ProjectDirectory, r.HintPath));
-
-                            buildResultItems.DllAssemblies.Add(new DllAssemblyReference(dllName, dllPath));
-                        }
+                        dllName = absolutePath.Substring(27);
                     }
+                    else if (dllsFolder != null && absolutePath.StartsWith(dllsFolder))
+                    {
+                        dllName = absolutePath.Substring(dllsFolder.Length);
+                    }
+                }
+
+                dllImports.Add(dllName);
+
+                // If custom DLL
+                if (r.HintPath != null && project.ProjectStyle == ProjectStyle.Sdk)
+                {
+                    string dllPath = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(project.ProjectDirectory, r.HintPath));
+
+                    buildResultItems.DllAssemblies.Add(new DllAssemblyReference(dllName, dllPath));
                 }
             }
         }
@@ -461,22 +464,25 @@
 
         private void BuildVersionHistoryComment(ProtocolDocumentEdit protocolEdit, IProtocolModel model)
         {
+            logCollector?.ReportDebug("Building version history comment");
             var versionHistory = model.Protocol?.VersionHistory;
-            if (versionHistory != null)
+            if (versionHistory == null)
             {
-                var xmlEdit = protocolEdit.Document;
-                var xmlProtocol = xmlEdit.TryFindNode(model.Protocol.ReadNode);
-
-                var firstXmlComment = xmlEdit.Children.OfType<EditXml.XmlComment>().FirstOrDefault();
-                if (firstXmlComment == null || xmlEdit.Children.IndexOf(firstXmlComment) > xmlEdit.Children.IndexOf(xmlProtocol))
-                {
-                    firstXmlComment = new EditXml.XmlComment("");
-                    xmlEdit.Children.InsertBefore(xmlProtocol, firstXmlComment);
-                    xmlEdit.Children.InsertBefore(xmlProtocol, new EditXml.XmlText("\r\n"));
-                }
-
-                firstXmlComment.InnerText += "\r\n\r\n" + BuildVersionHistoryComment(versionHistory);
+                return;
             }
+
+            var xmlEdit = protocolEdit.Document;
+            var xmlProtocol = xmlEdit.TryFindNode(model.Protocol.ReadNode);
+
+            var firstXmlComment = xmlEdit.Children.OfType<EditXml.XmlComment>().FirstOrDefault();
+            if (firstXmlComment == null || xmlEdit.Children.IndexOf(firstXmlComment) > xmlEdit.Children.IndexOf(xmlProtocol))
+            {
+                firstXmlComment = new EditXml.XmlComment("");
+                xmlEdit.Children.InsertBefore(xmlProtocol, firstXmlComment);
+                xmlEdit.Children.InsertBefore(xmlProtocol, new EditXml.XmlText("\r\n"));
+            }
+
+            firstXmlComment.InnerText += "\r\n\r\n" + BuildVersionHistoryComment(versionHistory);
         }
 
         private static string BuildVersionHistoryComment(IVersionHistory versionHistory)

@@ -145,8 +145,8 @@
             // Check
             var document = parser.Document;
             var a = document.Element["a"];
-            Assert.AreEqual(3, a.Children.Count);
-            Assert.AreEqual(null, a.InnerText);
+            Assert.HasCount(3, a.Children);
+            Assert.IsNull(a.InnerText);
 
             var b = a.Elements["b"].ToList();
 
@@ -173,8 +173,8 @@
             // Check
             var document = parser.Document;
             var a = document.Element["a"];
-            Assert.AreEqual(2, a.Children.Count);
-            Assert.AreEqual(null, a.InnerText);
+            Assert.HasCount(2, a.Children);
+            Assert.IsNull(a.InnerText);
 
             var b = a.Elements["b"].ToList();
 

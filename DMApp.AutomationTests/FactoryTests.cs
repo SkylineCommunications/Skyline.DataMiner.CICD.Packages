@@ -75,7 +75,7 @@ namespace DMApp.AutomationTests
             var package = await creator.BuildPackageAsync();
 
             // Assert.
-            Assert.AreEqual(2, package.AutomationScripts.Count);
+            Assert.HasCount(2, package.AutomationScripts);
             var scriptNames = package.AutomationScripts.Select(s => s.Name).ToList();
             scriptNames.Should().BeEquivalentTo(new List<string> { "Script_1", "Script_2" });
         }
@@ -93,7 +93,7 @@ namespace DMApp.AutomationTests
             var package = await creator.BuildPackageAsync();
 
             // Assert.
-            Assert.AreEqual(1, package.AutomationScripts.Count);
+            Assert.HasCount(1, package.AutomationScripts);
             var scriptNames = package.AutomationScripts.Select(s => s.Name).ToList();
             scriptNames.Should().Equal(new List<string> { "Script_1" });
         }
@@ -144,7 +144,7 @@ namespace DMApp.AutomationTests
 
             string scriptContent = Encoding.UTF8.GetString(automationScript.ScriptContent);
 
-            Assert.IsTrue(scriptContent.Contains("public bool TestSharedCall()"));
+            Assert.Contains("public bool TestSharedCall()", scriptContent);
         }
 
         [TestMethod]
@@ -162,7 +162,7 @@ namespace DMApp.AutomationTests
             // Assert.
             var automationScript = package.AutomationScripts.FirstOrDefault(a => a.Name == "Script_1");
             Assert.IsNotNull(automationScript);
-            Assert.AreEqual(1, automationScript.Assemblies.Count);
+            Assert.HasCount(1, automationScript.Assemblies);
 
             var includedAssembly = automationScript.Assemblies.FirstOrDefault();
             Assert.IsNotNull(includedAssembly);

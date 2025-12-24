@@ -46,7 +46,7 @@
 
             // Assert
             var changes = EditXml.XmlChangesDetector.GetChanges(xml, xmlEdit);
-            Assert.AreEqual(3, changes.Count);
+            Assert.HasCount(3, changes);
 
             var change1 = changes[0];
             Assert.AreEqual(EditXml.ChangeType.Deletion, change1.Type);
@@ -166,7 +166,7 @@
 
             // Assert
             var changes = EditXml.XmlChangesDetector.GetChanges(xml, xmlEdit);
-            Assert.AreEqual(2, changes.Count);
+            Assert.HasCount(2, changes);
 
             var change1 = changes[0];
             Assert.AreEqual(EditXml.ChangeType.Replace, change1.Type);
@@ -820,7 +820,7 @@
 
             // Assert
             var changes = EditXml.XmlChangesDetector.GetChanges(xml, xmlEdit);
-            Assert.AreEqual(0, changes.Count);
+            Assert.IsEmpty(changes);
         }
 
         #endregion

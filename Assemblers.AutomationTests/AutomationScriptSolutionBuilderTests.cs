@@ -35,7 +35,7 @@
 
             // check
             Assert.IsNotNull(result);
-            Assert.AreEqual(2, result.Count);
+            Assert.HasCount(2, result);
         }
 
         #endregion
@@ -58,7 +58,7 @@
 
             // check
             Assert.IsNotNull(result);
-            Assert.AreEqual(2, result.Count);
+            Assert.HasCount(2, result);
         }
 
         #endregion
@@ -80,9 +80,9 @@
 
             // check
             Assert.IsNotNull(result);
-            Assert.AreEqual(2, result.Count);
+            Assert.HasCount(2, result);
 
-            Assert.IsTrue(result.Single(x => x.Key.Name == "Script_1").Value.Document.Contains("namespace SharedProject"));
+            Assert.Contains("namespace SharedProject", result.Single(x => x.Key.Name == "Script_1").Value.Document);
         }
 
         #endregion
@@ -101,7 +101,7 @@
 
             var result = await builder.BuildAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(1, result.Count, "Expected 1 script in build result.");
+            Assert.HasCount(1, result, "Expected 1 script in build result.");
 
             var firstItem = result.FirstOrDefault();
             string automationScriptXml = firstItem.Value.Document;
@@ -147,7 +147,7 @@
 
             var result = await builder.BuildAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(1, result.Count);
+            Assert.HasCount(1, result);
 
             var firstItem = result.FirstOrDefault();
             string automationScriptXml = firstItem.Value.Document;
@@ -193,7 +193,7 @@
             
             var result = await builder.BuildAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(1, result.Count, "Expected 1 script in build result.");
+            Assert.HasCount(1, result, "Expected 1 script in build result.");
 
             var firstItem = result.FirstOrDefault();
             string automationScriptXml = firstItem.Value.Document;
@@ -271,7 +271,7 @@ public class Script
 
             // check
             Assert.IsNotNull(result);
-            Assert.AreEqual(2, result.Count);
+            Assert.HasCount(2, result);
             Assert.AreEqual(expectedResult, result.Single(x => x.Key.Name == "SimpleScript").Value.Document);
         }
 
@@ -353,7 +353,7 @@ public class Script
 
             // check
             Assert.IsNotNull(result);
-            Assert.AreEqual(1, result.Count);
+            Assert.HasCount(1, result);
             Assert.AreEqual(expectedResult, result[0].Value.Document);
         }
 
@@ -369,7 +369,7 @@ public class Script
 
             var result = await builder.BuildAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(1, result.Count, "Expected 1 script in build result.");
+            Assert.HasCount(1, result, "Expected 1 script in build result.");
 
             var firstItem = result.FirstOrDefault();
             string automationScriptXml = firstItem.Value.Document;
@@ -422,7 +422,7 @@ public class Script
 
             var result = await builder.BuildAsync().ConfigureAwait(false);
 
-            Assert.AreEqual(1, result.Count, "Expected 1 script in build result.");
+            Assert.HasCount(1, result, "Expected 1 script in build result.");
 
             var firstItem = result.FirstOrDefault();
             string automationScriptXml = firstItem.Value.Document;
