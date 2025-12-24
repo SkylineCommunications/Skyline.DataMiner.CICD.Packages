@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Skyline.DataMiner.CICD.Assemblers.Common</AssemblyName>
+    <RootNamespace>Skyline.DataMiner.CICD.Assemblers.Common</RootNamespace>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>SkylineCommunications</Authors>
+    <Company>Skyline Communications</Company>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageProjectUrl>https://skyline.be/</PackageProjectUrl>
+    <PackageTags>Skyline;DataMiner;CICD</PackageTags>
+    <Description>Library providing common methods for converting Visual Studio DIS Solutions to individual DataMiner artifacts (e.g. xml, dlls,...).</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/SkylineCommunications/Skyline.DataMiner.CICD.Packages</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Version>0.0.2-local</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="" />
+    <None Include="..\_NuGetItems\icon.png" Pack="true" PackagePath="" />
+    <None Include="..\_NuGetItems\LICENSE.txt" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="3.11.0" />
+    <PackageReference Include="NuGet.PackageManagement" Version="6.6.2" />
+    <PackageReference Include="Skyline.DataMiner.CICD.Common" Version="1.0.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Parsers.Common\Parsers.Common.csproj" />
+  </ItemGroup>
+
+</Project>

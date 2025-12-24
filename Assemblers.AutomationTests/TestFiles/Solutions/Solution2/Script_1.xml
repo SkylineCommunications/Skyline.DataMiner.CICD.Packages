@@ -1,0 +1,29 @@
+﻿<DMSScript options="304">
+    <Name>Script_1</Name>
+    <Description></Description>
+    <Type>Automation</Type>
+    <CheckSets>FALSE</CheckSets>
+    <Folder>MyFolder</Folder>
+    <Protocols>
+    </Protocols>
+    <Memory>
+    </Memory>
+    <Parameters>
+        <ScriptParameter id="1" type="string" values="">
+            <Description>Reservation ID</Description>
+        </ScriptParameter>
+    </Parameters>
+    <Script>
+        <Exe id="2" type="csharp">
+            <Value><![CDATA[[Project:Script_1a]]]></Value>
+			<Param type="ref">Newtonsoft.Json.dll</Param>
+            <Param type="debug">true</Param>
+            <Message></Message>
+        </Exe>
+        <Exe id="3" type="csharp">
+            <Value><![CDATA[[Project:Script_1b]]]></Value>
+            <Param type="debug">true</Param>
+            <Message></Message>
+        </Exe>
+    </Script>
+</DMSScript>

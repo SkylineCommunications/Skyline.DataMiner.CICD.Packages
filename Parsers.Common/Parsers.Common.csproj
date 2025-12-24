@@ -1,0 +1,48 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Skyline.DataMiner.CICD.Parsers.Common</AssemblyName>
+    <RootNamespace>Skyline.DataMiner.CICD.Parsers.Common</RootNamespace>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>SkylineCommunications</Authors>
+    <Company>Skyline Communications</Company>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageProjectUrl>https://skyline.be/</PackageProjectUrl>
+    <PackageTags>Skyline;DataMiner;CICD</PackageTags>
+    <Description>Library providing Common methods to parse DataMiner XML files.</Description>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/SkylineCommunications/Skyline.DataMiner.CICD.Packages</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Version>0.0.2-local</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="" />
+    <None Include="..\_NuGetItems\icon.png" Pack="true" PackagePath="" />
+    <None Include="..\_NuGetItems\LICENSE.txt" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NuGet.Frameworks" Version="6.6.2" />
+    <PackageReference Include="Skyline.DataMiner.CICD.FileSystem" Version="1.4.0" />
+    <PackageReference Include="Skyline.DataMiner.CICD.Loggers" Version="1.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <SonarQubeSetting Include="sonar.exclusions">
+      <Value>Xml/**, XmlEdit/**</Value>
+    </SonarQubeSetting>
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Skyline.DataMiner.CICD.Parsers.Protocol" />
+    <InternalsVisibleTo Include="Assemblers.AutomationTests" />
+    <InternalsVisibleTo Include="Assemblers.ProtocolTests" />
+    <InternalsVisibleTo Include="Parsers.CommonTests" />
+  </ItemGroup>
+
+</Project>

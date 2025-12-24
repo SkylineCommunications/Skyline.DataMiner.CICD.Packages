@@ -1,0 +1,74 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33502.453
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Internal", "Internal", "{892C2BFC-8E2F-48DD-9B8A-890124492FE7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{34958EFF-5785-4B05-820A-539D79CEF5AB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dlls", "Dlls", "{DE6BEE84-EFC7-412F-95A6-19AFBF1D1C4C}"
+	ProjectSection(SolutionItems) = preProject
+		Dlls\readme.txt = Dlls\readme.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{5E0D403E-AF71-4AEB-8209-B1FA672633B0}"
+	ProjectSection(SolutionItems) = preProject
+		Documentation\readme.txt = Documentation\readme.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Code Analysis", "Code Analysis", "{C5010500-5CCC-415A-B900-839A85064AD5}"
+	ProjectSection(SolutionItems) = preProject
+		Internal\Code Analysis\qaction-debug.ruleset = Internal\Code Analysis\qaction-debug.ruleset
+		Internal\Code Analysis\qaction-release.ruleset = Internal\Code Analysis\qaction-release.ruleset
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utils", "Utils", "{1C822BEE-4BD0-42B3-AFE4-E7187B995140}"
+	ProjectSection(SolutionItems) = preProject
+		Utils.xml = Utils.xml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Actions", "Actions", "{B96B64C6-06B9-4B2C-9AB3-1034A4FCB5EC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utils_2", "Utils_2\Utils_2.csproj", "{87166617-8543-461B-AAD9-D1251586D3A9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SimpleScript", "SimpleScript", "{64B29F28-AD64-4691-AD38-B2DEDF3047F8}"
+	ProjectSection(SolutionItems) = preProject
+		SimpleScript.xml = SimpleScript.xml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Actions", "Actions", "{CB60A7F9-F32C-4673-A492-44CDE4583280}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleScript_2", "SimpleScript_2\SimpleScript_2.csproj", "{9A325A21-7645-4FD2-98B7-98BBB53464F3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{87166617-8543-461B-AAD9-D1251586D3A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87166617-8543-461B-AAD9-D1251586D3A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87166617-8543-461B-AAD9-D1251586D3A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87166617-8543-461B-AAD9-D1251586D3A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A325A21-7645-4FD2-98B7-98BBB53464F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A325A21-7645-4FD2-98B7-98BBB53464F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A325A21-7645-4FD2-98B7-98BBB53464F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A325A21-7645-4FD2-98B7-98BBB53464F3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C5010500-5CCC-415A-B900-839A85064AD5} = {892C2BFC-8E2F-48DD-9B8A-890124492FE7}
+		{1C822BEE-4BD0-42B3-AFE4-E7187B995140} = {34958EFF-5785-4B05-820A-539D79CEF5AB}
+		{B96B64C6-06B9-4B2C-9AB3-1034A4FCB5EC} = {1C822BEE-4BD0-42B3-AFE4-E7187B995140}
+		{87166617-8543-461B-AAD9-D1251586D3A9} = {B96B64C6-06B9-4B2C-9AB3-1034A4FCB5EC}
+		{64B29F28-AD64-4691-AD38-B2DEDF3047F8} = {34958EFF-5785-4B05-820A-539D79CEF5AB}
+		{CB60A7F9-F32C-4673-A492-44CDE4583280} = {64B29F28-AD64-4691-AD38-B2DEDF3047F8}
+		{9A325A21-7645-4FD2-98B7-98BBB53464F3} = {CB60A7F9-F32C-4673-A492-44CDE4583280}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FEBD1C0E-0FBA-4B7B-8B02-991A1E16EF9A}
+	EndGlobalSection
+EndGlobal

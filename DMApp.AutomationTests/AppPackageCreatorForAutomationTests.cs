@@ -30,7 +30,7 @@
             Task Act() => creator.AddItemsAsync(null);
 
             // Assert
-            await Assert.ThrowsExceptionAsync<ArgumentNullException>(Act);
+            await Assert.ThrowsAsync<ArgumentNullException>(Act);
         }
     }
 }
