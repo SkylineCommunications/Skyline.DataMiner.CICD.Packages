@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<DMSScript options="272" xmlns="http://www.skyline.be/automation">
+	<Name>NonLiveUserTasksBulkUpdate</Name>
+	<Description>Script 1.0.1.77</Description>
+	<Type>Automation</Type>
+	<Author>SKYLINE2\VictorSC</Author>
+	<CheckSets>FALSE</CheckSets>
+	<Folder>YLE/Customer UI</Folder>
+
+	<Protocols>
+	</Protocols>
+
+	<Memory>
+	</Memory>
+
+	<Parameters>
+		<ScriptParameter id="2" type="string" values="">
+			<Description>fullTicketIds</Description>
+		</ScriptParameter>
+	</Parameters>
+
+	<Script>
+		<Exe id="1" type="csharp">
+			<Value><![CDATA[[Project:NonLiveUserTasksBulkUpdate_1]]]></Value>
+			<!--<Param type="debug">true</Param>-->
+			<Message></Message>
+			<Param type="scriptRef">Library:YLE_MediaServices</Param>
+		</Exe>
+	</Script>
+</DMSScript>

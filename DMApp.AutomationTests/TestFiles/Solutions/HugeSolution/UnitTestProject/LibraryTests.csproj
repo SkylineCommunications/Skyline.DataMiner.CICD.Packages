@@ -1,0 +1,117 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F4511D97-994D-4393-BE3D-178C0DC1301A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>UnitTestProject</RootNamespace>
+    <AssemblyName>UnitTestProject</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">15.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
+    <IsCodedUITest>False</IsCodedUITest>
+    <TestProjectType>UnitTest</TestProjectType>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="SLMediationSnippets">
+      <HintPath>..\Dlls\SLMediationSnippets.dll</HintPath>
+    </Reference>
+    <Reference Include="SLSRMLibrary, Version=1.2.27.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Dlls\SLSRMLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ChangeTracking\FunctionTests\Summary_IsChanged_Tests.cs" />
+    <Compile Include="ChangeTracking\FunctionTests\Summary_ResourceChangeSummary_Tests.cs" />
+    <Compile Include="ChangeTracking\FunctionTests\Summary_ProfileParameterSummary_Tests.cs" />
+    <Compile Include="ChangeTracking\OrderTests\SportsPlanning_Tests.cs" />
+    <Compile Include="ChangeTracking\OrderTests\Name_Tests.cs" />
+    <Compile Include="ChangeTracking\OrderTests\SecurityViewIds_Tests.cs" />
+    <Compile Include="ChangeTracking\OrderTests\Timing_Tests.cs" />
+    <Compile Include="ChangeTracking\OrderTests\Status_Tests.cs" />
+    <Compile Include="ChangeTracking\OrderTests\Service_Tests.cs" />
+    <Compile Include="ChangeTracking\OrderTests\HistoryChapter_Tests.cs" />
+    <Compile Include="ChangeTracking\ProfileParameterTests\Summary_IsChanged_Tests.cs" />
+    <Compile Include="ChangeTracking\NewsInformation\NewsInformationTests.cs" />
+    <Compile Include="ChangeTracking\ProfileParameterTests\Summary_VideoProcessingProperties_Tests.cs" />
+    <Compile Include="ChangeTracking\ProfileParameterTests\Summary_AudioProcessingProperties_Tests.cs" />
+    <Compile Include="ChangeTracking\ProfileParameterTests\Summary_GraphicsProcessingProperties_Tests.cs" />
+    <Compile Include="ChangeTracking\ProfileParameterTests\Summary_OtherProperties_Tests.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="ICloneable\OrderTests.cs" />
+    <Compile Include="Identifiers.cs" />
+    <Compile Include="Helper.cs" />
+    <Compile Include="ChangeTracking\ServiceTests\SecurityViewIds_Tests.cs" />
+    <Compile Include="ChangeTracking\ServiceTests\OrderReferences_Tests.cs" />
+    <Compile Include="ChangeTracking\ServiceTests\Timing_Tests.cs" />
+    <Compile Include="ChangeTracking\ServiceTests\Function_Tests.cs" />
+    <Compile Include="ChangeTracking\ServiceTests\RecordingConfiguration_Tests.cs" />
+    <Compile Include="ICloneable\NewsInformationTests.cs" />
+    <Compile Include="ICloneable\LiteOrderTests.cs" />
+    <Compile Include="ICloneable\FunctionDefinitionTests.cs" />
+    <Compile Include="ICloneable\ServiceTests.cs" />
+    <Compile Include="Package\PackageTests.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities\LinkedListExtensions_Tests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Moq">
+      <Version>4.18.4</Version>
+    </PackageReference>
+    <PackageReference Include="MSTest.TestAdapter">
+      <Version>3.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="MSTest.TestFramework">
+      <Version>3.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="Skyline.DataMiner.Dev.Automation">
+      <Version>10.3.5</Version>
+    </PackageReference>
+    <PackageReference Include="Skyline.DataMiner.Utils.InteractiveAutomationScriptToolkit">
+      <Version>7.0.1</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Library_1\Library_1.csproj">
+      <Project>{121dd302-df4b-4f49-b6f9-b3ad358bd842}</Project>
+      <Name>Library_1</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

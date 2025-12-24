@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<DMSScript options="272" xmlns="http://www.skyline.be/automation">
+	<Name>PLS_EricssonRX8200_Decoding</Name>
+	<Description>Script 1.0.1.77</Description>
+	<Type>Automation</Type>
+	<Author>SKYLINE2\ThomasRE</Author>
+	<CheckSets>FALSE</CheckSets>
+	<Folder>YLE\ProfileLoadScripts</Folder>
+
+	<Protocols>
+		<Protocol id="2">
+			<Description>Ericsson RX8200</Description>
+			<Name>Ericsson RX8200.Decoding (Ericsson RX8200)</Name>
+			<Version>Production</Version>
+			<DefaultElement></DefaultElement>
+		</Protocol>
+	</Protocols>
+
+	<Memory>
+	</Memory>
+
+	<Parameters>
+		<ScriptParameter id="3" type="string" values="">
+			<Description>Info</Description>
+		</ScriptParameter>
+		<ScriptParameter id="4" type="string" values="">
+			<Description>ProfileInstance</Description>
+		</ScriptParameter>
+	</Parameters>
+
+	<Script>
+		<Exe id="1" type="csharp">
+			<Value><![CDATA[[Project:PLS_EricssonRX8200_Decoding_1]]]></Value>
+			<Param type="scriptRef">Library:YLE_MediaServices</Param>
+			<Message></Message>
+		</Exe>
+	</Script>
+</DMSScript>

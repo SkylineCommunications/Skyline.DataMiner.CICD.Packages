@@ -83,6 +83,11 @@
             {
                 string path = r.Attribute("Include")?.Value;
 
+                if (path == null)
+                {
+                    continue;
+                }
+
                 // Name is not provided in .csproj file. Name is for now taken from file name. This might need to change if the assembly name does not match the project name.
                 string name = path;
                 if (path.Contains("\\"))
@@ -103,7 +108,8 @@
             IEnumerable<XElement> references = document
                .Element("Project")
                ?.Elements("ItemGroup")
-               .Elements("PackageReference");
+               .Elements("PackageReference")
+               .ToList();
 
             if (references == null)
             {

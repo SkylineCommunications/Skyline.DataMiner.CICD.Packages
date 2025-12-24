@@ -1,0 +1,24 @@
+﻿<DMSScript options="272">
+	<Name>CustomerUI Launcher</Name>
+	<Description>Script 1.0.1.77</Description>
+	<Type>Automation</Type>
+	<Author>SKYLINE2\ThomasRE</Author>
+	<CheckSets>FALSE</CheckSets>
+	<Folder>YLE/Tools</Folder>
+	<Protocols>
+	</Protocols>
+	<Memory>
+	</Memory>
+	<Parameters>
+		<ScriptParameter id="1" type="string" values="">
+			<Description>CustomerUiScriptName</Description>
+		</ScriptParameter>
+	</Parameters>
+	<Script>
+		<Exe id="2" type="csharp">
+			<Value><![CDATA[[Project:CustomerUI_Launcher_2]]]></Value>
+			<Param type="scriptRef">Library:YLE_MediaServices</Param>
+			<Message>$scriptMessage$</Message>
+		</Exe>
+	</Script>
+</DMSScript>

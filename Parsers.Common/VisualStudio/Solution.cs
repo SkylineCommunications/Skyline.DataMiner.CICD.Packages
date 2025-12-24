@@ -143,7 +143,7 @@ namespace Skyline.DataMiner.CICD.Parsers.Common.VisualStudio
 
             if (!_loadedProjects.TryGetValue(projectInSolution.Guid, out Project project))
             {
-                project = Project.Load(projectInSolution.AbsolutePath, projectInSolution.Name);
+                project = Project.Load(projectInSolution.AbsolutePath);
                 _loadedProjects.Add(projectInSolution.Guid, project);
             }
 

@@ -1,0 +1,58 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1684
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Internal", "Internal", "{E7D3511B-D22F-4DBD-B2C2-7A8C727B3C0F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{48D8F878-FAEF-4765-B4CF-80FF2639D521}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dlls", "Dlls", "{DB881A31-8F8F-47B9-8FAE-4CF141CF9587}"
+	ProjectSection(SolutionItems) = preProject
+		Dlls\readme.txt = Dlls\readme.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{C7CE0082-E626-4AAC-B896-FA9633E802DD}"
+	ProjectSection(SolutionItems) = preProject
+		Documentation\readme.txt = Documentation\readme.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Code Analysis", "Code Analysis", "{B48FAA81-E887-4C35-8C4D-0C22E76AD7D7}"
+	ProjectSection(SolutionItems) = preProject
+		Internal\Code Analysis\SonarLint-QuickActions-Active.ruleset = Internal\Code Analysis\SonarLint-QuickActions-Active.ruleset
+		Internal\Code Analysis\SonarLint-QuickActions-Inactive.ruleset = Internal\Code Analysis\SonarLint-QuickActions-Inactive.ruleset
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NewNugetTest", "NewNugetTest", "{A9C49E31-C166-481A-82F8-1884440C9A1A}"
+	ProjectSection(SolutionItems) = preProject
+		NewNugetTest.xml = NewNugetTest.xml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Actions", "Actions", "{46AAC8F1-FF8D-43BC-BA59-E8E52C22BAF7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NewNugetTest_1", "NewNugetTest_1\NewNugetTest_1.csproj", "{6CD1E51A-B664-48D4-8A51-8E6D987774F2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6CD1E51A-B664-48D4-8A51-8E6D987774F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CD1E51A-B664-48D4-8A51-8E6D987774F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CD1E51A-B664-48D4-8A51-8E6D987774F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CD1E51A-B664-48D4-8A51-8E6D987774F2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B48FAA81-E887-4C35-8C4D-0C22E76AD7D7} = {E7D3511B-D22F-4DBD-B2C2-7A8C727B3C0F}
+		{A9C49E31-C166-481A-82F8-1884440C9A1A} = {48D8F878-FAEF-4765-B4CF-80FF2639D521}
+		{46AAC8F1-FF8D-43BC-BA59-E8E52C22BAF7} = {A9C49E31-C166-481A-82F8-1884440C9A1A}
+		{6CD1E51A-B664-48D4-8A51-8E6D987774F2} = {46AAC8F1-FF8D-43BC-BA59-E8E52C22BAF7}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9769F039-DCCE-4887-8816-3C2B8E219941}
+	EndGlobalSection
+EndGlobal

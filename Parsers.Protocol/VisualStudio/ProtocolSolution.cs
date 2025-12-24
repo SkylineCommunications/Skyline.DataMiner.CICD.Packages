@@ -56,7 +56,7 @@
         /// Could not find project -or-
         /// Main code file could not be found in QAction.</exception>
         /// <exception cref="DirectoryNotFoundException">Could not find folder for QAction.</exception>
-        public static ProtocolSolution Load(string solutionPath, ILogCollector logCollector = null)
+        public new static ProtocolSolution Load(string solutionPath, ILogCollector logCollector = null)
         {
             if (solutionPath == null) throw new ArgumentNullException(nameof(solutionPath));
             if (String.IsNullOrWhiteSpace(solutionPath)) throw new ArgumentNullException(nameof(solutionPath), "Solution path is invalid.");
@@ -65,7 +65,7 @@
 
             return new ProtocolSolution(solutionPath, logCollector);
         }
-
+        
         private void LoadProtocol()
         {
             logCollector?.ReportDebug("Load protocol");

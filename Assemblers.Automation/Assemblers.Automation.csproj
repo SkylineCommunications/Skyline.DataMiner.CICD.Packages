@@ -27,12 +27,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Solutions\**" />
-    <EmbeddedResource Remove="Solutions\**" />
-    <None Remove="Solutions\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Assemblers.Common\Assemblers.Common.csproj" />
     <ProjectReference Include="..\Parsers.Automation\Parsers.Automation.csproj" />
   </ItemGroup>

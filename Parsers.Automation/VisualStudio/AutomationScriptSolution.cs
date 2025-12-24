@@ -43,7 +43,7 @@ namespace Skyline.DataMiner.CICD.Parsers.Automation.VisualStudio
         /// <param name="logCollector">Log collector.</param>
         /// <returns>The loaded Automation script solution.</returns>
         /// <exception cref="ParserException">Could not find 'Scripts' folder in root of solution.</exception>
-        public static AutomationScriptSolution Load(string solutionPath, ILogCollector logCollector = null)
+        public new static AutomationScriptSolution Load(string solutionPath, ILogCollector logCollector = null)
         {
             return new AutomationScriptSolution(solutionPath, logCollector);
         }

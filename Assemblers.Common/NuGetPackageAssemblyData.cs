@@ -69,6 +69,15 @@
         /// <value>The names of all assemblies that have been processed.</value>
         public ISet<string> ProcessedAssemblies { get; }
 
+        /// <summary>
+        /// Returns a string that provides a detailed, multi-line summary of the current assembly and reference
+        /// collections managed by this instance.
+        /// </summary>
+        /// <remarks>The returned string is intended for diagnostic or debugging purposes and includes all
+        /// relevant reference collections tracked by the instance. The format may change if the structure of the
+        /// collections changes.</remarks>
+        /// <returns>A formatted string containing counts and lists of NuGet assemblies, DllImport references, directory
+        /// references, and processed assemblies. Each collection is displayed on a separate line for readability.</returns>
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();

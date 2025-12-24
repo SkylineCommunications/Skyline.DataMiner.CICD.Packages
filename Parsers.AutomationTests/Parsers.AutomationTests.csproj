@@ -20,9 +20,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="VisualStudio\TestFiles.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <Compile Remove="TestFiles\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="TestFiles\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<DMSScript options="272" xmlns="http://www.skyline.be/automation">
+	<Name>MergeEvents</Name>
+	<Description>Script 1.0.1.77</Description>
+	<Type>Automation</Type>
+	<Author>THOMAS-PC\Thomas</Author>
+	<CheckSets>FALSE</CheckSets>
+	<Folder>YLE/Customer UI</Folder>
+	
+	<Protocols>
+	</Protocols>
+	
+	<Memory>
+	</Memory>
+	
+	<Parameters>
+		<!--Comma separated list of the selected Event Ids-->
+		<ScriptParameter id="1" type="string" values="">
+			<Description>EventIds</Description>
+		</ScriptParameter>
+	</Parameters>
+	
+	<Script>
+		<Exe id="2" type="csharp">
+			<Value>
+				<![CDATA[[Project:MergeEvents_2]]]>
+			</Value>
+			<Param type="scriptRef">Library:YLE_MediaServices</Param>
+			<Message>$scriptMessage$</Message>
+		</Exe>
+	</Script>
+</DMSScript>

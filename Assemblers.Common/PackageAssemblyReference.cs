@@ -51,6 +51,11 @@
         /// </summary>
         public bool IsFilesPackage { get; }
 
+        /// <summary>
+        /// Returns a string that represents the current object, including the values of DllImport, AssemblyPath, and
+        /// IsFilesPackage.
+        /// </summary>
+        /// <returns>A string containing the DllImport, AssemblyPath, and IsFilesPackage values separated by vertical bars ("|").</returns>
         public override string ToString()
         {
             return $"{DllImport}|{AssemblyPath}|{IsFilesPackage}";

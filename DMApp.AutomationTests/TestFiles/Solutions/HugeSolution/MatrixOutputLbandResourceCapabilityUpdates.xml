@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<DMSScript options="272" xmlns="http://www.skyline.be/automation">
+	<Name>MatrixOutputLbandResourceCapabilityUpdates</Name>
+	<Description>Script 1.0.1.77</Description>
+	<Type>Automation</Type>
+	<Author>SKYLINE2\Joey</Author>
+	<CheckSets>FALSE</CheckSets>
+	<Folder>YLE/SRM</Folder>
+
+	<Protocols>
+	</Protocols>
+
+	<Memory>
+	</Memory>
+
+	<Parameters>
+	</Parameters>
+
+	<Script>
+		<Exe id="1" type="csharp">
+			<Value>
+				<![CDATA[[Project:MatrixOutputLbandResourceCapabilityUpdates_1]]]>
+			</Value>
+			<!--<Param type="debug">true</Param>-->
+			<Message />
+		</Exe>
+	</Script>
+</DMSScript>

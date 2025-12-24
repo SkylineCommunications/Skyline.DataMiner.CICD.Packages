@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<DMSScript options="272" xmlns="http://www.skyline.be/automation">
+	<Name>PLS_NovelsatNS2000_Demodulating</Name>
+	<Description>Script 1.0.1.77</Description>
+	<Type>Automation</Type>
+	<Author>SKYLINE2\RijadCO</Author>
+	<CheckSets>FALSE</CheckSets>
+	<Folder>YLE\ProfileLoadScripts</Folder>
+
+	<Protocols>
+		<Protocol id="2">
+			<Description>Novelsat NS2000</Description>
+			<Name>Novelsat NS2000.Demodulating (Novelsat NS2000)</Name>
+			<Version>Production</Version>
+			<DefaultElement></DefaultElement>
+		</Protocol>
+	</Protocols>
+
+	<Memory>
+	</Memory>
+
+	<Parameters>
+		<ScriptParameter id="3" type="string" values="">
+			<Description>Info</Description>
+		</ScriptParameter>
+		<ScriptParameter id="4" type="string" values="">
+			<Description>ProfileInstance</Description>
+		</ScriptParameter>
+	</Parameters>
+
+	<Script>
+		<Exe id="1" type="csharp">
+			<Value><![CDATA[[Project:PLS_NovelsatNS2000_Demodulating_1]]]></Value>
+			<Param type="scriptRef">Library:YLE_MediaServices</Param>
+			<Message></Message>
+		</Exe>
+	</Script>
+</DMSScript>

@@ -258,7 +258,7 @@
                     var libItems = packageReader.GetLibItems().ToList();
 
                     var nearestLibItems = frameworkReducer.GetNearest(nugetFramework, libItems.Select(x => x.TargetFramework));
-                    var filteredLibItems = await ExtractPrimaryAssembliesAsync(libItems, nearestLibItems, packageReader);
+                    var filteredLibItems = (await ExtractPrimaryAssembliesAsync(libItems, nearestLibItems, packageReader)).ToList();
 
                     if (filteredLibItems.Any())
                     {
@@ -440,7 +440,7 @@
 
                     var libItems = packageReader.GetLibItems().ToList();
                     var nearestLibItems = frameworkReducer.GetNearest(nugetFramework, libItems.Select(x => x.TargetFramework));
-                    var filteredLibItems = await ExtractPrimaryAssembliesAsync(libItems, nearestLibItems, packageReader);
+                    var filteredLibItems = (await ExtractPrimaryAssembliesAsync(libItems, nearestLibItems, packageReader)).ToList();
 
                     if (filteredLibItems.Any())
                     {
@@ -515,6 +515,12 @@
 
                 // No version; choose the latest, allow pre-release if configured.
                 NuGetVersion selected = allVersions.LastOrDefault();
+
+                if (selected == null)
+                {
+                    // No versions found in this source.
+                    continue;
+                }
 
                 return new PackageIdentity(nugetPackage.Id, selected);
             }

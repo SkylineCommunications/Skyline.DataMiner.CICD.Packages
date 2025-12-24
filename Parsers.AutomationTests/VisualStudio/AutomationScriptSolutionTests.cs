@@ -15,13 +15,15 @@
     [TestClass]
     public class AutomationScriptSolutionTests
     {
+        private static readonly string[] DllImportNewtonsoft = { "Newtonsoft.Json.dll" };
+
         #region Solution 1 (Basic)
 
         [TestMethod]
         public void AutomationScriptCompiler_Solution1_Load()
         {
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"VisualStudio\TestFiles\Solution1"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solution1"));
             var path = FileSystem.Instance.Path.Combine(dir, "AutomationScript.sln");
 
             var solution = AutomationScriptSolution.Load(path);
@@ -40,7 +42,7 @@
             var exes1 = script1.ScriptExes.ToList();
             Assert.AreEqual("[Project:Script_1a]", exes1[0].Code);
             Assert.AreEqual("[Project:Script_1b]", exes1[1].Code);
-            CollectionAssert.AreEquivalent(new[] { "Newtonsoft.Json.dll" }, exes1[0].DllImports.ToArray());
+            CollectionAssert.AreEquivalent(DllImportNewtonsoft, exes1[0].DllImports.ToArray());
 
             var script2 = solution.Scripts.FirstOrDefault(s => s.Script.Name == "Script_2").Script;
             Assert.IsNotNull(script2);
@@ -56,7 +58,7 @@
         public void AutomationScriptCompiler_Solution2_Load()
         {
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"VisualStudio\TestFiles\Solution2"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solution2"));
             var path = FileSystem.Instance.Path.Combine(dir, "AutomationScript.sln");
 
             var solution = AutomationScriptSolution.Load(path);
@@ -75,7 +77,7 @@
             var exes1 = script1.ScriptExes.ToList();
             Assert.AreEqual("[Project:Script_1a]", exes1[0].Code);
             Assert.AreEqual("[Project:Script_1b]", exes1[1].Code);
-            CollectionAssert.AreEquivalent(new[] { "Newtonsoft.Json.dll" }, exes1[0].DllImports.ToArray());
+            CollectionAssert.AreEquivalent(DllImportNewtonsoft, exes1[0].DllImports.ToArray());
 
             var script2 = solution.Scripts.FirstOrDefault(s => s.Script.Name == "Script_2").Script;
             Assert.IsNotNull(script2);
@@ -91,7 +93,7 @@
         public void AutomationScriptCompiler_Solution3_Load()
         {
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"VisualStudio\TestFiles\Solution3"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solution3"));
             var path = FileSystem.Instance.Path.Combine(dir, "AutomationScript.sln");
 
             var solution = AutomationScriptSolution.Load(path);
@@ -110,7 +112,7 @@
             var exes1 = script1.ScriptExes.ToList();
             Assert.AreEqual("[Project:Script_1a]", exes1[0].Code);
             Assert.AreEqual("[Project:Script_1b]", exes1[1].Code);
-            CollectionAssert.AreEquivalent(new[] { "Newtonsoft.Json.dll" }, exes1[0].DllImports.ToArray());
+            CollectionAssert.AreEquivalent(DllImportNewtonsoft, exes1[0].DllImports.ToArray());
 
             var script2 = solution.Scripts.FirstOrDefault(s => s.Script.Name == "Script_2").Script;
             Assert.IsNotNull(script2);
@@ -127,7 +129,7 @@
         {
             // Arrange
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"VisualStudio\TestFiles\Solution4"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solution4"));
             var path = FileSystem.Instance.Path.Combine(dir, "AutomationScript.sln");
 
             // Act
@@ -143,7 +145,7 @@
         public void AutomationScriptCompiler_Solution5_Load()
         {
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"VisualStudio\TestFiles\Solution5"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solution5"));
             var path = FileSystem.Instance.Path.Combine(dir, "AutomationScript.sln");
 
             var solution = AutomationScriptSolution.Load(path);

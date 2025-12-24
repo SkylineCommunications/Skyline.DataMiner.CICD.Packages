@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<DMSScript options="272" xmlns="http://www.skyline.be/automation">
+	<Name>ReprocessOrders</Name>
+	<Description>Script 1.0.1.77</Description>
+	<Type>Automation</Type>
+	<Author>SKYLINE2\VictorSC</Author>
+	<CheckSets>FALSE</CheckSets>
+	<Folder>YLE/SRM</Folder>
+
+	<Protocols>
+	</Protocols>
+
+	<Memory>
+	</Memory>
+
+	<Parameters>
+		<ScriptParameter id="2" type="string" values="">
+			<Description>SlidingWindowSizeInDays</Description>
+		</ScriptParameter>
+		<ScriptParameter id="3" type="string" values="">
+			<Description>MaxAmountOfRetries</Description>
+		</ScriptParameter>
+	</Parameters>
+
+	<Script>
+		<Exe id="1" type="csharp">
+			<Value><![CDATA[[Project:ReprocessOrders_1]]]></Value>
+			<Param type="scriptRef">Library:YLE_MediaServices</Param>
+			<Message></Message>
+		</Exe>
+	</Script>
+</DMSScript>
