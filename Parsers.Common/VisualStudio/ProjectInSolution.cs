@@ -3,8 +3,6 @@
     using System;
     using System.Diagnostics;
 
-    using Skyline.DataMiner.CICD.Parsers.Common.VisualStudio.SolutionParser.Model;
-
     /// <summary>
     /// Represents a project in a solution file.
     /// </summary>
@@ -15,8 +13,10 @@
         /// Initializes a new instance of the <see cref="ProjectInSolution"/> class.
         /// </summary>
         /// <param name="solution">The solution this project is part of.</param>
-        /// <param name="slnProject">The project.</param>
-        internal ProjectInSolution(Solution solution, SlnProject slnProject) : base(solution, slnProject.Guid, slnProject.Name, slnProject.Path)
+        /// <param name="guid">The GUID of the project.</param>
+        /// <param name="name">The name of the project.</param>
+        /// <param name="path">The path of the project file.</param>
+        internal ProjectInSolution(Solution solution, Guid guid, string name, string path) : base(solution, guid, name, path)
         {
         }
     }

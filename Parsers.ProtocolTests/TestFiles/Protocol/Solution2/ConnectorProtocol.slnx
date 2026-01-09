@@ -1,0 +1,28 @@
+<Solution>
+  <Folder Name="/DefaultTemplates/">
+    <File Path="DefaultTemplates/ABOUT.md" />
+  </Folder>
+  <Folder Name="/Dlls/">
+    <File Path="Dlls/ABOUT.md" />
+  </Folder>
+  <Folder Name="/Documentation/">
+    <File Path="Documentation/ABOUT.md" />
+  </Folder>
+  <Folder Name="/Internal/">
+    <File Path="Internal/.editorconfig" />
+    <Project Path="QAction_Helper/QAction_Helper.csproj" />
+  </Folder>
+  <Folder Name="/Internal/Code Analysis/">
+    <File Path="Internal/Code Analysis/qaction-debug.ruleset" />
+    <File Path="Internal/Code Analysis/qaction-release.ruleset" />
+    <File Path="Internal/Code Analysis/stylecop.json" />
+  </Folder>
+  <Folder Name="/QActions/">
+    <Project Path="QAction_1/QAction_1.csproj" />
+    <Project Path="QAction_2/QAction_2.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="protocol.xml" />
+  </Folder>
+  <Folder Name="/Tests/" />
+</Solution>

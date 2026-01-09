@@ -4,11 +4,15 @@ namespace Skyline.DataMiner.CICD.Parsers.Common.VisualStudio
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Threading;
+
+    using Microsoft.VisualStudio.SolutionPersistence;
+    using Microsoft.VisualStudio.SolutionPersistence.Model;
+    using Microsoft.VisualStudio.SolutionPersistence.Serializer;
 
     using Skyline.DataMiner.CICD.FileSystem;
     using Skyline.DataMiner.CICD.Loggers;
     using Skyline.DataMiner.CICD.Parsers.Common.VisualStudio.Projects;
-    using Skyline.DataMiner.CICD.Parsers.Common.VisualStudio.SolutionParser;
 
     /// <summary>
     /// Represents a Visual Studio solution.
@@ -48,7 +52,7 @@ namespace Skyline.DataMiner.CICD.Parsers.Common.VisualStudio
             SolutionPath = path;
             SolutionDirectory = _fileSystem.Path.GetDirectoryName(path);
 
-            Load(allowAll);
+            LoadSolution(allowAll);
         }
 
         /// <summary>
@@ -171,70 +175,88 @@ namespace Skyline.DataMiner.CICD.Parsers.Common.VisualStudio
             _solutionItems[guid] = item;
         }
 
-        private void Load(bool allowAll)
+        private void LoadSolution(bool allowAll)
         {
-            var content = _fileSystem.File.ReadAllText(SolutionPath);
-            var parser = new Parser(content);
+            ISolutionSerializer serializer = SolutionSerializers.GetSerializerByMoniker(SolutionPath);
 
-            var projects = parser.ParseProjects();
-            var globalSections = parser.ParseGlobalSections();
-
-            foreach (var p in projects)
+            if (serializer == null)
             {
-                ProcessProject(p, allowAll);
+                throw new NotSupportedException($"The solution file '{SolutionPath}' is not supported by any available serializer.");
             }
 
-            var nestedProjects = globalSections.FirstOrDefault(section => String.Equals(section.Name, "NestedProjects", StringComparison.OrdinalIgnoreCase));
-            if (nestedProjects == null)
+            SolutionModel solution = serializer.OpenAsync(SolutionPath, CancellationToken.None).Result;
+
+            Dictionary<Guid, SolutionFolder> solutionFolderMap = new Dictionary<Guid, SolutionFolder>(solution.SolutionFolders.Count);
+
+            ProcessSolutionFolders(solution, solutionFolderMap);
+            ProcessSolutionProjects(solution, solutionFolderMap, allowAll);
+        }
+
+        private void ProcessSolutionFolders(SolutionModel solution, Dictionary<Guid, SolutionFolder> solutionFolderMap)
+        {
+            if (solution.SolutionFolders.Count == 0)
             {
                 return;
             }
 
-            foreach (var e in nestedProjects.Entries)
+            foreach (var folder in solution.SolutionFolders)
             {
-                if (Guid.TryParse(e.Value, out var parentGuid) && SolutionItems.TryGetValue(parentGuid, out var parent) && parent is SolutionFolder parentFolder
-                    && Guid.TryParse(e.Key, out var childGuid) && SolutionItems.TryGetValue(childGuid, out var child))
+                SolutionFolder solutionFolder = new SolutionFolder(this, folder.Id, folder.ActualDisplayName, folder.Name);
+                solutionFolderMap[folder.Id] = solutionFolder;
+
+                if (folder.Files?.Count > 0)
                 {
-                    parentFolder.AddChild(child);
-                    child.Parent = parentFolder;
+                    // Add folder content.
+                    foreach (var file in folder.Files)
+                    {
+                        solutionFolder.AddFile(new SolutionFileEntry(this, file));
+                    }
+                }
+
+                AddSolutionItem(solutionFolder.Guid, solutionFolder);
+            }
+
+            // Establish folder hierarchy after adding all folders.
+            foreach (var folder in solution.SolutionFolders)
+            {
+                if (folder.Parent != null && solutionFolderMap.TryGetValue(folder.Parent.Id, out var parentFolder) && solutionFolderMap.TryGetValue(folder.Id, out var childFolder))
+                {
+                    parentFolder.AddChild(childFolder);
+                    childFolder.Parent = parentFolder;
                 }
             }
         }
 
-        private void ProcessProject(SolutionParser.Model.SlnProject p, bool allowAll)
+        private void ProcessSolutionProjects(SolutionModel solution, Dictionary<Guid, SolutionFolder> solutionFolderMap, bool allowAll)
         {
-            SolutionItem solutionItem;
-
-            if (p.TypeGuid == SolutionProjectTypeIDs.SolutionFolder)
-            {
-                SolutionFolder solutionFolder = new SolutionFolder(this, p);
-                solutionItem = solutionFolder;
-
-                var solutionItemsSection = p.ProjectSections.FirstOrDefault(x => String.Equals(x.Name, "SolutionItems", StringComparison.OrdinalIgnoreCase));
-                if (solutionItemsSection != null)
-                {
-                    foreach (var e in solutionItemsSection.Entries)
-                    {
-                        solutionFolder.AddFile(new SolutionFileEntry(this, e.Value));
-                    }
-                }
-            }
-            else if (allowAll)
-            {
-                // Allow all projects to be added
-                solutionItem = new ProjectInSolution(this, p);
-            }
-            else if (p.TypeGuid == SolutionProjectTypeIDs.MsBuildProject || p.TypeGuid == SolutionProjectTypeIDs.NetCoreProject)
-            {
-                // Allow only the C# projects that can be loaded with Project.Load
-                solutionItem = new ProjectInSolution(this, p);
-            }
-            else
+            if (solution.SolutionProjects.Count == 0)
             {
                 return;
             }
 
-            AddSolutionItem(solutionItem.Guid, solutionItem);
+            foreach (var solutionProject in solution.SolutionProjects)
+            {
+                if (!allowAll &&
+                    solutionProject.TypeId != SolutionProjectTypeIDs.MsBuildProject &&
+                    solutionProject.TypeId != SolutionProjectTypeIDs.NetCoreProject)
+                {
+                    // When not allowing all, skip unsupported project types.
+                    continue;
+                }
+                
+                SolutionItem solutionItem = new ProjectInSolution(this, solutionProject.Id, solutionProject.ActualDisplayName, solutionProject.FilePath);
+
+                if (solutionProject.Parent is SolutionFolderModel parentFolder)
+                {
+                    var parentSolutionFolder = solutionFolderMap[parentFolder.Id];
+
+                    solutionItem.Parent = parentSolutionFolder;
+
+                    parentSolutionFolder.AddChild(solutionItem);
+                }
+
+                AddSolutionItem(solutionItem.Guid, solutionItem);
+            }
         }
     }
 }

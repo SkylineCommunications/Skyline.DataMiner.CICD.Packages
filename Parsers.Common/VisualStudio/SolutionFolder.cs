@@ -6,7 +6,6 @@
     using System.Linq;
     
     using Skyline.DataMiner.CICD.Parsers.Common.Extensions;
-    using Skyline.DataMiner.CICD.Parsers.Common.VisualStudio.SolutionParser.Model;
 
     /// <summary>
     /// Represents a solution folder.
@@ -15,13 +14,8 @@
     public class SolutionFolder : SolutionItem
     {
         private readonly ICollection<SolutionFileEntry> _files = new List<SolutionFileEntry>();
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SolutionFolder"/> class.
-        /// </summary>
-        /// <param name="solution">The solution.</param>
-        /// <param name="slnProject">The project.</param>
-        internal SolutionFolder(Solution solution, SlnProject slnProject) : base(solution, slnProject.Guid, slnProject.Name, slnProject.Path)
+        
+        internal SolutionFolder(Solution solution, Guid guid, string name, string path) : base(solution, guid, name, path)
         {
         }
 

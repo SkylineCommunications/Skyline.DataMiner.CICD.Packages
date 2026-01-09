@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/Internal/">
+    <Project Path="QAction_Helper/QAction_Helper.csproj" />
+  </Folder>
+  <Folder Name="/QActions/">
+    <Project Path="QAction_1/QAction_1.csproj" />
+    <Project Path="QAction_2/QAction_2.csproj" />
+    <Project Path="QAction_3/QAction_3.csproj" />
+    <Project Path="QAction_63000/QAction_63000.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="protocol.xml" />
+  </Folder>
+  <Project Path="QAction_3Tests/QAction_3Tests.csproj" />
+</Solution>
