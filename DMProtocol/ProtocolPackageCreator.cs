@@ -64,9 +64,12 @@
                 if (String.IsNullOrWhiteSpace(repositoryPath)) throw new ArgumentException("Invalid repository path", nameof(repositoryPath));
                 if (!FileSystem.Instance.Directory.Exists(repositoryPath)) throw new System.IO.DirectoryNotFoundException($"Directory '{repositoryPath}' not found.");
 
-                string solutionFilePath = FileSystem.Instance.Directory.GetFiles(repositoryPath, "*.sln", System.IO.SearchOption.TopDirectoryOnly).FirstOrDefault();
+                string solutionFilePath = FileSystem.Instance.Directory.GetFiles(repositoryPath, "*.sln", System.IO.SearchOption.TopDirectoryOnly)
+                                                    .Concat(FileSystem.Instance.Directory.GetFiles(repositoryPath, "*.slnx",
+                                                        SearchOption.TopDirectoryOnly))
+                                                    .FirstOrDefault();
 
-                if (solutionFilePath == null) throw new InvalidOperationException("The specified repository path does not contain a solution (.sln) file in the root folder.");
+                if (solutionFilePath == null) throw new InvalidOperationException("The specified repository path does not contain a solution (.sln or .slnx) file in the root folder.");
 
                 string destinationDllFolder = "C:\\Skyline DataMiner\\ProtocolScripts\\DllImport";
 
