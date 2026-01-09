@@ -190,7 +190,7 @@
             VerifySolution6(solution, dir, path, true);
         }
 
-        private void VerifySolution6(AutomationScriptSolution solution, string dir, string path, bool isSlnx)
+        private static void VerifySolution6(AutomationScriptSolution solution, string dir, string path, bool isSlnx)
         {
             Assert.AreEqual(path, solution.SolutionPath);
             Assert.AreEqual(FileSystem.Instance.Path.GetDirectoryName(path), solution.SolutionDirectory);
