@@ -1,0 +1,20 @@
+<Solution>
+  <Folder Name="/Dlls/">
+    <File Path="Dlls/readme.txt" />
+  </Folder>
+  <Folder Name="/Documentation/">
+    <File Path="Documentation/readme.txt" />
+  </Folder>
+  <Folder Name="/Internal/" />
+  <Folder Name="/Internal/Code Analysis/">
+    <File Path="Internal/Code Analysis/qaction-debug.ruleset" />
+    <File Path="Internal/Code Analysis/qaction-release.ruleset" />
+  </Folder>
+  <Folder Name="/Scripts/" />
+  <Folder Name="/Scripts/Clearable Alarms/">
+    <File Path="Clearable Alarms.xml" />
+  </Folder>
+  <Folder Name="/Scripts/Clearable Alarms/Actions/">
+    <Project Path="Clearable Alarms_1/Clearable Alarms_1.csproj" />
+  </Folder>
+</Solution>

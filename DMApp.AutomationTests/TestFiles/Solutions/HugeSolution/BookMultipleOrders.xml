@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<DMSScript options="272" xmlns="http://www.skyline.be/automation">
+	<Name>BookMultipleOrders</Name>
+	<Description>Script 1.0.1.77</Description>
+	<Type>Automation</Type>
+	<Author>SKYLINE2\VictorSC</Author>
+	<CheckSets>FALSE</CheckSets>
+	<Folder>YLE/Customer UI</Folder>
+
+	<Protocols>
+	</Protocols>
+
+	<Memory>
+	</Memory>
+
+	<Parameters>
+		<ScriptParameter id="1" type="string" values="">
+			<Description>OrderIds</Description>
+		</ScriptParameter>
+	</Parameters>
+
+	<Script>
+		<Exe id="2" type="csharp">
+			<Value>
+				<![CDATA[[Project:BookMultipleOrders_2]]]>
+			</Value>
+			<Param type="scriptRef">Library:YLE_MediaServices</Param>
+			<Message />
+		</Exe>
+	</Script>
+</DMSScript>

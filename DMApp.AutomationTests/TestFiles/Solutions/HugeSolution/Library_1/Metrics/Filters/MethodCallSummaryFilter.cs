@@ -1,0 +1,12 @@
+﻿namespace Skyline.DataMiner.DeveloperCommunityLibrary.YLE.Metrics.Filters
+{
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Text;
+	using System.Threading.Tasks;
+
+	public class MethodCallSummaryFilter : MethodCallFilter
+	{
+	}
+}

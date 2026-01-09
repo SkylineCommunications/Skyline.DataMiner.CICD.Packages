@@ -261,7 +261,8 @@
 
             // sdk type means we just perform dotnet build then move all the .dmapp created to the outputDirectory
             // Supporting multiple solutions in the same workspace here, then this tool has some additional functionality beyond dotnet build
-            var allSolutions = fs.Directory.EnumerateFiles(workspace, "*.sln", System.IO.SearchOption.AllDirectories);
+            var allSolutions = fs.Directory.EnumerateFiles(workspace, "*.sln", System.IO.SearchOption.AllDirectories)
+                                 .Concat(fs.Directory.EnumerateFiles(workspace, "*.slnx", System.IO.SearchOption.AllDirectories));
 
             string dmappVersion = String.IsNullOrWhiteSpace(version) ? $"0.0.{buildNumber}" : version;
 

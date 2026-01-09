@@ -35,7 +35,7 @@ namespace Skyline.DataMiner.CICD.DMApp.Automation
         /// <param name="appPackageBuilder">The package builder to which the items should be added to.</param>
         /// <returns>The package creator.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="appPackageBuilder"/> is <see langword="null"/>.</exception>
-        /// <exception cref="InvalidOperationException">No solution (.sln) file was detected or multiple solutions were detected.</exception>
+        /// <exception cref="InvalidOperationException">No solution (.sln or .slnx) file was detected or multiple solutions were detected.</exception>
         public override async Task AddItemsAsync(AppPackage.AppPackageBuilder appPackageBuilder)
         {
             if (appPackageBuilder == null)
@@ -44,12 +44,14 @@ namespace Skyline.DataMiner.CICD.DMApp.Automation
             }
 
             LogCollector.ReportStatus("Using Workspace: " + RepositoryPath);
-            string[] files = FileSystem.Directory.GetFiles(RepositoryPath, "*.sln", SearchOption.TopDirectoryOnly);
+            string[] files = FileSystem.Directory.GetFiles(RepositoryPath, "*.sln", SearchOption.TopDirectoryOnly)
+                                       .Concat(FileSystem.Directory.GetFiles(RepositoryPath, "*.slnx", SearchOption.AllDirectories))
+                                       .ToArray();
 
             if (files.Length == 0)
-                throw new InvalidOperationException("No solution file (.sln) detected in " + RepositoryPath + ".");
+                throw new InvalidOperationException("No solution file (.sln or .slnx) detected in " + RepositoryPath + ".");
             if (files.Length > 1)
-                throw new InvalidOperationException("More than one solution file (.sln) detected in " + RepositoryPath + ".");
+                throw new InvalidOperationException("More than one solution file (.sln or .slnx) detected in " + RepositoryPath + ".");
 
             HashSet<string> namesOfScriptsToInclude = null;
 

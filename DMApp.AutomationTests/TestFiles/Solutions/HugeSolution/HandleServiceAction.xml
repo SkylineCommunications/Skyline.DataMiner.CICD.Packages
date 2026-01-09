@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<DMSScript options="272" xmlns="http://www.skyline.be/automation">
+	<Name>HandleServiceAction</Name>
+	<Description>Script 1.0.1.77</Description>
+	<Type>Automation</Type>
+	<Author>SKYLINE2\Joey</Author>
+	<CheckSets>FALSE</CheckSets>
+	<Folder>YLE/SRM</Folder>
+
+	<Protocols>
+	</Protocols>
+
+	<Memory>
+	</Memory>
+
+	<Parameters>
+		<ScriptParameter id="3" type="string" values="">
+			<Description>Action</Description>
+		</ScriptParameter>
+		<ScriptParameter id="4" type="string" values="">
+			<Description>Booking Manager Info</Description>
+		</ScriptParameter>
+		<ScriptParameter id="5" type="string" values="">
+			<Description>ReservationGuid</Description>
+		</ScriptParameter>
+	</Parameters>
+
+	<Script>
+		<Exe id="1" type="csharp">
+			<Value>
+				<![CDATA[[Project:HandleServiceAction_1]]]>
+			</Value>
+			<Param type="scriptRef">Library:YLE_MediaServices</Param>
+		</Exe>
+	</Script>
+</DMSScript>

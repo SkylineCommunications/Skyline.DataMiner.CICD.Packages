@@ -1,0 +1,17 @@
+﻿<Protocol xmlns="http://www.skyline.be/protocol">
+	<QActions>
+		<QAction id="63000" name="** Auto-generated Class Library **" encoding="csharp" options="precompile">
+		</QAction>
+		<QAction id="1" name="QA1" encoding="csharp" triggers="1" options="precompile">
+		</QAction>
+		<QAction id="2" name="QA2" encoding="csharp" triggers="2">
+		</QAction>
+		<QAction id="3" name="QA3" encoding="csharp" triggers="3">
+		</QAction>
+		<QAction id="4" name="QA4" encoding="jscript" triggers="4">
+			<![CDATA[
+				id:123 = "test";
+			]]>
+		</QAction>
+	</QActions>
+</Protocol>

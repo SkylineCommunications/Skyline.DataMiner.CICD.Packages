@@ -25,7 +25,7 @@
         /// <param name="appPackageBuilder">The package builder to which the items should be added to.</param>
         /// <returns>The package creator.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="appPackageBuilder"/> is <see langword="null"/>.</exception>
-        /// <exception cref="InvalidOperationException">No solution (.sln) file was detected or multiple solutions were detected.</exception>
+        /// <exception cref="InvalidOperationException">No solution (.sln or .slnx) file was detected or multiple solutions were detected.</exception>
         public override async Task AddItemsAsync(AppPackage.AppPackageBuilder appPackageBuilder)
         {
             var automationScriptPackageCreation = AppPackageCreatorForAutomation.Factory.FromRepository(this.LogCollector, this.RepositoryPath, this.PackageName, this.PackageVersion);

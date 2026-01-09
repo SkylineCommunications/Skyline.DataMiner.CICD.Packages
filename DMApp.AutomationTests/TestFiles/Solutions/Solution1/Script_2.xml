@@ -1,0 +1,23 @@
+﻿<DMSScript options="304">
+    <Name>Script_2</Name>
+    <Description></Description>
+    <Type>Automation</Type>
+    <CheckSets>FALSE</CheckSets>
+    <Folder>MyFolder</Folder>
+    <Protocols>
+    </Protocols>
+    <Memory>
+    </Memory>
+    <Parameters>
+        <ScriptParameter id="1" type="string" values="">
+            <Description>Reservation ID</Description>
+        </ScriptParameter>
+    </Parameters>
+    <Script>
+        <Exe id="2" type="csharp">
+            <Value><![CDATA[[Project:Script_2]]]></Value>
+            <Param type="debug">true</Param>
+            <Message></Message>
+        </Exe>
+    </Script>
+</DMSScript>

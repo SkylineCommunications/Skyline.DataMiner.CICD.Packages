@@ -35,7 +35,7 @@
             bool subfolderCsFileCode = protocolXmlContent.Contains("public class SubfolderClass");
             Assert.IsTrue(subfolderCsFileCode);
 
-            Assert.AreEqual(2, builder.Assemblies.Count);
+            Assert.HasCount(2, builder.Assemblies);
 
             // Verify NuGet assembly is included.
             var nugetAssembly = builder.Assemblies.FirstOrDefault(a => a.DestinationFolderPath.Equals("C:\\Skyline DataMiner\\ProtocolScripts\\DllImport\\advancedstringbuilder\\0.1.0\\lib\\net45"));
@@ -45,7 +45,7 @@
             Assert.IsNotNull(builder.Assemblies.FirstOrDefault(a => a.AssemblyFilePath.EndsWith("ClassLibX.dll")));
 
             // Verify if Trending template is present
-            Assert.AreEqual(1, builder.TrendTemplates.Count);
+            Assert.HasCount(1, builder.TrendTemplates);
         }
 
         [TestMethod]
@@ -71,7 +71,7 @@
             bool subfolderCsFileCode = protocolXmlContent.Contains("public class SubfolderClass");
             Assert.IsTrue(subfolderCsFileCode);
 
-            Assert.AreEqual(2, builder.Assemblies.Count);
+            Assert.HasCount(2, builder.Assemblies);
 
             // Verify NuGet assembly is included.
             var nugetAssembly = builder.Assemblies.FirstOrDefault(a => a.DestinationFolderPath.Equals("C:\\Skyline DataMiner\\ProtocolScripts\\DllImport\\advancedstringbuilder\\0.1.0\\lib\\net45"));
@@ -81,7 +81,7 @@
             Assert.IsNotNull(builder.Assemblies.FirstOrDefault(a => a.AssemblyFilePath.EndsWith("ClassLibX.dll")));
 
             // Verify if Trending template is present
-            Assert.AreEqual(1, builder.TrendTemplates.Count);
+            Assert.HasCount(1, builder.TrendTemplates);
         }
     }
 }

@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net462</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Skyline.DataMiner.Dev.Automation" Version="10.2.12.1" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AutomationScript_ClassLibrary\AutomationScript_ClassLibrary.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="MyCustomDll">
+      <HintPath>..\Dlls\MyCustomDll.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+	<ProjectExtensions>
+    <VisualStudio>
+      <UserProperties DisLinkedXmlFile="..\New.xml" DisProjectType="automationScriptProject" DisLinkId="1" />
+    </VisualStudio>
+  </ProjectExtensions>
+
+</Project>

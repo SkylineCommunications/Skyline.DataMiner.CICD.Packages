@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<DMSScript options="272" xmlns="http://www.skyline.be/automation">
+	<Name>HandleIntegrationUpdate</Name>
+	<Description>Script 1.0.1.77</Description>
+	<Type>Automation</Type>
+	<Author>SKYLINE2\Joey</Author>
+	<CheckSets>FALSE</CheckSets>
+	<Folder>YLE/Integrations</Folder>
+
+	<Protocols>
+	</Protocols>
+
+	<Memory>
+	</Memory>
+
+	<Parameters>
+		<ScriptParameter id="1" type="string" values="">
+			<Description>update</Description>
+		</ScriptParameter>
+	</Parameters>
+
+	<Script>
+		<Exe id="4" type="csharp">
+			<Value>
+				<![CDATA[[Project:HandleIntegrationUpdate_4]]]>
+			</Value>
+			<Param type="scriptRef">Library:YLE_MediaServices</Param>
+			<Message></Message>
+		</Exe>
+	</Script>
+</DMSScript>

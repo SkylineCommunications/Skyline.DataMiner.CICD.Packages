@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<DMSScript options="272" xmlns="http://www.skyline.be/automation">
+  <Name>ExportProfileDefinitions</Name>
+	<Description>Script 1.0.1.77</Description>
+  <Type>Automation</Type>
+  <Author>SKYLINE2\Joey</Author>
+  <CheckSets>FALSE</CheckSets>
+  <Folder>YLE/Tools</Folder>
+  <Protocols>
+  </Protocols>
+  <Memory>
+  </Memory>
+  <Parameters>
+    <ScriptParameter id="2" type="string" values="">
+      <Description>Action</Description>
+    </ScriptParameter>
+    <ScriptParameter id="3" type="string" values="">
+      <Description>FilePath</Description>
+    </ScriptParameter>
+  </Parameters>
+  <Script>
+		<Exe id="1" type="csharp">
+      <Value><![CDATA[[Project:ExportProfileDefinitions_1]]]></Value>
+      <!--<Param type="debug">true</Param>-->
+      <Message />
+    </Exe>
+  </Script>
+</DMSScript>

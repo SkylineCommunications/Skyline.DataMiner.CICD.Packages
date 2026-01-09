@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Protocol xmlns="http://www.skyline.be/protocol">
+	<Name>ExampleConnector</Name>
+	<Description>ExampleConnector DataMiner connector</Description>
+	<Version>1.0.0.1</Version>
+	<IntegrationID>DMS-DRV-</IntegrationID>
+	<Provider></Provider>
+	<Vendor></Vendor>
+	<VendorOID>1.3.6.1.4.1.8813.2.</VendorOID>
+	<DeviceOID></DeviceOID>
+	<SNMP includepages="true">auto</SNMP>
+	<ElementType></ElementType>
+	<Type relativeTimers="true" options=";unicode">virtual</Type>
+	<Display defaultPage="General" pageOrder="General"/>
+
+	<Compliancies>
+		<CassandraReady>true</CassandraReady>
+		<MinimumRequiredVersion>10.3.0.0 - 12752</MinimumRequiredVersion>
+	</Compliancies>
+
+	<Params>
+		<Param id="2">
+			<Name>AfterStartup</Name>
+			<Description>After Startup</Description>
+			<Type>dummy</Type>
+		</Param>
+	</Params>
+
+	<QActions>
+		<QAction id="1" name="Precompiled Code" encoding="csharp" options="precompile" />
+		<QAction id="2" name="After Startup" encoding="csharp" triggers="2" />
+	</QActions>
+
+	<Groups>
+		<Group id="2">
+			<Name>After Startup</Name>
+			<Description>After Startup</Description>
+			<Type>poll action</Type>
+			<Content>
+				<Action>2</Action>
+			</Content>
+		</Group>
+	</Groups>
+
+	<Triggers>
+		<Trigger id="1">
+			<Name>After Startup</Name>
+			<On>protocol</On>
+			<Time>after startup</Time>
+			<Type>action</Type>
+			<Content>
+				<Id>1</Id>
+			</Content>
+		</Trigger>
+	</Triggers>
+
+	<Actions>
+		<Action id="1">
+			<Name>After Startup Group</Name>
+			<On id="2">group</On>
+			<Type>execute next</Type>
+		</Action>
+		<Action id="2">
+			<Name>After Startup QAction</Name>
+			<On id="2">parameter</On>
+			<Type>run actions</Type>
+		</Action>
+	</Actions>
+
+	<Timers>
+		<Timer id="1">
+			<Name>Fast Timer (10s)</Name>
+			<Time initial="true">10000</Time>
+			<Interval>75</Interval>
+			<Content>
+			</Content>
+		</Timer>
+		<Timer id="2">
+			<Name>Medium Timer (1m)</Name>
+			<Time initial="true" dataDisplay="30000">60000</Time>
+			<Interval>75</Interval>
+			<Content>
+			</Content>
+		</Timer>
+		<Timer id="3">
+			<Name>Slow Timer (1h)</Name>
+			<Time initial="true">3600000</Time>
+			<Interval>75</Interval>
+			<Content>
+			</Content>
+		</Timer>
+	</Timers>
+
+	<PortSettings name="Virtual Connection" />
+
+	<VersionHistory>
+		<Branches>
+			<Branch id="1">
+				<Comment>Main Branch</Comment>
+				<SystemVersions>
+					<SystemVersion id="0">
+						<MajorVersions>
+							<MajorVersion id="0">
+								<MinorVersions>
+									<MinorVersion id="1">
+										<Date>2026-01-07</Date>
+										<Provider>
+											<Author></Author>
+											<Company></Company>
+										</Provider>
+										<Changes>
+											<NewFeature>Initial version</NewFeature>
+										</Changes>
+									</MinorVersion>
+								</MinorVersions>
+							</MajorVersion>
+						</MajorVersions>
+					</SystemVersion>
+				</SystemVersions>
+			</Branch>
+		</Branches>
+	</VersionHistory>
+
+</Protocol>

@@ -1,0 +1,30 @@
+﻿<DMSScript options="272" xmlns="http://www.skyline.be/automation">
+	<Name>AddNote</Name>
+	<Description>Script 1.0.1.77</Description>
+	<Type>Automation</Type>
+	<Author>SKYLINE2\VSC</Author>
+	<CheckSets>FALSE</CheckSets>
+	<Folder>YLE/Customer UI</Folder>
+
+	<Protocols>
+	</Protocols>
+
+	<Memory>
+	</Memory>
+
+	<Parameters>
+		<ScriptParameter id="1" type="string" values="">
+			<Description>Page</Description>
+		</ScriptParameter>
+	</Parameters>
+
+	<Script>
+		<Exe id="2" type="csharp"> 
+			<Value>
+				<![CDATA[[Project:AddNote_2]]]>
+			</Value>
+			<Param type="scriptRef">Library:YLE_MediaServices</Param>
+			<Message />
+		</Exe>
+	</Script>
+</DMSScript>

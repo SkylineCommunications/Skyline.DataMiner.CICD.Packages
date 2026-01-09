@@ -1,0 +1,22 @@
+﻿<DMSScript options="272">
+	<Name>Utils</Name>
+	<Description></Description>
+	<Type>Automation</Type>
+	<Author>SKYLINE2\Pedro</Author>
+	<CheckSets>FALSE</CheckSets>
+	<Folder></Folder>
+	<Protocols>
+	</Protocols>
+	<Memory>
+	</Memory>
+	<Parameters>
+	</Parameters>
+	<Script>
+		<Exe id="2" type="csharp">
+			<Value><![CDATA[[Project:Utils_2]]]></Value>
+			<Param type="preCompile">true</Param>
+			<Param type="libraryName">MyLibrary</Param>
+			<Message></Message>
+		</Exe>
+	</Script>
+</DMSScript>
