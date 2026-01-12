@@ -231,7 +231,7 @@ namespace Skyline.DataMiner.CICD.Parsers.Common.VisualStudio
             solutionPath = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(FileSystem.Instance.Path.GetDirectoryName(SolutionPath), solutionPath));
 
             string[] filteredProjects = projectsObject.EnumerateArray()
-                                                      .Select(projectPath => projectPath.GetString())
+                                                      .Select(projectPath => projectPath.GetString()?.Replace('\\', '/')?.ToLowerInvariant())
                                                       .Where(projectPath => !String.IsNullOrWhiteSpace(projectPath))
                                                       .ToArray();
             return (solutionPath, filteredProjects);
@@ -289,17 +289,9 @@ namespace Skyline.DataMiner.CICD.Parsers.Common.VisualStudio
                     // When not allowing all, skip unsupported project types.
                     continue;
                 }
-                
-                if (filteredProjects.Any() && !filteredProjects.Any(filteredProject =>
-                    {
-                        var normalizedProjectPath = FileSystem.Instance.Path.GetFullPath(solutionProject.FilePath)
-                                                              .TrimEnd(FileSystem.Instance.Path.DirectorySeparatorChar,
-                                                                  FileSystem.Instance.Path.AltDirectorySeparatorChar);
-                        var normalizedFilterPath = FileSystem.Instance.Path.GetFullPath(filteredProject)
-                                                             .TrimEnd(FileSystem.Instance.Path.DirectorySeparatorChar,
-                                                                 FileSystem.Instance.Path.AltDirectorySeparatorChar);
-                        return normalizedProjectPath.EndsWith(normalizedFilterPath);
-                    }))
+
+                string adaptedPath = solutionProject.FilePath.Replace('\\', '/').ToLowerInvariant();
+                if (filteredProjects.Any() && !filteredProjects.Any(filteredProject => adaptedPath.EndsWith(filteredProject)))
                 {
                     // If filtered projects are specified, skip projects not in the filter.
                     continue;
