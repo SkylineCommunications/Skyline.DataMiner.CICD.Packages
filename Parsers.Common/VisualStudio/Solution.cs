@@ -4,6 +4,7 @@ namespace Skyline.DataMiner.CICD.Parsers.Common.VisualStudio
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Text.Json;
     using System.Threading;
 
     using Microsoft.VisualStudio.SolutionPersistence;
@@ -177,19 +178,50 @@ namespace Skyline.DataMiner.CICD.Parsers.Common.VisualStudio
 
         private void LoadSolution(bool allowAll)
         {
-            ISolutionSerializer serializer = SolutionSerializers.GetSerializerByMoniker(SolutionPath);
+            string solutionPath = SolutionPath;
+            string[] filteredProjects = Array.Empty<string>();
+            if (FileSystem.Instance.Path.GetExtension(SolutionPath) == ".slnf")
+            {
+                // .slnf files are solution filter files, which reference a main solution file and the projects to load.
+                string slnfJson = FileSystem.Instance.File.ReadAllText(SolutionPath);
+
+                JsonElement filter = JsonElement.Parse(slnfJson);
+
+                if (!filter.TryGetProperty("solution", out JsonElement solutionObject) || solutionObject.ValueKind != JsonValueKind.Object)
+                {
+                    throw new JsonException("Invalid solution filter file, no solution property found.");
+                }
+
+                if (!solutionObject.TryGetProperty("path", out JsonElement pathObject) || pathObject.ValueKind != JsonValueKind.String ||
+                    !solutionObject.TryGetProperty("projects", out JsonElement projectsObject) || projectsObject.ValueKind != JsonValueKind.Array)
+                {
+                    throw new JsonException("Invalid solution filter file, no path or projects properties found.");
+                }
+
+                solutionPath = pathObject.GetString();
+                if (String.IsNullOrWhiteSpace(solutionPath))
+                {
+                    throw new JsonException("Invalid solution filter file, no valid path found.");
+                }
+
+                solutionPath = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(FileSystem.Instance.Path.GetDirectoryName(SolutionPath), solutionPath));
+
+                filteredProjects = projectsObject.EnumerateArray().Select(projectPath => projectPath.GetString()).ToArray();
+            }
+
+            ISolutionSerializer serializer = SolutionSerializers.GetSerializerByMoniker(solutionPath);
 
             if (serializer == null)
             {
-                throw new NotSupportedException($"The solution file '{SolutionPath}' is not supported by any available serializer.");
+                throw new NotSupportedException($"The solution file '{solutionPath}' is not supported by any available serializer.");
             }
 
-            SolutionModel solution = serializer.OpenAsync(SolutionPath, CancellationToken.None).Result;
+            SolutionModel solution = serializer.OpenAsync(solutionPath, CancellationToken.None).Result;
 
             Dictionary<Guid, SolutionFolder> solutionFolderMap = new Dictionary<Guid, SolutionFolder>(solution.SolutionFolders.Count);
 
             ProcessSolutionFolders(solution, solutionFolderMap);
-            ProcessSolutionProjects(solution, solutionFolderMap, allowAll);
+            ProcessSolutionProjects(solution, solutionFolderMap, allowAll, filteredProjects);
         }
 
         private void ProcessSolutionFolders(SolutionModel solution, Dictionary<Guid, SolutionFolder> solutionFolderMap)
@@ -227,7 +259,8 @@ namespace Skyline.DataMiner.CICD.Parsers.Common.VisualStudio
             }
         }
 
-        private void ProcessSolutionProjects(SolutionModel solution, Dictionary<Guid, SolutionFolder> solutionFolderMap, bool allowAll)
+        private void ProcessSolutionProjects(SolutionModel solution, Dictionary<Guid, SolutionFolder> solutionFolderMap, bool allowAll,
+            string[] filteredProjects)
         {
             if (solution.SolutionProjects.Count == 0)
             {
@@ -244,6 +277,12 @@ namespace Skyline.DataMiner.CICD.Parsers.Common.VisualStudio
                     continue;
                 }
                 
+                if (filteredProjects.Any() && !filteredProjects.Any(filteredProject => solutionProject.FilePath.EndsWith(filteredProject)))
+                {
+                    // If filtered projects are specified, skip projects not in the filter.
+                    continue;
+                }
+
                 SolutionItem solutionItem = new ProjectInSolution(this, solutionProject.Id, solutionProject.ActualDisplayName, solutionProject.FilePath);
 
                 if (solutionProject.Parent is SolutionFolderModel parentFolder)

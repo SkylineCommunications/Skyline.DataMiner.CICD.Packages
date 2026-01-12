@@ -1,0 +1,8 @@
+{
+  "solution": {
+    "path": "SolutionWithFilter.slnx",
+    "projects": [
+      "Project1\\Project1.csproj"
+    ]
+  }
+}
