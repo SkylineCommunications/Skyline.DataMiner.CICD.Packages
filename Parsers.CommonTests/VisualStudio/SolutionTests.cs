@@ -24,7 +24,7 @@
             // Assert
             solution.Should().NotBeNull();
             solution.Projects.Should().HaveCount(1);
-            solution.Projects.First().Name.Should().BeEquivalentTo("Project1");
+            solution.Projects.First().Name.Should().Be("Project1");
         }
 
         [TestMethod]

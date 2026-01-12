@@ -2,7 +2,6 @@ namespace Skyline.DataMiner.CICD.Parsers.Common.VisualStudio
 {
     using System;
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
     using System.Text.Json;
     using System.Threading;
@@ -28,7 +27,7 @@ namespace Skyline.DataMiner.CICD.Parsers.Common.VisualStudio
         /// Initializes a new instance of the <see cref="Solution"/> class with the specified path.
         /// </summary>
         /// <param name="path">The path to the solution file.</param>
-        /// <exception cref="FileNotFoundException">The specified solution file does not exist.</exception>
+        /// <exception cref="System.IO.FileNotFoundException">The specified solution file does not exist.</exception>
         protected Solution(string path) : this(path, false)
         {
         }
@@ -39,12 +38,12 @@ namespace Skyline.DataMiner.CICD.Parsers.Common.VisualStudio
         /// </summary>
         /// <param name="path">The path to the solution file.</param>
         /// <param name="allowAll">Allow all projects, regardless of type.</param>
-        /// <exception cref="FileNotFoundException">The specified solution file does not exist.</exception>
+        /// <exception cref="System.IO.FileNotFoundException">The specified solution file does not exist.</exception>
         private Solution(string path, bool allowAll)
         {
             if (!_fileSystem.File.Exists(path))
             {
-                throw new FileNotFoundException("Could not find the specified solution file '" + path + "'.");
+                throw new System.IO.FileNotFoundException("Could not find the specified solution file '" + path + "'.");
             }
 
             // Make sure to use the full path
@@ -93,7 +92,7 @@ namespace Skyline.DataMiner.CICD.Parsers.Common.VisualStudio
         /// <param name="logCollector">The log collector.</param>
         /// <returns>Parsed solution.</returns>
         /// <exception cref="ArgumentException">Value cannot be null or whitespace. - solutionPath</exception>
-        /// <exception cref="FileNotFoundException">The specified solution file does not exist.</exception>
+        /// <exception cref="System.IO.FileNotFoundException">The specified solution file does not exist.</exception>
         public static Solution Load(string solutionPath, ILogCollector logCollector = null)
         {
             if (String.IsNullOrWhiteSpace(solutionPath))
@@ -114,7 +113,7 @@ namespace Skyline.DataMiner.CICD.Parsers.Common.VisualStudio
         /// <param name="logCollector">The log collector.</param>
         /// <returns>Parsed solution.</returns>
         /// <exception cref="ArgumentException">Value cannot be null or whitespace. - solutionPath</exception>
-        /// <exception cref="FileNotFoundException">The specified solution file does not exist.</exception>
+        /// <exception cref="System.IO.FileNotFoundException">The specified solution file does not exist.</exception>
         public static Solution Load(string solutionPath, bool allowAll, ILogCollector logCollector = null)
         {
             if (String.IsNullOrWhiteSpace(solutionPath))
@@ -182,31 +181,12 @@ namespace Skyline.DataMiner.CICD.Parsers.Common.VisualStudio
             string[] filteredProjects = Array.Empty<string>();
             if (FileSystem.Instance.Path.GetExtension(SolutionPath) == ".slnf")
             {
-                // .slnf files are solution filter files, which reference a main solution file and the projects to load.
-                string slnfJson = FileSystem.Instance.File.ReadAllText(SolutionPath);
+                (solutionPath, filteredProjects) = ParseSolutionFilterFile();
 
-                JsonElement filter = JsonElement.Parse(slnfJson);
-
-                if (!filter.TryGetProperty("solution", out JsonElement solutionObject) || solutionObject.ValueKind != JsonValueKind.Object)
+                if (!FileSystem.Instance.File.Exists(solutionPath))
                 {
-                    throw new JsonException("Invalid solution filter file, no solution property found.");
+                    throw new System.IO.FileNotFoundException($"Could not find the solution file '{solutionPath}' from the specified solution filter file '{SolutionPath}'.");
                 }
-
-                if (!solutionObject.TryGetProperty("path", out JsonElement pathObject) || pathObject.ValueKind != JsonValueKind.String ||
-                    !solutionObject.TryGetProperty("projects", out JsonElement projectsObject) || projectsObject.ValueKind != JsonValueKind.Array)
-                {
-                    throw new JsonException("Invalid solution filter file, no path or projects properties found.");
-                }
-
-                solutionPath = pathObject.GetString();
-                if (String.IsNullOrWhiteSpace(solutionPath))
-                {
-                    throw new JsonException("Invalid solution filter file, no valid path found.");
-                }
-
-                solutionPath = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(FileSystem.Instance.Path.GetDirectoryName(SolutionPath), solutionPath));
-
-                filteredProjects = projectsObject.EnumerateArray().Select(projectPath => projectPath.GetString()).ToArray();
             }
 
             ISolutionSerializer serializer = SolutionSerializers.GetSerializerByMoniker(solutionPath);
@@ -222,6 +202,39 @@ namespace Skyline.DataMiner.CICD.Parsers.Common.VisualStudio
 
             ProcessSolutionFolders(solution, solutionFolderMap);
             ProcessSolutionProjects(solution, solutionFolderMap, allowAll, filteredProjects);
+        }
+
+        private (string solutionPath, string[] filteredProjects) ParseSolutionFilterFile()
+        {
+            // .slnf files are solution filter files, which reference a main solution file and the projects to load.
+            string slnfJson = FileSystem.Instance.File.ReadAllText(SolutionPath);
+
+            JsonElement filter = JsonElement.Parse(slnfJson);
+
+            if (!filter.TryGetProperty("solution", out JsonElement solutionObject) || solutionObject.ValueKind != JsonValueKind.Object)
+            {
+                throw new JsonException("Invalid solution filter file, no solution property found.");
+            }
+
+            if (!solutionObject.TryGetProperty("path", out JsonElement pathObject) || pathObject.ValueKind != JsonValueKind.String ||
+                !solutionObject.TryGetProperty("projects", out JsonElement projectsObject) || projectsObject.ValueKind != JsonValueKind.Array)
+            {
+                throw new JsonException("Invalid solution filter file, no path or projects properties found.");
+            }
+
+            string solutionPath = pathObject.GetString();
+            if (String.IsNullOrWhiteSpace(solutionPath))
+            {
+                throw new JsonException("Invalid solution filter file, no valid path found.");
+            }
+
+            solutionPath = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(FileSystem.Instance.Path.GetDirectoryName(SolutionPath), solutionPath));
+
+            string[] filteredProjects = projectsObject.EnumerateArray()
+                                                      .Select(projectPath => projectPath.GetString())
+                                                      .Where(projectPath => !String.IsNullOrWhiteSpace(projectPath))
+                                                      .ToArray();
+            return (solutionPath, filteredProjects);
         }
 
         private void ProcessSolutionFolders(SolutionModel solution, Dictionary<Guid, SolutionFolder> solutionFolderMap)
@@ -277,7 +290,16 @@ namespace Skyline.DataMiner.CICD.Parsers.Common.VisualStudio
                     continue;
                 }
                 
-                if (filteredProjects.Any() && !filteredProjects.Any(filteredProject => solutionProject.FilePath.EndsWith(filteredProject)))
+                if (filteredProjects.Any() && !filteredProjects.Any(filteredProject =>
+                    {
+                        var normalizedProjectPath = FileSystem.Instance.Path.GetFullPath(solutionProject.FilePath)
+                                                              .TrimEnd(FileSystem.Instance.Path.DirectorySeparatorChar,
+                                                                  FileSystem.Instance.Path.AltDirectorySeparatorChar);
+                        var normalizedFilterPath = FileSystem.Instance.Path.GetFullPath(filteredProject)
+                                                             .TrimEnd(FileSystem.Instance.Path.DirectorySeparatorChar,
+                                                                 FileSystem.Instance.Path.AltDirectorySeparatorChar);
+                        return normalizedProjectPath.EndsWith(normalizedFilterPath);
+                    }))
                 {
                     // If filtered projects are specified, skip projects not in the filter.
                     continue;
