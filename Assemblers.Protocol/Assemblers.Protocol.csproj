@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>Skyline.DataMiner.CICD.Assemblers.Protocol</AssemblyName>
@@ -35,6 +35,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Skyline.DataMiner.CICD.Models.Protocol" Version="1.1.2" />
+    <PackageReference Include="Skyline.DataMiner.CICD.Models.Protocol" Version="1.2.0" />
   </ItemGroup>
 </Project>
