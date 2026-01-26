@@ -100,13 +100,9 @@
                 yield break;
             }
 
-            // Try to get package versions from Directory.Packages.props (Central Package Management)
-            Dictionary<string, string> centralPackageVersions = null;
-            DirectoryPackagesPropsParser.TryGetPackageVersions(projectDir, out centralPackageVersions);
-
             if (references.Any())
             {
-                foreach (var item in LoadPackageReferenceItems(references, centralPackageVersions))
+                foreach (var item in LoadPackageReferenceItems(references))
                 {
                     yield return item;
                 }
@@ -152,7 +148,7 @@
             }
         }
 
-        private static IEnumerable<PackageReference> LoadPackageReferenceItems(IEnumerable<XElement> references, Dictionary<string, string> centralPackageVersions = null)
+        private static IEnumerable<PackageReference> LoadPackageReferenceItems(IEnumerable<XElement> references)
         {
             foreach (var r in references)
             {
@@ -169,23 +165,6 @@
                 {
                     // When installed via CLI the version is added as an attribute instead of a tag.
                     version = r.Attribute("Version")?.Value;
-                }
-
-                // Support for Central Package Management (CPM)
-                if (String.IsNullOrWhiteSpace(version) && centralPackageVersions != null)
-                {
-                    // Try to get version from Directory.Packages.props
-                    if (centralPackageVersions.TryGetValue(name, out string centralVersion))
-                    {
-                        version = centralVersion;
-                    }
-                }
-
-                // Support for VersionOverride in CPM
-                string versionOverride = r.Attribute("VersionOverride")?.Value;
-                if (!String.IsNullOrWhiteSpace(versionOverride))
-                {
-                    version = versionOverride;
                 }
 
                 yield return new PackageReference(name, version);
