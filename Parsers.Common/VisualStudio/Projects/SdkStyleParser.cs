@@ -116,12 +116,30 @@
                 yield break;
             }
 
+            // Try to get package versions from Directory.Packages.props (Central Package Management)
+            Dictionary<string, string> centralPackageVersions = null;
+            bool isCentralPackageManagementEnabled = DirectoryPackagesPropsParser.TryGetPackageVersions(projectDir, out centralPackageVersions);
+
             if (references.Any())
             {
-                foreach (var item in LoadPackageReferenceItems(references))
+                foreach (var item in LoadPackageReferenceItems(references, centralPackageVersions))
                 {
                     yield return item;
                 }
+            }
+
+            // If CPM is enabled and there are global package references not in the project, add them
+            if (isCentralPackageManagementEnabled && centralPackageVersions != null)
+            {
+                // Get the list of packages already referenced in the project
+                var referencedPackages = new HashSet<string>(
+                    references.Select(r => r.Attribute("Include")?.Value ?? r.Attribute("Update")?.Value)
+                              .Where(name => !String.IsNullOrWhiteSpace(name)),
+                    StringComparer.OrdinalIgnoreCase);
+
+                // Note: GlobalPackageReference items are included in centralPackageVersions
+                // but they should be implicitly available to all projects. 
+                // For now, we only return explicitly referenced packages in the .csproj
             }
         }
 
@@ -318,7 +336,7 @@
             }
         }
 
-        private static IEnumerable<PackageReference> LoadPackageReferenceItems(IEnumerable<XElement> references)
+        private static IEnumerable<PackageReference> LoadPackageReferenceItems(IEnumerable<XElement> references, Dictionary<string, string> centralPackageVersions = null)
         {
             foreach (var r in references)
             {
@@ -335,6 +353,23 @@
                 {
                     // When installed via CLI the version is added as an attribute instead of a tag.
                     version = r.Attribute("Version")?.Value;
+                }
+
+                // Support for Central Package Management (CPM)
+                if (String.IsNullOrWhiteSpace(version) && centralPackageVersions != null)
+                {
+                    // Try to get version from Directory.Packages.props
+                    if (centralPackageVersions.TryGetValue(name, out string centralVersion))
+                    {
+                        version = centralVersion;
+                    }
+                }
+
+                // Support for VersionOverride in CPM
+                string versionOverride = r.Attribute("VersionOverride")?.Value;
+                if (!String.IsNullOrWhiteSpace(versionOverride))
+                {
+                    version = versionOverride;
                 }
 
                 yield return new PackageReference(name, version);
