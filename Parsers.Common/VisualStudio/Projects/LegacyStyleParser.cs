@@ -171,13 +171,11 @@
                 }
 
                 // Support for Central Package Management (CPM)
-                if (!String.IsNullOrWhiteSpace(name) && String.IsNullOrWhiteSpace(version) && centralPackageVersions != null)
+                if (centralPackageVersions != null && !String.IsNullOrWhiteSpace(name) &&
+                    String.IsNullOrWhiteSpace(version) && centralPackageVersions.TryGetValue(name, out string centralVersion))
                 {
                     // Try to get version from Directory.Packages.props
-                    if (centralPackageVersions.TryGetValue(name, out string centralVersion))
-                    {
-                        version = centralVersion;
-                    }
+                    version = centralVersion;
                 }
 
                 // Support for VersionOverride in CPM

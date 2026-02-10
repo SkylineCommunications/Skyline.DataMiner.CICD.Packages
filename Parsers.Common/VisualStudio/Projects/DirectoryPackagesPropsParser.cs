@@ -50,46 +50,8 @@ namespace Skyline.DataMiner.CICD.Parsers.Common.VisualStudio.Projects
                     return false;
                 }
 
-                // Parse PackageVersion items
-                var packageVersionElements = document
-                    .Element("Project")
-                    ?.Elements("ItemGroup")
-                    .Elements("PackageVersion");
-
-                if (packageVersionElements != null)
-                {
-                    foreach (var packageVersionElement in packageVersionElements)
-                    {
-                        string include = packageVersionElement.Attribute("Include")?.Value;
-                        string version = packageVersionElement.Attribute("Version")?.Value;
-
-                        if (!String.IsNullOrWhiteSpace(include) && !String.IsNullOrWhiteSpace(version))
-                        {
-                            // Store the version, later entries override earlier ones
-                            packageVersions[include] = version;
-                        }
-                    }
-                }
-
-                // Also parse GlobalPackageReference items
-                var globalPackageReferenceElements = document
-                    .Element("Project")
-                    ?.Elements("ItemGroup")
-                    .Elements("GlobalPackageReference");
-
-                if (globalPackageReferenceElements != null)
-                {
-                    foreach (var globalPackageElement in globalPackageReferenceElements)
-                    {
-                        string include = globalPackageElement.Attribute("Include")?.Value;
-                        string version = globalPackageElement.Attribute("Version")?.Value;
-
-                        if (!String.IsNullOrWhiteSpace(include) && !String.IsNullOrWhiteSpace(version))
-                        {
-                            packageVersions[include] = version;
-                        }
-                    }
-                }
+                ParsePackageVersions(packageVersions, document);
+                ParseGlobalPackageReferences(packageVersions, document);
 
                 return packageVersions.Count > 0;
             }
@@ -97,6 +59,55 @@ namespace Skyline.DataMiner.CICD.Parsers.Common.VisualStudio.Projects
             {
                 // If parsing fails, return false
                 return false;
+            }
+        }
+
+        private static void ParsePackageVersions(Dictionary<string, string> packageVersions, XDocument document)
+        {
+            var packageVersionElements = document
+                                         .Element("Project")
+                                         ?.Elements("ItemGroup")
+                                         .Elements("PackageVersion");
+
+            if (packageVersionElements == null)
+            {
+                return;
+            }
+
+            foreach (var packageVersionElement in packageVersionElements)
+            {
+                string include = packageVersionElement.Attribute("Include")?.Value;
+                string version = packageVersionElement.Attribute("Version")?.Value;
+
+                if (!String.IsNullOrWhiteSpace(include) && !String.IsNullOrWhiteSpace(version))
+                {
+                    // Store the version, later entries override earlier ones
+                    packageVersions[include] = version;
+                }
+            }
+        }
+
+        private static void ParseGlobalPackageReferences(Dictionary<string, string> packageVersions, XDocument document)
+        {
+            var globalPackageReferenceElements = document
+                                                 .Element("Project")
+                                                 ?.Elements("ItemGroup")
+                                                 .Elements("GlobalPackageReference");
+
+            if (globalPackageReferenceElements == null)
+            {
+                return;
+            }
+
+            foreach (var globalPackageElement in globalPackageReferenceElements)
+            {
+                string include = globalPackageElement.Attribute("Include")?.Value;
+                string version = globalPackageElement.Attribute("Version")?.Value;
+
+                if (!String.IsNullOrWhiteSpace(include) && !String.IsNullOrWhiteSpace(version))
+                {
+                    packageVersions[include] = version;
+                }
             }
         }
 
