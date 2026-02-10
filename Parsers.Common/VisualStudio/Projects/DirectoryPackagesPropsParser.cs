@@ -11,7 +11,7 @@ namespace Skyline.DataMiner.CICD.Parsers.Common.VisualStudio.Projects
     /// <summary>
     /// Parser for Directory.Packages.props files used in Central Package Management.
     /// </summary>
-    internal class DirectoryPackagesPropsParser
+    internal static class DirectoryPackagesPropsParser
     {
         private static readonly IFileSystem FileSystem = CICD.FileSystem.FileSystem.Instance;
         private const string DirectoryPackagesPropsFileName = "Directory.Packages.props";

@@ -1,5 +1,6 @@
 namespace Parsers.CommonTests.VisualStudio.Projects
 {
+    using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
 
@@ -70,6 +71,11 @@ namespace Parsers.CommonTests.VisualStudio.Projects
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"VisualStudio\TestFiles\ProjectsForTesting\PackageReferences"));
             var path = FileSystem.Instance.Path.Combine(dir, "PackageReferences_Valid.csproj");
+            List<PackageReference> expectedReferences = new List<PackageReference>
+            {
+                new PackageReference("Skyline.DataMiner.Dev.Automation", "10.0.0.5"),
+                new PackageReference("StyleCop.Analyzers", "1.2.0-beta.507")
+            };
 
             // Act
             var result = Project.Load(path);
@@ -77,12 +83,8 @@ namespace Parsers.CommonTests.VisualStudio.Projects
             // Assert
             result.Should().NotBeNull();
             result.PackageReferences.Should().NotBeNullOrEmpty();
-
-            // All packages should have versions explicitly defined in the project file
-            foreach (var packageRef in result.PackageReferences)
-            {
-                packageRef.Version.Should().NotBeNullOrWhiteSpace("traditional projects should have explicit versions");
-            }
+            result.PackageReferences.Should().HaveCount(2);
+            result.PackageReferences.Should().BeEquivalentTo(expectedReferences);
         }
     }
 }

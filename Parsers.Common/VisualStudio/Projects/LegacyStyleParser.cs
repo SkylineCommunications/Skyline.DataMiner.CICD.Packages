@@ -8,7 +8,6 @@
     using System.Xml.Linq;
 
     using Skyline.DataMiner.CICD.FileSystem;
-    using Skyline.DataMiner.CICD.Parsers.Common.Exceptions;
 
     internal class LegacyStyleParser : IProjectParser
     {
@@ -93,7 +92,8 @@
             IEnumerable<XElement> references = document
                .Element(Msbuild + "Project")
                ?.Elements(Msbuild + "ItemGroup")
-               .Elements(Msbuild + "PackageReference");
+               .Elements(Msbuild + "PackageReference")
+               .ToList();
 
             if (references == null)
             {
@@ -101,8 +101,7 @@
             }
 
             // Try to get package versions from Directory.Packages.props (Central Package Management)
-            Dictionary<string, string> centralPackageVersions = null;
-            DirectoryPackagesPropsParser.TryGetPackageVersions(projectDir, out centralPackageVersions);
+            DirectoryPackagesPropsParser.TryGetPackageVersions(projectDir, out Dictionary<string, string> centralPackageVersions);
 
             if (references.Any())
             {
@@ -172,7 +171,7 @@
                 }
 
                 // Support for Central Package Management (CPM)
-                if (String.IsNullOrWhiteSpace(version) && centralPackageVersions != null)
+                if (!String.IsNullOrWhiteSpace(name) && String.IsNullOrWhiteSpace(version) && centralPackageVersions != null)
                 {
                     // Try to get version from Directory.Packages.props
                     if (centralPackageVersions.TryGetValue(name, out string centralVersion))

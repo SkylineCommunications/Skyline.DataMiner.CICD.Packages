@@ -117,8 +117,7 @@
             }
 
             // Try to get package versions from Directory.Packages.props (Central Package Management)
-            Dictionary<string, string> centralPackageVersions = null;
-            bool isCentralPackageManagementEnabled = DirectoryPackagesPropsParser.TryGetPackageVersions(projectDir, out centralPackageVersions);
+            bool isCentralPackageManagementEnabled = DirectoryPackagesPropsParser.TryGetPackageVersions(projectDir, out Dictionary<string, string> centralPackageVersions);
 
             if (references.Any())
             {
@@ -132,10 +131,10 @@
             if (isCentralPackageManagementEnabled && centralPackageVersions != null)
             {
                 // Get the list of packages already referenced in the project
-                var referencedPackages = new HashSet<string>(
-                    references.Select(r => r.Attribute("Include")?.Value ?? r.Attribute("Update")?.Value)
-                              .Where(name => !String.IsNullOrWhiteSpace(name)),
-                    StringComparer.OrdinalIgnoreCase);
+                ////var referencedPackages = new HashSet<string>(
+                ////    references.Select(r => r.Attribute("Include")?.Value ?? r.Attribute("Update")?.Value)
+                ////              .Where(name => !String.IsNullOrWhiteSpace(name)),
+                ////    StringComparer.OrdinalIgnoreCase);
 
                 // Note: GlobalPackageReference items are included in centralPackageVersions
                 // but they should be implicitly available to all projects. 
@@ -356,7 +355,7 @@
                 }
 
                 // Support for Central Package Management (CPM)
-                if (String.IsNullOrWhiteSpace(version) && centralPackageVersions != null)
+                if (centralPackageVersions != null && !String.IsNullOrWhiteSpace(name) && String.IsNullOrWhiteSpace(version))
                 {
                     // Try to get version from Directory.Packages.props
                     if (centralPackageVersions.TryGetValue(name, out string centralVersion))

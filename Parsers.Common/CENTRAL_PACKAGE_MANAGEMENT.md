@@ -46,6 +46,7 @@ Learn more: https://learn.microsoft.com/en-us/nuget/consume-packages/central-pac
 - **Transitive pinning**: Not explicitly handled (relies on normal NuGet resolution)
 - **Multiple Directory.Packages.props**: Only the closest file is used (no automatic import of parent files)
 - **Implicit GlobalPackageReferences**: Global package references are tracked but not automatically added to projects that don't reference them
+- **Projects specifically disabling CPM**: Projects who disable CPM will still have versions resolved from `Directory.Packages.props`
 
 ## Usage Examples
 
