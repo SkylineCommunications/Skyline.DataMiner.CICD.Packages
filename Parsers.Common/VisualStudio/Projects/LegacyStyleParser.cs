@@ -8,7 +8,6 @@
     using System.Xml.Linq;
 
     using Skyline.DataMiner.CICD.FileSystem;
-    using Skyline.DataMiner.CICD.Parsers.Common.Exceptions;
 
     internal class LegacyStyleParser : IProjectParser
     {
@@ -93,16 +92,20 @@
             IEnumerable<XElement> references = document
                .Element(Msbuild + "Project")
                ?.Elements(Msbuild + "ItemGroup")
-               .Elements(Msbuild + "PackageReference");
+               .Elements(Msbuild + "PackageReference")
+               .ToList();
 
             if (references == null)
             {
                 yield break;
             }
 
+            // Try to get package versions from Directory.Packages.props (Central Package Management)
+            DirectoryPackagesPropsParser.TryGetPackageVersions(projectDir, out Dictionary<string, string> centralPackageVersions);
+
             if (references.Any())
             {
-                foreach (var item in LoadPackageReferenceItems(references))
+                foreach (var item in LoadPackageReferenceItems(references, centralPackageVersions))
                 {
                     yield return item;
                 }
@@ -148,7 +151,7 @@
             }
         }
 
-        private static IEnumerable<PackageReference> LoadPackageReferenceItems(IEnumerable<XElement> references)
+        private static IEnumerable<PackageReference> LoadPackageReferenceItems(IEnumerable<XElement> references, Dictionary<string, string> centralPackageVersions = null)
         {
             foreach (var r in references)
             {
@@ -165,6 +168,21 @@
                 {
                     // When installed via CLI the version is added as an attribute instead of a tag.
                     version = r.Attribute("Version")?.Value;
+                }
+
+                // Support for Central Package Management (CPM)
+                if (centralPackageVersions != null && !String.IsNullOrWhiteSpace(name) &&
+                    String.IsNullOrWhiteSpace(version) && centralPackageVersions.TryGetValue(name, out string centralVersion))
+                {
+                    // Try to get version from Directory.Packages.props
+                    version = centralVersion;
+                }
+
+                // Support for VersionOverride in CPM
+                string versionOverride = r.Attribute("VersionOverride")?.Value;
+                if (!String.IsNullOrWhiteSpace(versionOverride))
+                {
+                    version = versionOverride;
                 }
 
                 yield return new PackageReference(name, version);
