@@ -12,7 +12,8 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Skyline.DataMiner.Dev.Automation" Version="10.3.0.25" />
-    <PackageReference Include="Skyline.DataMiner.Dev.Utils.DummySolutionLib" Version="1.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="Skyline.DataMiner.Dev.Utils.DummySolutionLib.Deps" Version="1.0.1" />
     <PackageReference Include="Skyline.DataMiner.Utils.SecureCoding.Analyzers" Version="2.0.5">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

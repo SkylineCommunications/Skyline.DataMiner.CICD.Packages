@@ -207,7 +207,7 @@
 
             // Work out the actual set of packages to install.
             IEnumerable<PackageIdentity> packagesToInstall = resolver.Resolve(resolverContext, CancellationToken.None)
-                                                                                 .Select(identity => allPackagesAndDependencies.Single(info => PackageIdentityComparer.Default.Equals(info, identity)));
+                .Select(identity => allPackagesAndDependencies.Single(info => PackageIdentityComparer.Default.Equals(info, identity)));
 
             return packagesToInstall;
         }

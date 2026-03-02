@@ -21,7 +21,7 @@
 
         public static bool SkipPackageDependencies(string packageId)
         {
-            return CustomNuGetPackages.ContainsKey(packageId) || IsSolutionLibraryNuGetPackage(packageId, out _);
+            return CustomNuGetPackages.ContainsKey(packageId);
         }
 
         public static bool IsSolutionLibraryNuGetPackage(string packageId, out string name)

@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Reflection;
     using System.Threading.Tasks;
     using FluentAssertions;
@@ -786,7 +787,7 @@ class Class1 {}]]>
         }
 
         [TestMethod]
-        public async Task AutomationScriptBuilder_SolutionLibraries()
+        public async Task AutomationScriptBuilder_SolutionLibraries_SingleStandalone()
         {
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Projects\Project1"));
@@ -805,10 +806,103 @@ class Class1 {}]]>
             result.Should().NotBeNull();
             result.Document.Should()
                   .ContainEquivalentOf(
-                      "<Param type=\"ref\">C:\\Skyline DataMiner\\ProtocolScripts\\DllImport\\SolutionLibraries\\ModSolutionLib\\Skyline.DataMiner.Dev.Utils.ModSolutionLib.dll</Param>");
+                      "<Param type=\"ref\">C:\\Skyline DataMiner\\ProtocolScripts\\DllImport\\SolutionLibraries\\DummySolutionLib\\Skyline.DataMiner.Dev.Utils.DummySolutionLib.dll</Param>");
 
             // Only needs to be referenced, shouldn't be part of the script itself
             result.Assemblies.Should().BeEmpty();
+            result.DllAssemblies.Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public async Task AutomationScriptBuilder_SolutionLibraries_StandAlone_DependingOnAnother()
+        {
+            var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Projects\Project2"));
+            var path = FileSystem.Instance.Path.Combine(dir, "Project2.csproj");
+
+            var projects = new Dictionary<string, Project>
+            {
+                { "Project2", Project.Load(path) },
+            };
+
+            Script script = Script.Load(FileSystem.Instance.Path.Combine(dir, "Project2.xml"));
+            AutomationScriptBuilder builder = new AutomationScriptBuilder(script, projects, new List<Script> { script }, directoryForNuGetConfig: null);
+
+            var result = await builder.BuildAsync().ConfigureAwait(false);
+
+            result.Should().NotBeNull();
+            result.Document.Should()
+                  .ContainEquivalentOf(
+                      "<Param type=\"ref\">C:\\Skyline DataMiner\\ProtocolScripts\\DllImport\\SolutionLibraries\\DummySolutionLib\\Skyline.DataMiner.Dev.Utils.DummySolutionLib.dll</Param>");
+            result.Document.Should()
+                  .ContainEquivalentOf(
+                      "<Param type=\"ref\">C:\\Skyline DataMiner\\ProtocolScripts\\DllImport\\SolutionLibraries\\DummySolutionLib.Automation\\Skyline.DataMiner.Dev.Utils.DummySolutionLib.Automation.dll</Param>");
+
+            // Only needs to be referenced, shouldn't be part of the script itself
+            result.Assemblies.Should().BeEmpty();
+            result.DllAssemblies.Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public async Task AutomationScriptBuilder_SolutionLibraries_WithDependencies_DependingOnAnother()
+        {
+            var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Projects\Project3"));
+            var path = FileSystem.Instance.Path.Combine(dir, "Project3.csproj");
+
+            var projects = new Dictionary<string, Project>
+            {
+                { "Project3", Project.Load(path) },
+            };
+
+            Script script = Script.Load(FileSystem.Instance.Path.Combine(dir, "Project3.xml"));
+            AutomationScriptBuilder builder = new AutomationScriptBuilder(script, projects, new List<Script> { script }, directoryForNuGetConfig: null);
+
+            var result = await builder.BuildAsync().ConfigureAwait(false);
+
+            result.Should().NotBeNull();
+            result.Document.Should()
+                  .ContainEquivalentOf(
+                      "<Param type=\"ref\">C:\\Skyline DataMiner\\ProtocolScripts\\DllImport\\SolutionLibraries\\DummySolutionLib.Deps\\Skyline.DataMiner.Dev.Utils.DummySolutionLib.Deps.dll</Param>");
+            result.Document.Should()
+                  .ContainEquivalentOf(
+                      "<Param type=\"ref\">C:\\Skyline DataMiner\\ProtocolScripts\\DllImport\\SolutionLibraries\\DummySolutionLib.Deps.Protocol\\Skyline.DataMiner.Dev.Utils.DummySolutionLib.Deps.Protocol.dll</Param>");
+
+            // Only needs to be referenced, shouldn't be part of the script itself
+            result.Assemblies.Should().HaveCount(1);
+            result.Assemblies.First().DllImport.Should().Be("newtonsoft.json\\13.0.2\\lib\\net45\\Newtonsoft.Json.dll");
+            result.DllAssemblies.Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public async Task AutomationScriptBuilder_SolutionLibraries_WithDependencies_CustomDependency()
+        {
+            var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Projects\Project4"));
+            var path = FileSystem.Instance.Path.Combine(dir, "Project4.csproj");
+
+            var projects = new Dictionary<string, Project>
+            {
+                { "Project4", Project.Load(path) },
+            };
+
+            Script script = Script.Load(FileSystem.Instance.Path.Combine(dir, "Project4.xml"));
+            AutomationScriptBuilder builder = new AutomationScriptBuilder(script, projects, new List<Script> { script }, directoryForNuGetConfig: null);
+
+            var result = await builder.BuildAsync().ConfigureAwait(false);
+
+            result.Should().NotBeNull();
+            result.Document.Should()
+                  .ContainEquivalentOf(
+                      "<Param type=\"ref\">C:\\Skyline DataMiner\\ProtocolScripts\\DllImport\\newtonsoft.json\\13.0.4\\lib\\net45\\Newtonsoft.Json.dll</Param>");
+            result.Document.Should()
+                  .ContainEquivalentOf(
+                      "<Param type=\"ref\">C:\\Skyline DataMiner\\ProtocolScripts\\DllImport\\SolutionLibraries\\DummySolutionLib.Deps\\Skyline.DataMiner.Dev.Utils.DummySolutionLib.Deps.dll</Param>");
+
+            // Only needs to be referenced, shouldn't be part of the script itself
+            result.Assemblies.Should().HaveCount(2);
+            result.Assemblies.Should().Contain(a => a.DllImport == "newtonsoft.json\\13.0.4\\lib\\net45\\Newtonsoft.Json.dll");
+            result.Assemblies.Should().Contain(a => a.DllImport == "newtonsoft.json\\13.0.2\\lib\\net45\\Newtonsoft.Json.dll");
             result.DllAssemblies.Should().BeEmpty();
         }
     }
