@@ -7,6 +7,7 @@
     using System.Threading.Tasks;
 
     using FluentAssertions;
+    using FluentAssertions.Equivalency;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -814,6 +815,14 @@ namespace QAction_3
 
             var solution = ProtocolSolution.Load(path);
 
+            const string pathJson = "newtonsoft.json\\13.0.3\\lib\\net45";
+            const string pathExportImport = "skyline.dataminer.utils.exportimport\\1.0.0\\lib\\netstandard2.0";
+            var expectedAssemblies = new List<PackageAssemblyReference>
+            {
+                new PackageAssemblyReference(pathJson + "\\Newtonsoft.Json.dll", null, false),
+                new PackageAssemblyReference(pathExportImport + "\\Skyline.DataMiner.Utils.ExportImport.dll", null, false),
+            };
+
             // Act
             ProtocolBuilder builder = new ProtocolBuilder(solution);
             var result = await builder.BuildAsync().ConfigureAwait(false);
@@ -822,11 +831,17 @@ namespace QAction_3
             result.Should().NotBeNull();
             result.Document.Should()
                   .ContainEquivalentOf(
-                      "dllImport=\"SolutionLibraries\\ModSolutionLib\\Skyline.DataMiner.Dev.Utils.ModSolutionLib.dll\"");
+                      "SolutionLibraries\\ModSolutionLib\\Skyline.DataMiner.Dev.Utils.ModSolutionLib.dll");
 
-            // Only needs to be referenced, shouldn't be part of the script itself
-            result.Assemblies.Should().BeEmpty();
+            // Only needs to be referenced, shouldn't be part of the package itself
+            result.Assemblies.Should().BeEquivalentTo(expectedAssemblies, ExcludeAssemblyPath);
             result.DllAssemblies.Should().BeEmpty();
+        }
+        
+        private static EquivalencyAssertionOptions<PackageAssemblyReference> ExcludeAssemblyPath(EquivalencyAssertionOptions<PackageAssemblyReference> arg)
+        {
+            arg.Excluding(x => x.AssemblyPath);
+            return arg;
         }
     }
 }

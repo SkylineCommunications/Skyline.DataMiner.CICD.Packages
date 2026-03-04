@@ -241,10 +241,6 @@
             }
 
             HashSet<string> nugetPackages = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            string ExtractPackageName(string dir)
-            {
-                return dir.StartsWith("SolutionLibraries\\") ? dir.Split('\\')[1] : dir.Split('\\').First(); // Fixed to windows directory separator
-            }
 
             foreach (string dir in directoriesWithExplicitDllImport)
             {
@@ -282,6 +278,11 @@
                 {
                     buildResultItems.Assemblies.Add(libItem);
                 }
+            }
+
+            string ExtractPackageName(string dir)
+            {
+                return dir.StartsWith("SolutionLibraries\\") ? dir.Split('\\')[1] : dir.Split('\\').First(); // Fixed to windows directory separator
             }
         }
 
