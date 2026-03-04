@@ -244,7 +244,7 @@
 
             foreach (string dir in directoriesWithExplicitDllImport)
             {
-                string packageName = dir.Split('\\').First(); // Fixed to windows directory separator
+                string packageName = ExtractPackageName(dir);
 
                 LogDebug($"ProcessLibAssemblies|Build nugetPackages|Dir: {dir}|PackageName: {packageName}");
                 nugetPackages.Add(packageName);
@@ -252,7 +252,7 @@
 
             foreach (string dir in nugetAssemblyData.DllImportDirectoryReferences)
             {
-                string packageName = dir.Split('\\').First(); // Fixed to windows directory separator
+                string packageName = ExtractPackageName(dir);
 
                 LogDebug($"ProcessLibAssemblies|DllImportDirectoryReferences|Check to add|Dir: {dir}|PackageName: {packageName}");
                 if (nugetPackages.Contains(packageName))
@@ -278,6 +278,11 @@
                 {
                     buildResultItems.Assemblies.Add(libItem);
                 }
+            }
+
+            string ExtractPackageName(string dir)
+            {
+                return dir.StartsWith("SolutionLibraries\\") ? dir.Split('\\')[1] : dir.Split('\\').First(); // Fixed to windows directory separator
             }
         }
 
