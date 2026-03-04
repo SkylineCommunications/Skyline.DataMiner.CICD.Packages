@@ -829,9 +829,9 @@ namespace QAction_3
 
             // Assert
             result.Should().NotBeNull();
-            result.Document.Should()
-                  .ContainEquivalentOf(
-                      "SolutionLibraries\\ModSolutionLib\\Skyline.DataMiner.Dev.Utils.ModSolutionLib.dll");
+            const string dllImport = @"SolutionLibraries\ModSolutionLib\Skyline.DataMiner.Dev.Utils.ModSolutionLib.dll";
+            // Check if part of the dllImport (begin, middle or end)
+            result.Document.Should().ContainAny($"dllImport=\"{dllImport};", $";{dllImport};", $";{dllImport}\"");
 
             // Only needs to be referenced, shouldn't be part of the package itself
             result.Assemblies.Should().BeEquivalentTo(expectedAssemblies, ExcludeAssemblyPath);

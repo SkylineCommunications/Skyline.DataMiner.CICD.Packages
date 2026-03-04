@@ -11,7 +11,7 @@ namespace DMApp.AutomationTests
     using System.Reflection;
     using System.Text;
     using System.Threading.Tasks;
-
+    using System.Xml.Linq;
     using FluentAssertions;
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -425,6 +425,39 @@ namespace DMApp.AutomationTests
             // Assert.
             Assert.IsTrue(sw.Elapsed < TimeSpan.FromMinutes(1), sb.ToString());
             ////Assert.Inconclusive(sb.ToString());
+        }
+
+        #endregion
+
+        #region SolutionLibraries
+        
+        [TestMethod]
+        public async Task SolutionWithSolutionLibrary()
+        {
+            // Arrange.
+            var baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, @"TestFiles\Solutions\Solution5"));
+
+            var creator = AppPackageCreatorForAutomation.Factory.FromRepository(LogCollector, repositoryPath, PackageName, PackageVersion);
+
+            // Act.
+            var package = await creator.BuildPackageAsync();
+
+            // Assert.
+            var automationScript = package.AutomationScripts.FirstOrDefault(a => a.Name == "NewNugetTest");
+            Assert.IsNotNull(automationScript);
+            Assert.HasCount(2, automationScript.Assemblies);
+
+            // Assemblies should not contain the solution library. Only its dependencies
+            automationScript.Assemblies.Select(assembly => Path.GetFileName(assembly.AssemblyFilePath)).Should()
+                            .BeEquivalentTo("Newtonsoft.Json.dll", "Skyline.DataMiner.Utils.ExportImport.dll");
+
+            // Script references should contain the solution library
+            string xml = Encoding.UTF8.GetString(automationScript.ScriptContent);
+            xml.Should()
+               .Contain("<Param type=\"ref\">C:\\Skyline DataMiner\\ProtocolScripts\\DllImport\\newtonsoft.json\\13.0.3\\lib\\net45\\Newtonsoft.Json.dll</Param>").And
+               .Contain("<Param type=\"ref\">C:\\Skyline DataMiner\\ProtocolScripts\\DllImport\\skyline.dataminer.utils.exportimport\\1.0.0\\lib\\netstandard2.0\\Skyline.DataMiner.Utils.ExportImport.dll</Param>").And
+               .Contain("<Param type=\"ref\">C:\\Skyline DataMiner\\ProtocolScripts\\DllImport\\SolutionLibraries\\ModSolutionLib\\Skyline.DataMiner.Dev.Utils.ModSolutionLib.dll</Param>");
         }
 
         #endregion
