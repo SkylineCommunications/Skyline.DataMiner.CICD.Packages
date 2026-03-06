@@ -227,7 +227,7 @@
             await ProcessResolvedPackagesAsync(resolvedPackages, nugetPackageAssemblies, processedPackages, nugetFramework, defaultIncludedFilesNuGetPackages);
 
             // Remaining Packages are Dependencies
-            await ProcessRemainingPackagesAsync(filteredAllPackages, nugetPackageAssemblies, processedPackages, nugetFramework);
+            await ProcessRemainingPackagesAsync(filteredAllPackages, nugetPackageAssemblies, processedPackages, nugetFramework, defaultIncludedFilesNuGetPackages);
 
             return nugetPackageAssemblies;
         }
@@ -275,38 +275,8 @@
                             {
                                 nugetPackageAssemblies.ImplicitDllImportDirectoryReferences.Add(dllImportDirectory);
                             }
-
-                            string fullPath = null;
-                            string dllImportValue;
-                            bool isFilePackage = false;
-                            bool dontAddToPackageToInstall = false;
-
-                            if (resolvedPackage.Id.StartsWith(DevPackHelper.FilesPrefix))
-                            {
-                                // Full path is not set as it should not be included.
-                                dllImportValue = assemblyName;
-                                isFilePackage = true;
-                                dontAddToPackageToInstall = true;
-                            }
-                            else if (NuGetHelper.CustomNuGetPackages.TryGetValue(resolvedPackage.Id, out (string Path, bool InDllImportDirectory) info))
-                            {
-                                dllImportValue = info.Path;
-                                isFilePackage = !info.InDllImportDirectory;
-                                dontAddToPackageToInstall = true;
-                            }
-                            else if (NuGetHelper.IsSolutionLibraryNuGetPackage(resolvedPackage.Id, out string name))
-                            {
-                                // Use the name of the solution library as the folder name. Everything after 'Skyline.DataMiner.Dev.Utils.' is considered the name.
-                                dllImportValue = $"SolutionLibraries\\{name}\\{assemblyName}";
-                                dontAddToPackageToInstall = true;
-                            }
-                            else
-                            {
-                                fullPath = _fileSystem.Path.GetFullPath(_fileSystem.Path.Combine(NuGetRootPath, resolvedPackage.Id.ToLower(), resolvedPackage.Version.ToString().ToLower(), filteredLibItem));
-                                dllImportValue = dllImportDirectory + "\\" + assemblyName; // fileInfo.Name
-                            }
-
-                            var packageAssemblyReference = new PackageAssemblyReference(dllImportValue, fullPath, isFilePackage);
+                            
+                            (bool dontAddToPackageToInstall, PackageAssemblyReference packageAssemblyReference) = CreatePackageAssemblyReference(resolvedPackage, filteredLibItem, dllImportDirectory);
 
                             // Needs to be added as a reference in the dllImport attribute/script references.
                             nugetPackageAssemblies.DllImportNugetAssemblyReferences.Add(packageAssemblyReference);
@@ -336,6 +306,44 @@
                     nugetPackageAssemblies.DllImportFrameworkAssemblyReferences.AddRange(filteredFrameworkItems);
                 }
             }
+        }
+
+        private (bool dontAddToPackageToInstall, PackageAssemblyReference packageAssemblyReference) CreatePackageAssemblyReference(
+            PackageIdentity resolvedPackage, string filteredLibItem, string dllImportDirectory)
+        {
+            bool dontAddToPackageToInstall = false;
+            bool isFilePackage = false;
+            string fullPath = null;
+            string dllImportValue;
+
+            string assemblyName = _fileSystem.Path.GetFileName(filteredLibItem);
+            if (resolvedPackage.Id.StartsWith(DevPackHelper.FilesPrefix))
+            {
+                // Full path is not set as it should not be included.
+                dllImportValue = assemblyName;
+                isFilePackage = true;
+                dontAddToPackageToInstall = true;
+            }
+            else if (NuGetHelper.CustomNuGetPackages.TryGetValue(resolvedPackage.Id, out (string Path, bool InDllImportDirectory) info))
+            {
+                dllImportValue = info.Path;
+                isFilePackage = !info.InDllImportDirectory;
+                dontAddToPackageToInstall = true;
+            }
+            else if (NuGetHelper.IsSolutionLibraryNuGetPackage(resolvedPackage.Id, out string name))
+            {
+                // Use the name of the solution library as the folder name. Everything after 'Skyline.DataMiner.Dev.Utils.' is considered the name.
+                dllImportValue = $"SolutionLibraries\\{name}\\{assemblyName}";
+                dontAddToPackageToInstall = true;
+            }
+            else
+            {
+                fullPath = _fileSystem.Path.GetFullPath(_fileSystem.Path.Combine(NuGetRootPath, resolvedPackage.Id.ToLower(), resolvedPackage.Version.ToString().ToLower(), filteredLibItem));
+                dllImportValue = dllImportDirectory + "\\" + assemblyName; // fileInfo.Name
+            }
+
+            var packageAssemblyReference = new PackageAssemblyReference(dllImportValue, fullPath, isFilePackage);
+            return (dontAddToPackageToInstall, packageAssemblyReference);
         }
 
         private static async Task<IEnumerable<string>> ExtractPrimaryAssembliesAsync(List<FrameworkSpecificGroup> libItems, NuGetFramework nearestVersion, PackageReaderBase packageReader)
@@ -420,7 +428,7 @@
         /// <param name="nugetPackageAssemblies">The NuGet package assemblies.</param>
         /// <param name="processedPackages">The processed packages.</param>
         /// <param name="nugetFramework">The NuGet framework.</param>
-        private async Task ProcessRemainingPackagesAsync(HashSet<SourcePackageDependencyInfo> allPackages, NuGetPackageAssemblyData nugetPackageAssemblies, ICollection<string> processedPackages, NuGetFramework nugetFramework)
+        private async Task ProcessRemainingPackagesAsync(HashSet<SourcePackageDependencyInfo> allPackages, NuGetPackageAssemblyData nugetPackageAssemblies, ICollection<string> processedPackages, NuGetFramework nugetFramework, IReadOnlyCollection<string> defaultIncludedFilesNuGetPackages)
         {
             // For all assemblies that are not in the resolved package list, we provide the folder where the assembly can be found.
             foreach (var packageToInstall in allPackages)
@@ -433,7 +441,7 @@
 
                 using (PackageReaderBase packageReader = GetPackageReader(packageToInstall))
                 {
-                    if (packageReader.GetDevelopmentDependency() || NuGetHelper.IsDevPackNuGetPackage(packageToInstall.Id))
+                    if (packageReader.GetDevelopmentDependency() || (NuGetHelper.IsDevPackNuGetPackage(packageToInstall.Id) && defaultIncludedFilesNuGetPackages.Contains(packageToInstall.Id)))
                     {
                         continue;
                     }
@@ -459,10 +467,15 @@
                         // Add all assemblies so these get included in the dllImports folder to be loaded at runtime.
                         foreach (var filteredLibItem in filteredLibItems)
                         {
-                            var fullPath = _fileSystem.Path.Combine(NuGetRootPath, packageToInstall.Id.ToLower(), packageToInstall.Version.ToString().ToLower(), filteredLibItem);
-                            var dllImportValue = dllImportDirectory + "\\" + _fileSystem.Path.GetFileName(filteredLibItem);
+                            (bool dontAddToPackageToInstall, PackageAssemblyReference packageAssemblyReference) = CreatePackageAssemblyReference(packageToInstall, filteredLibItem, dllImportDirectory);
 
-                            nugetPackageAssemblies.NugetAssemblies.Add(new PackageAssemblyReference(dllImportValue, fullPath));
+                            if (dontAddToPackageToInstall)
+                            {
+                                // Should not be provided in the package to install.
+                                continue;
+                            }
+
+                            nugetPackageAssemblies.NugetAssemblies.Add(packageAssemblyReference);
                         }
                     }
 
