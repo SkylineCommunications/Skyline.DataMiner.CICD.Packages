@@ -394,14 +394,13 @@
 
             const string pathJson = "newtonsoft.json\\13.0.3\\lib\\net45";
             const string pathExportImport = "skyline.dataminer.utils.exportimport\\1.0.0\\lib\\netstandard2.0";
-            const string pathSolutionLib = "skyline.dataminer.dev.utils.modsolutionlib\\1.0.0\\lib\\netstandard2.0";
+
             var expectedResult = new NuGetPackageAssemblyData
             {
                 ImplicitDllImportDirectoryReferences =
                 {
                     pathJson,
                     pathExportImport,
-                    pathSolutionLib,
                 },
                 DllImportNugetAssemblyReferences =
                 {
@@ -451,7 +450,7 @@
             const string targetFrameworkMoniker = ".NETFramework,Version=v4.8";
 
             /*
-             *<Param type="ref">C:\Skyline DataMiner\ProtocolScripts\DllImport\alphafs.new\2.3.0\lib\net47\AlphaFS.dll</Param>
+               <Param type="ref">C:\Skyline DataMiner\ProtocolScripts\DllImport\alphafs.new\2.3.0\lib\net47\AlphaFS.dll</Param>
                <Param type="ref">C:\Skyline DataMiner\ProtocolScripts\DllImport\newtonsoft.json\13.0.3\lib\net45\Newtonsoft.Json.dll</Param>
                <Param type="ref">C:\Skyline DataMiner\ProtocolScripts\DllImport\sharpziplib\1.3.3\lib\net45\ICSharpCode.SharpZipLib.dll</Param>
                <Param type="ref">C:\Skyline DataMiner\ProtocolScripts\DllImport\skyline.dataminer.cicd.filesystem\1.1.0\lib\netstandard2.0\Skyline.DataMiner.CICD.FileSystem.dll</Param>
@@ -486,8 +485,6 @@
                <Param type="ref">C:\Skyline DataMiner\ProtocolScripts\DllImport\skyline.dataminer.connectorapi.skylinelockmanager\1.3.4\lib\net462\Skyline.DataMiner.ConnectorAPI.SkylineLockManager.dll</Param>
                <Param type="ref">C:\Skyline DataMiner\ProtocolScripts\DllImport\SolutionLibraries\Solutions.MediaOps.Live\Skyline.DataMiner.Dev.Utils.Solutions.MediaOps.Live.dll</Param>
                <Param type="ref">C:\Skyline DataMiner\ProtocolScripts\DllImport\SolutionLibraries\Solutions.MediaOps.Plan\Skyline.DataMiner.Dev.Utils.Solutions.MediaOps.Plan.dll</Param>
-               
-             *
              */
 
             const string pathAlphaFs = "alphafs.new\\2.3.0\\lib\\net47";
@@ -521,11 +518,6 @@
             const string pathSecureCoding = "skyline.dataminer.utils.securecoding\\2.2.1\\lib\\netstandard2.0";
             const string pathCoreInterapp = "skyline.dataminer.core.interappcalls.common\\1.1.1.1\\lib\\net462";
             const string pathConnectorApiLock = "skyline.dataminer.connectorapi.skylinelockmanager\\1.3.4\\lib\\net462";
-
-            const string pathSolLibSdmAbstractions = "skyline.dataminer.dev.utils.sdm.abstractions\\1.0.1\\lib\\net48";
-            const string pathSolLibCategories = "skyline.dataminer.dev.utils.solutions.categories\\1.1.0\\lib\\net48";
-            const string pathSolLibMediaOpsLive = "skyline.dataminer.dev.utils.solutions.mediaops.live\\1.0.0\\lib\\net48";
-            const string pathSolLibMediaOpsPlan = "skyline.dataminer.dev.utils.solutions.mediaops.plan\\1.5.0\\lib\\net48";
 
             const string scriptPathSolLibSdmAbstractions = "SolutionLibraries\\SDM.Abstractions\\Skyline.DataMiner.Dev.Utils.SDM.Abstractions.dll";
             const string scriptPathSolLibCategories = "SolutionLibraries\\Solutions.Categories\\Skyline.DataMiner.Dev.Utils.Solutions.Categories.dll";
@@ -567,11 +559,6 @@
                     pathSecureCoding,
                     pathCoreInterapp,
                     pathConnectorApiLock,
-
-                    pathSolLibSdmAbstractions,
-                    pathSolLibCategories,
-                    pathSolLibMediaOpsLive,
-                    pathSolLibMediaOpsPlan
                 },
                 DllImportNugetAssemblyReferences =
                 {
@@ -689,7 +676,7 @@
                     "Skyline.DataMiner.Utils.SecureCoding.dll",
                     "Skyline.DataMiner.Core.InterAppCalls.Common.dll",
                     "Skyline.DataMiner.ConnectorAPI.SkylineLockManager.dll",
-                    
+
                     "Skyline.DataMiner.Dev.Utils.SDM.Abstractions.dll",
                     "Skyline.DataMiner.Dev.Utils.Solutions.Categories.dll",
                     "Skyline.DataMiner.Dev.Utils.Solutions.MediaOps.Live.dll",
@@ -709,8 +696,6 @@
                     ["system.runtime.compilerservices.unsafe\\4.5.3\\lib\\net461\\"] = "system.runtime.compilerservices.unsafe\\4.5.3\\lib\\net461\\System.Runtime.CompilerServices.Unsafe.dll",
                     ["skyline.dataminer.core.dataminersystem.common\\1.1.3.5\\lib\\net462\\"] = "skyline.dataminer.core.dataminersystem.common\\1.1.3.5\\lib\\net462\\Skyline.DataMiner.Core.DataMinerSystem.Common.dll",
                     ["skyline.dataminer.core.dataminersystem.common\\1.1.3.3\\lib\\net462\\"] = "skyline.dataminer.core.dataminersystem.common\\1.1.3.3\\lib\\net462\\Skyline.DataMiner.Core.DataMinerSystem.Common.dll",
-
-                    ["skyline.dataminer.dev.utils.solutions.mediaops.live\\0.0.0\\lib\\net48\\"] = "skyline.dataminer.dev.utils.solutions.mediaops.live\\0.0.0\\lib\\net48\\Skyline.DataMiner.Dev.Utils.Solutions.MediaOps.Live.dll",
                 },
                 DllImportDirectoryReferences =
                 {
@@ -719,8 +704,6 @@
                     "system.runtime.compilerservices.unsafe\\4.5.3\\lib\\net461\\",
                     "skyline.dataminer.core.dataminersystem.common\\1.1.3.5\\lib\\net462\\",
                     "skyline.dataminer.core.dataminersystem.common\\1.1.3.3\\lib\\net462\\",
-
-                    "skyline.dataminer.dev.utils.solutions.mediaops.live\\0.0.0\\lib\\net48\\"
                 },
                 DllImportFrameworkAssemblyReferences =
                 {
