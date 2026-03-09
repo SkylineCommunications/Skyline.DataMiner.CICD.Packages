@@ -271,7 +271,7 @@
 
                             nugetPackageAssemblies.ProcessedAssemblies.Add(assemblyName);
 
-                            if (!resolvedPackage.Id.StartsWith(DevPackHelper.FilesPrefix))
+                            if (!resolvedPackage.Id.StartsWith(DevPackHelper.FilesPrefix) && !NuGetHelper.IsSolutionLibraryNuGetPackage(resolvedPackage.Id, out _))
                             {
                                 nugetPackageAssemblies.ImplicitDllImportDirectoryReferences.Add(dllImportDirectory);
                             }
@@ -456,7 +456,7 @@
                         string dllImportDirectory = packageKey + "\\" + _fileSystem.Path.GetDirectoryName(firstFilteredLibItem).Replace("/", "\\");
 
                         // Add the directory to be added to the dllImport attribute so the assembly can be found at runtime.
-                        if (!nugetPackageAssemblies.ImplicitDllImportDirectoryReferences.Contains(dllImportDirectory))
+                        if (!nugetPackageAssemblies.ImplicitDllImportDirectoryReferences.Contains(dllImportDirectory) && !NuGetHelper.IsSolutionLibraryNuGetPackage(packageToInstall.Id, out _))
                         {
                             nugetPackageAssemblies.DllImportDirectoryReferences.Add(dllImportDirectory + "\\");
 
