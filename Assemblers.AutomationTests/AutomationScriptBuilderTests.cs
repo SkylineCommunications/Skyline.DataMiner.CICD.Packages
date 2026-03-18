@@ -105,6 +105,42 @@
             Assert.IsFalse(d.HasDifferences(), d.ToString());
         }
 
+
+        [TestMethod]
+        public async Task SLDisCompiler_AutomationScriptBuilder_IgnoreTestingFilesAsync()
+        {
+            string original = @"<DMSScript>
+	<Script>
+		<Exe id=""1"" type=""csharp"">
+            <Value>[Project:Script_1]</Value>
+        </Exe>
+	</Script>
+</DMSScript>";
+
+            string expected = @"<DMSScript>
+	<Script>
+		<Exe id=""1"" type=""csharp"">
+            <Value><![CDATA[using System;]]></Value>
+        </Exe>
+	</Script>
+</DMSScript>";
+
+            var projects = new Dictionary<string, Project>()
+            {
+                { "Script_1", new Project("Script_1", new[]{ new ProjectFile("Script.cs", "using System;"), new ProjectFile("TestPackageContent\\TestHarvesting\\test.cs", "using System.Linq;") }) },
+            };
+
+            Script script = new Script(XmlDocument.Parse(original));
+            AutomationScriptBuilder builder = new AutomationScriptBuilder(script, projects, new List<Script> { script }, directoryForNuGetConfig: null);
+
+            string result = (await builder.BuildAsync().ConfigureAwait(false)).Document;
+
+            Diff d = DiffBuilder.Compare(Input.FromString(expected))
+                .WithTest(Input.FromString(result)).Build();
+
+            Assert.IsFalse(d.HasDifferences(), d.ToString());
+        }
+
         [TestMethod]
         public async Task SLDisCompiler_AutomationScriptBuilder_MultipleScriptsAsync()
         {
