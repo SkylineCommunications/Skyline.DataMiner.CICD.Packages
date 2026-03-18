@@ -127,7 +127,7 @@
 
             var projects = new Dictionary<string, Project>()
             {
-                { "Script_1", new Project("Script_1", new[]{ new ProjectFile("Script.cs", "using System;"), new ProjectFile("TestPackageContent\\TestHarvesting\\test.cs", "using System;") }) },
+                { "Script_1", new Project("Script_1", new[]{ new ProjectFile("Script.cs", "using System;"), new ProjectFile("TestPackageContent\\TestHarvesting\\test.cs", "using System.Linq;") }) },
             };
 
             Script script = new Script(XmlDocument.Parse(original));
