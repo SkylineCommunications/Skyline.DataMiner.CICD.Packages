@@ -73,8 +73,13 @@
         /// </summary>
         /// <param name="value">Value to convert.</param>
         /// <returns>Converted value when successful, Unknown when not.</returns>
-        public static DataMinerProjectType ToEnum(string value)
+        public static DataMinerProjectType? ToEnum(string value)
         {
+            if (value == null)
+            {
+                return null;
+            }
+
             if (StringToEnum.TryGetValue(value, out DataMinerProjectType t))
             {
                 return t;

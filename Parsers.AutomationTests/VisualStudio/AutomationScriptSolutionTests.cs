@@ -23,7 +23,7 @@
         public void AutomationScriptCompiler_Solution1_Load()
         {
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solution1"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Solution1"));
             var path = FileSystem.Instance.Path.Combine(dir, "AutomationScript.sln");
 
             var solution = AutomationScriptSolution.Load(path);
@@ -58,7 +58,7 @@
         public void AutomationScriptCompiler_Solution2_Load()
         {
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solution2"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Solution2"));
             var path = FileSystem.Instance.Path.Combine(dir, "AutomationScript.sln");
 
             var solution = AutomationScriptSolution.Load(path);
@@ -93,7 +93,7 @@
         public void AutomationScriptCompiler_Solution3_Load()
         {
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solution3"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Solution3"));
             var path = FileSystem.Instance.Path.Combine(dir, "AutomationScript.sln");
 
             var solution = AutomationScriptSolution.Load(path);
@@ -129,7 +129,7 @@
         {
             // Arrange
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solution4"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Solution4"));
             var path = FileSystem.Instance.Path.Combine(dir, "AutomationScript.sln");
 
             // Act
@@ -145,7 +145,7 @@
         public void AutomationScriptCompiler_Solution5_Load()
         {
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solution5"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Solution5"));
             var path = FileSystem.Instance.Path.Combine(dir, "AutomationScript.sln");
 
             var solution = AutomationScriptSolution.Load(path);
@@ -170,7 +170,7 @@
         public void AutomationScript_Solution6_LegacySln()
         {
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solution6"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Solution6"));
             var path = FileSystem.Instance.Path.Combine(dir, "AutomationScript.sln");
 
             var solution = AutomationScriptSolution.Load(path);
@@ -182,7 +182,7 @@
         public void AutomationScript_Solution6_Slnx()
         {
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solution6"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Solution6"));
             var path = FileSystem.Instance.Path.Combine(dir, "AutomationScript.slnx");
 
             var solution = AutomationScriptSolution.Load(path);
@@ -321,8 +321,8 @@
 
             var project1 = solution.Projects.FirstOrDefault(p => p.Name == "Clearable Alarms_1");
             Assert.AreEqual("Clearable Alarms_1", project1.Name);
-            Assert.AreEqual(@"Clearable Alarms_1\Clearable Alarms_1.csproj", project1.RelativePath);
-            Assert.AreEqual(FileSystem.Instance.Path.Combine(dir, @"Clearable Alarms_1\Clearable Alarms_1.csproj"), project1.AbsolutePath);
+            Assert.AreEqual(@"Clearable Alarms_1\Clearable Alarms_1.csproj", project1.RelativePath.Replace('/', '\\'));
+            Assert.AreEqual(FileSystem.Instance.Path.Combine(dir, "Clearable Alarms_1", "Clearable Alarms_1.csproj"), project1.AbsolutePath);
             Assert.AreEqual("Actions", project1.Parent.Name);
 
             // Verify folder structure
