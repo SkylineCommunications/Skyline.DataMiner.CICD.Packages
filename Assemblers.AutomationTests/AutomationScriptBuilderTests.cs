@@ -5,9 +5,11 @@
     using System.Linq;
     using System.Reflection;
     using System.Threading.Tasks;
+
     using FluentAssertions;
+
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using NuGet.ContentModel;
+
     using Org.XmlUnit.Builder;
     using Org.XmlUnit.Diff;
 

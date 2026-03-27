@@ -290,7 +290,7 @@ namespace Parsers.CommonTests.VisualStudio.Projects
             Assert.HasCount(2, project.ProjectReferences);
 
             var refHelper = project.ProjectReferences.FirstOrDefault(r => r.Name == "QAction_Helper");
-            Assert.AreEqual(@"..\QAction_Helper\QAction_Helper.csproj", refHelper.Path);
+            Assert.AreEqual(@"..\QAction_Helper\QAction_Helper.csproj", refHelper.Path.Replace('/', '\\'));
             Assert.AreEqual(@"{31b1ef6a-2e94-4f70-9b05-f297ab3b6c69}", refHelper.Guid);
 
             CollectionAssert.AreEquivalent(new[] { "Newtonsoft.Json.dll", "System.dll", "System.Xml.dll" }, project.References.Select(r => r.GetDllName()).ToArray());
@@ -314,11 +314,11 @@ namespace Parsers.CommonTests.VisualStudio.Projects
             Assert.HasCount(3, project.ProjectReferences);
 
             var refQA1 = project.ProjectReferences.FirstOrDefault(r => r.Name == "QAction_1");
-            Assert.AreEqual(@"..\QAction_1\QAction_1.csproj", refQA1.Path);
+            Assert.AreEqual(@"..\QAction_1\QAction_1.csproj", refQA1.Path.Replace('/', '\\'));
             Assert.AreEqual(@"{20481214-4655-4c51-97aa-5da92296cbcf}", refQA1.Guid);
 
             var refHelper = project.ProjectReferences.FirstOrDefault(r => r.Name == "QAction_Helper");
-            Assert.AreEqual(@"..\QAction_Helper\QAction_Helper.csproj", refHelper.Path);
+            Assert.AreEqual(@"..\QAction_Helper\QAction_Helper.csproj", refHelper.Path.Replace('/', '\\'));
             Assert.AreEqual(@"{31b1ef6a-2e94-4f70-9b05-f297ab3b6c69}", refHelper.Guid);
 
             CollectionAssert.AreEquivalent(new[] { "System.dll" }, project.References.Select(r => r.GetDllName()).ToArray());
@@ -342,7 +342,7 @@ namespace Parsers.CommonTests.VisualStudio.Projects
             Assert.HasCount(2, project.ProjectReferences);
 
             var refHelper = project.ProjectReferences.FirstOrDefault(r => r.Name == "QAction_Helper");
-            Assert.AreEqual(@"..\QAction_Helper\QAction_Helper.csproj", refHelper.Path);
+            Assert.AreEqual(@"..\QAction_Helper\QAction_Helper.csproj", refHelper.Path.Replace('/', '\\'));
             Assert.AreEqual(@"{31b1ef6a-2e94-4f70-9b05-f297ab3b6c69}", refHelper.Guid);
 
             CollectionAssert.AreEquivalent(new[] { "System.dll" }, project.References.Select(r => r.GetDllName()).ToArray());

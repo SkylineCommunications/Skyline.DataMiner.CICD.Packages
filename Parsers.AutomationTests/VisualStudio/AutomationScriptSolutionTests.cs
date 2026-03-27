@@ -321,7 +321,7 @@
 
             var project1 = solution.Projects.FirstOrDefault(p => p.Name == "Clearable Alarms_1");
             Assert.AreEqual("Clearable Alarms_1", project1.Name);
-            Assert.AreEqual(@"Clearable Alarms_1\Clearable Alarms_1.csproj", project1.RelativePath);
+            Assert.AreEqual(@"Clearable Alarms_1\Clearable Alarms_1.csproj", project1.RelativePath.Replace('/', '\\'));
             Assert.AreEqual(FileSystem.Instance.Path.Combine(dir, "Clearable Alarms_1", "Clearable Alarms_1.csproj"), project1.AbsolutePath);
             Assert.AreEqual("Actions", project1.Parent.Name);
 
