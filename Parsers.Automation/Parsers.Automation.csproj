@@ -16,7 +16,6 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/SkylineCommunications/Skyline.DataMiner.CICD.Packages</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Version>0.0.2-local</Version>
   </PropertyGroup>
 
   <ItemGroup>

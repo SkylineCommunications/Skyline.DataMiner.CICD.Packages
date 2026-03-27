@@ -29,4 +29,9 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Ensures the SDK NuGet package is in the cache for test project evaluation -->
+    <PackageDownload Include="Skyline.DataMiner.Sdk" Version="[2.1.1]" />
+  </ItemGroup>
+
 </Project>
