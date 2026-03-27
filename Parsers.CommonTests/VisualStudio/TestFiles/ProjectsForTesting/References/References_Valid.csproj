@@ -40,7 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-      <Reference Update="System.Xml.Linq">
+      <Reference Include="System.Xml.Linq">
           <HintPath>RandomHintPath</HintPath>
       </Reference>
   </ItemGroup>

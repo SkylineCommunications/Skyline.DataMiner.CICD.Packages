@@ -7,9 +7,7 @@ namespace Skyline.DataMiner.CICD.Parsers.Common.VisualStudio.Projects
     using System.Linq;
     using System.Text;
     using System.Xml.Linq;
-
-    using NuGet.Frameworks;
-
+    using Microsoft.Build.Evaluation;
     using Skyline.DataMiner.CICD.FileSystem;
     using Skyline.DataMiner.CICD.Parsers.Common.Exceptions;
     using Skyline.DataMiner.CICD.Parsers.Common.Extensions;
@@ -188,71 +186,77 @@ namespace Skyline.DataMiner.CICD.Parsers.Common.VisualStudio.Projects
                 throw new FileNotFoundException("Could not find project file: " + path);
             }
 
-            string projectDir = FileSystem.Path.GetDirectoryName(path);
-            string projectName = FileSystem.Path.GetFileNameWithoutExtension(path);
-
-            string extension = FileSystem.Path.GetExtension(path);
-            if (!SupportedProjectExtensions.Contains(extension))
+            using (var projectCollection = new ProjectCollection())
             {
-                throw new NotImplementedException("Project Load does not support this project type.");
-            }
+                projectCollection.DisableMarkDirty = true;
 
-            try
-            {
-                var xmlContent = FileSystem.File.ReadAllText(path, Encoding.UTF8);
-                var document = XDocument.Parse(xmlContent);
+                var loadedProject = projectCollection.LoadProject(path);
 
-                IProjectParser parser = ProjectParserFactory.GetParser(document, projectDir);
+                string projectName = loadedProject.GetPropertyValue("MSBuildProjectName");
 
-                string name = projectName;
-                string assemblyName = parser.GetAssemblyName();
-                if (!String.IsNullOrEmpty(assemblyName))
+                try
                 {
-                    name = assemblyName;
+                    var project = new Project
+                    {
+                        AssemblyName = loadedProject.GetProperty("AssemblyName")?.EvaluatedValue,
+                        Path = path,
+                        ProjectStyle = loadedProject.Imports.Any(i => i.SdkResult != null) ? ProjectStyle.Sdk : ProjectStyle.Legacy,
+                        ProjectDirectory = loadedProject.DirectoryPath,
+                        ProjectName = projectName,
+                        TargetFrameworkMoniker = loadedProject.GetPropertyValue("TargetFrameworkMoniker"),
+                        DataMinerProjectType = DataMinerProjectTypeConverter.ToEnum(loadedProject.GetProperty("DataMinerType")?.EvaluatedValue)
+                    };
+
+                    project._references.AddRange(loadedProject.GetItems("Reference")
+                                                              .Select(r => new Reference(r.EvaluatedInclude, r.GetMetadataValue("HintPath"))));
+                    project._projectReferences.AddRange(loadedProject.GetItems("ProjectReference")
+                                                                     .Select(r =>
+                                                                     {
+                                                                         string name = r.GetMetadataValue("Name");
+                                                                         return new ProjectReference(
+                                                                             String.IsNullOrEmpty(name)
+                                                                                 ? FileSystem.Path.GetFileNameWithoutExtension(r.EvaluatedInclude)
+                                                                                 : name,
+                                                                             r.EvaluatedInclude,
+                                                                             r.GetMetadataValue("Project"));
+                                                                     }));
+                    bool isCpm = String.Equals(loadedProject.GetPropertyValue("ManagePackageVersionsCentrally"), "true", StringComparison.OrdinalIgnoreCase);
+                    Dictionary<string, string> packageVersions = null;
+                    if (isCpm)
+                    {
+                        packageVersions = loadedProject.GetItems("PackageVersion")
+                                                       .ToDictionary(pv => pv.EvaluatedInclude, pv => pv.GetMetadataValue("Version"), StringComparer.OrdinalIgnoreCase);
+                    }
+
+                    project._packageReferences.AddRange(loadedProject.GetItems("PackageReference")
+                                                                     .Select(r =>
+                                                                     {
+                                                                         string version = r.GetMetadataValue("Version");
+
+                                                                         if (isCpm && String.IsNullOrEmpty(version))
+                                                                         {
+                                                                             string versionOverride = r.GetMetadataValue("VersionOverride");
+                                                                             if (!String.IsNullOrEmpty(versionOverride))
+                                                                             {
+                                                                                 version = versionOverride;
+                                                                             }
+                                                                             else if (packageVersions.TryGetValue(r.EvaluatedInclude, out string centralVersion))
+                                                                             {
+                                                                                 version = centralVersion;
+                                                                             }
+                                                                         }
+
+                                                                         return new PackageReference(r.EvaluatedInclude, version);
+                                                                     }));
+
+                    project._files.AddRange(loadedProject.GetItems("Compile")
+                                                        .Select(i => new ProjectFile(i.EvaluatedInclude, FileSystem.File.ReadAllText(i.GetMetadataValue("FullPath")))));
+                    return project;
                 }
-
-                var project = new Project
+                catch (Exception e)
                 {
-                    AssemblyName = name,
-                    Path = path,
-                    ProjectStyle = parser.GetProjectStyle(),
-                    ProjectDirectory = projectDir,
-                    ProjectName = projectName,
-                };
-
-                project._references.AddRange(parser.GetReferences());
-                project._projectReferences.AddRange(parser.GetProjectReferences());
-                project._packageReferences.AddRange(parser.GetPackageReferences());
-
-                var files = parser.GetCompileFiles().ToList();
-
-                project._files.AddRange(files);
-                project._files.AddRange(parser.GetSharedProjectCompileFiles());
-
-                // Shared projects do not have TFM, inherit from referencing project.
-                if (!SharedProjectExtensions.Contains(extension))
-                {
-                    if (parser.TryGetTargetFrameworkMoniker(out string targetFrameworkMoniker))
-                    {
-                        project.TargetFrameworkMoniker = targetFrameworkMoniker;
-                    }
-                    else if(parser.TryGetTargetFrameworkFromDirectoryBuildProps(out targetFrameworkMoniker))
-                    {
-                        project.TargetFrameworkMoniker = targetFrameworkMoniker;
-                    }
-                    else
-                    {
-                        throw new ParserException($"Could not determine Target Framework Moniker for project '{projectName}' ({path}).");
-                    }
+                    throw new ParserException($"Failed to load project '{projectName}' ({path}).", e);
                 }
-
-                project.DataMinerProjectType = parser.GetDataMinerProjectType();
-
-                return project;
-            }
-            catch (Exception e)
-            {
-                throw new ParserException($"Failed to load project '{projectName}' ({path}).", e);
             }
         }
     }

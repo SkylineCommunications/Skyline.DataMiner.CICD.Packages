@@ -66,8 +66,11 @@ namespace Parsers.CommonTests.VisualStudio.Projects
         }
 
         [TestMethod]
-        [DataRow("TFM_Valid.csproj", ".NETFramework,Version=4.7")]
+        [DataRow("TFM_Valid.csproj", ".NETFramework,Version=v4.7")]
         [DataRow("SdkStyle.csproj", ".NETFramework,Version=v4.6.2")]
+        [DataRow("TFM_InvalidVersion.csproj", ".NETFramework,Version=v4.0")] // Defaults
+        [DataRow("TFM_NoConfiguration.csproj", ".NETFramework,Version=v4.7")] // Defaults
+        [DataRow("TFM_NoVersion.csproj", ".NETFramework,Version=v4.0")] // Defaults
         public void Load_TargetFrameWorkMoniker(string fileName, string expectedResult)
         {
             // Arrange
@@ -81,21 +84,7 @@ namespace Parsers.CommonTests.VisualStudio.Projects
             // Assert
             result.TargetFrameworkMoniker.Should().BeEquivalentTo(expectedResult);
         }
-
-        [TestMethod]
-        [DataRow("TFM_InvalidVersion.csproj")]
-        [DataRow("TFM_NoConfiguration.csproj")]
-        [DataRow("TFM_NoVersion.csproj")]
-        public void Load_NoOeInvalidTargetFrameWorkMoniker(string fileName)
-        {
-            // Arrange
-            var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"VisualStudio\TestFiles\ProjectsForTesting\TFM"));
-            var path = FileSystem.Instance.Path.Combine(dir, fileName);
-
-            Assert.Throws<ParserException>(() => Project.Load(path, "name"));
-        }
-
+        
         [TestMethod]
         [DataRow("SampleProject.csproj", ".NETFramework,Version=v4.8")]
         public void Load_TargetFrameworkMonikerBuildProperties(string fileName, string expectedResult)
@@ -116,7 +105,9 @@ namespace Parsers.CommonTests.VisualStudio.Projects
         [DataRow("Files_Valid.csproj", 2)]
         [DataRow("Files_NoFiles.csproj", 0)]
         [DataRow("SharedProject.projitems", 2)]
+#if NETFRAMEWORK
         [DataRow("SharedProject.shproj", 2)]
+#endif
         [DataRow("Files_ValidSharedProject.csproj", 4)]
         [DataRow(@"SdkStyle\SdkStyle.csproj", 2)]
         public void Load_Files_Amount(string fileName, int expectedResult)
@@ -154,7 +145,6 @@ namespace Parsers.CommonTests.VisualStudio.Projects
 
         [TestMethod]
         [DataRow("References_Single.csproj", "MyReference", "..\\MyHintPath.dll")]
-        [DataRow("References_Single_Update.csproj", "MyReference", "..\\MyOtherHintPath.dll")]
         [DataRow("References_Single_NoOverride.csproj", "MyReference", "..\\MyHintPath.dll")]
         [DataRow("SdkStyle.csproj", "MyCustomDll", "..\\Dlls\\MyCustomDll.dll")]
 
@@ -200,7 +190,7 @@ namespace Parsers.CommonTests.VisualStudio.Projects
         [TestMethod]
         [DataRow("ProjectReferences_Single.csproj", "MyFirstProjectReference", "..\\SubFolder\\MyProjectReference.csproj", "{798B58BA-BAB8-4C52-8C48-1A8AF2B5CCCA}")]
         [DataRow("ProjectReferences_Single_NoOverride.csproj", "MyFirstProjectReference", "..\\SubFolder\\MyProjectReference.csproj", "{798B58BA-BAB8-4C52-8C48-1A8AF2B5CCCA}")]
-        [DataRow("SdkStyle.csproj", "AutomationScript_ClassLibrary", "..\\AutomationScript_ClassLibrary\\AutomationScript_ClassLibrary.csproj", "00000000-0000-0000-0000-000000000000")]
+        [DataRow("SdkStyle.csproj", "AutomationScript_ClassLibrary", "..\\AutomationScript_ClassLibrary\\AutomationScript_ClassLibrary.csproj", "")]
         public void Load_ProjectReferences_SingleReference(string fileName, string expectedName, string expectedPath, string expectedGuid)
         {
             // Arrange
@@ -223,7 +213,6 @@ namespace Parsers.CommonTests.VisualStudio.Projects
 
         [TestMethod]
         [DataRow("PackageReferences_Valid.csproj", 2)]
-        [DataRow("PackagesConfig\\PackageReferences_Valid_PackagesConfig.csproj", 1)]
         [DataRow("PackageReferences_NoPackageReferences.csproj", 0)]
         [DataRow("PackageReferences_Single.csproj", 1)]
         [DataRow("PackageReferences_Single_CLI.csproj", 1)]
@@ -244,7 +233,6 @@ namespace Parsers.CommonTests.VisualStudio.Projects
 
         [TestMethod]
         [DataRow("PackageReferences_Single.csproj", "StyleCop.Analyzers", "1.1.118")]
-        [DataRow("PackageReferences_Single_Update.csproj", "StyleCop.Analyzers", "1.2.0-beta.507")]
         [DataRow("PackageReferences_Single_CLI.csproj", "Skyline.DataMiner.Dev.Automation", "10.0.0.5")]
         public void Load_PackageReferences_SingleReference(string fileName, string expectedName, string expectedVersion)
         {

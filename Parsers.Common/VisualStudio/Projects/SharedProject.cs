@@ -7,8 +7,12 @@
     using System.Linq;
     using System.Text;
     using System.Xml.Linq;
-    using Skyline.DataMiner.CICD.Parsers.Common.Extensions;
+
+    using Microsoft.Build.Evaluation;
+
     using Skyline.DataMiner.CICD.FileSystem;
+    using Skyline.DataMiner.CICD.Parsers.Common.Exceptions;
+    using Skyline.DataMiner.CICD.Parsers.Common.Extensions;
 
     /// <summary>
     /// Represents a Visual Studio project file.
@@ -57,24 +61,41 @@
                 throw new FileNotFoundException("Could not find project file: " + path);
             }
 
-            string projectDir = FileSystem.Path.GetDirectoryName(path);
-            var xmlContent = FileSystem.File.ReadAllText(path, Encoding.UTF8);
-            var document = XDocument.Parse(xmlContent);
-            // var document = XDocument.Load(path);
-
-            IProjectParser parser = ProjectParserFactory.GetParser(document, projectDir);
-
-            var project = new SharedProject
+            using (var projectCollection = new ProjectCollection())
             {
-                Path = path
-            };
+                projectCollection.DisableMarkDirty = true;
 
-            project._projectReferences.AddRange(parser.GetProjectReferences());
+                var loadedProject = projectCollection.LoadProject(path);
 
-            project._files.AddRange(parser.GetCompileFiles());
-            project._files.AddRange(parser.GetSharedProjectCompileFiles());
+                string projectName = loadedProject.GetPropertyValue("MSBuildProjectName");
 
-            return project;
+                try
+                {
+                    var project = new SharedProject
+                    {
+                        Path = path
+                    };
+
+                    project._projectReferences.AddRange(loadedProject.GetItems("ProjectReference")
+                                                                     .Select(r =>
+                                                                     {
+                                                                         string name = r.GetMetadataValue("Name");
+                                                                         return new ProjectReference(
+                                                                             String.IsNullOrEmpty(name)
+                                                                                 ? FileSystem.Path.GetFileNameWithoutExtension(r.EvaluatedInclude)
+                                                                                 : name,
+                                                                             r.EvaluatedInclude,
+                                                                             r.GetMetadataValue("Project"));
+                                                                     }));
+                    project._files.AddRange(loadedProject.GetItems("Compile")
+                                                        .Select(i => new ProjectFile(i.EvaluatedInclude, FileSystem.File.ReadAllText(i.GetMetadataValue("FullPath")))));
+                    return project;
+                }
+                catch (Exception e)
+                {
+                    throw new ParserException($"Failed to load project '{projectName}' ({path}).", e);
+                }
+            }
         }
     }
 }
