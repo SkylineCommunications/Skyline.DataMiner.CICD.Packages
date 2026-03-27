@@ -19,7 +19,7 @@ namespace Parsers.CommonTests.VisualStudio.Projects
         {
             // Arrange
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"VisualStudio\TestFiles\ProjectsForTesting\CentralPackageManagement"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "VisualStudio", "TestFiles", "ProjectsForTesting", "CentralPackageManagement"));
             var path = FileSystem.Instance.Path.Combine(dir, "CPMProject.csproj");
 
             // Act
@@ -44,7 +44,7 @@ namespace Parsers.CommonTests.VisualStudio.Projects
         {
             // Arrange
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"VisualStudio\TestFiles\ProjectsForTesting\CentralPackageManagement"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "VisualStudio", "TestFiles", "ProjectsForTesting", "CentralPackageManagement"));
             var path = FileSystem.Instance.Path.Combine(dir, "CPMProjectWithOverride.csproj");
 
             // Act
@@ -69,7 +69,7 @@ namespace Parsers.CommonTests.VisualStudio.Projects
         {
             // Arrange
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"VisualStudio\TestFiles\ProjectsForTesting\PackageReferences"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "VisualStudio", "TestFiles", "ProjectsForTesting", "PackageReferences"));
             var path = FileSystem.Instance.Path.Combine(dir, "PackageReferences_Valid.csproj");
             List<PackageReference> expectedReferences = new List<PackageReference>
             {

@@ -18,7 +18,7 @@
         public void ProtocolSolution_Solution_Load_Legacy()
         {
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Protocol\Solution1"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Protocol", "Solution1"));
             var path = FileSystem.Instance.Path.Combine(dir, "Protocol.sln");
 
             var solution = ProtocolSolution.Load(path);
@@ -30,7 +30,7 @@
         public void ProtocolSolution_Solution_Load_Slnx()
         {
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Protocol\Solution1"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Protocol", "Solution1"));
             var path = FileSystem.Instance.Path.Combine(dir, "Protocol.slnx");
 
             var solution = ProtocolSolution.Load(path);
@@ -70,7 +70,7 @@
 
             Assert.AreEqual("QAction_Helper", internalFolder.SubProjects.First().Name);
             Assert.AreEqual(FileSystem.Instance.Path.Combine(dir, "QAction_Helper", "QAction_Helper.csproj"), internalFolder.SubProjects.First().AbsolutePath);
-            Assert.AreEqual(@"QAction_Helper\QAction_Helper.csproj", internalFolder.SubProjects.First().RelativePath);
+            Assert.AreEqual(@"QAction_Helper\QAction_Helper.csproj", internalFolder.SubProjects.First().RelativePath.Replace('/', '\\'));
             Assert.AreEqual(internalFolder, internalFolder.SubProjects.First().Parent);
 
             if (!isSlnx)
@@ -99,7 +99,7 @@
 
             Assert.IsNotNull(qaction1);
             Assert.AreEqual(FileSystem.Instance.Path.Combine(dir, "QAction_1", "QAction_1.csproj"), qaction1.AbsolutePath);
-            Assert.AreEqual(@"QAction_1\QAction_1.csproj", qaction1.RelativePath);
+            Assert.AreEqual(@"QAction_1\QAction_1.csproj", qaction1.RelativePath.Replace('/', '\\'));
             Assert.AreEqual(qactionsFolder, qaction1.Parent);
 
             if (!isSlnx)
@@ -111,7 +111,7 @@
 
             Assert.IsNotNull(qaction2);
             Assert.AreEqual(FileSystem.Instance.Path.Combine(dir, "QAction_2", "QAction_2.csproj"), qaction2.AbsolutePath);
-            Assert.AreEqual(@"QAction_2\QAction_2.csproj", qaction2.RelativePath);
+            Assert.AreEqual(@"QAction_2\QAction_2.csproj", qaction2.RelativePath.Replace('/', '\\'));
             Assert.AreEqual(qactionsFolder, qaction2.Parent);
 
             if (!isSlnx)
@@ -124,7 +124,7 @@
             Assert.IsNotNull(qaction3);
             Assert.AreEqual("QAction_3", qaction3.Name);
             Assert.AreEqual(FileSystem.Instance.Path.Combine(dir, "QAction_3", "QAction_3.csproj"), qaction3.AbsolutePath);
-            Assert.AreEqual(@"QAction_3\QAction_3.csproj", qaction3.RelativePath);
+            Assert.AreEqual(@"QAction_3\QAction_3.csproj", qaction3.RelativePath.Replace('/', '\\'));
             Assert.AreEqual(qactionsFolder, qaction3.Parent);
 
             if (!isSlnx)
@@ -137,7 +137,7 @@
             Assert.IsNotNull(qaction63000);
             Assert.AreEqual("QAction_63000", qaction63000.Name);
             Assert.AreEqual(FileSystem.Instance.Path.Combine(dir, "QAction_63000", "QAction_63000.csproj"), qaction63000.AbsolutePath);
-            Assert.AreEqual(@"QAction_63000\QAction_63000.csproj", qaction63000.RelativePath);
+            Assert.AreEqual(@"QAction_63000\QAction_63000.csproj", qaction63000.RelativePath.Replace('/', '\\'));
             Assert.AreEqual(qactionsFolder, qaction63000.Parent);
 
             if (!isSlnx)
@@ -170,7 +170,7 @@
             Assert.IsNotNull(testProject);
             Assert.AreEqual("QAction_3Tests", testProject.Name);
             Assert.AreEqual(FileSystem.Instance.Path.Combine(dir, "QAction_3Tests", "QAction_3Tests.csproj"), testProject.AbsolutePath);
-            Assert.AreEqual(@"QAction_3Tests\QAction_3Tests.csproj", testProject.RelativePath);
+            Assert.AreEqual(@"QAction_3Tests\QAction_3Tests.csproj", testProject.RelativePath.Replace('/', '\\'));
             Assert.IsNull(testProject.Parent);
 
             if (!isSlnx)
@@ -216,7 +216,7 @@
         public void ProtocolSolution_Solution2_Load_Legacy()
         {
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Protocol\Solution2"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Protocol", "Solution2"));
             var path = FileSystem.Instance.Path.Combine(dir, "ConnectorProtocol.sln");
 
             var solution = ProtocolSolution.Load(path);
@@ -228,7 +228,7 @@
         public void ProtocolSolution_Solution2_Load_Slnx()
         {
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Protocol\Solution2"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Protocol", "Solution2"));
             var path = FileSystem.Instance.Path.Combine(dir, "ConnectorProtocol.slnx");
 
             var solution = ProtocolSolution.Load(path);
@@ -371,8 +371,8 @@
             // QAction Helper project.
             var qactionHelperProject = solution.Projects.FirstOrDefault(p => p.Name == "QAction_Helper");
             Assert.AreEqual("QAction_Helper", qactionHelperProject.Name);
-            Assert.AreEqual(@"QAction_Helper\QAction_Helper.csproj", qactionHelperProject.RelativePath);
-            Assert.AreEqual(FileSystem.Instance.Path.Combine(dir, @"QAction_Helper\QAction_Helper.csproj"), qactionHelperProject.AbsolutePath);
+            Assert.AreEqual(@"QAction_Helper\QAction_Helper.csproj", qactionHelperProject.RelativePath.Replace('/', '\\'));
+            Assert.AreEqual(FileSystem.Instance.Path.Combine(dir, "QAction_Helper", "QAction_Helper.csproj"), qactionHelperProject.AbsolutePath);
             Assert.AreEqual("Internal", qactionHelperProject.Parent.Name);
 
             if (!isSlnx)
@@ -383,8 +383,8 @@
             // QAction 1 project.
             var qaction1Project = solution.Projects.FirstOrDefault(p => p.Name == "QAction_1");
             Assert.AreEqual("QAction_1", qaction1Project.Name);
-            Assert.AreEqual(@"QAction_1\QAction_1.csproj", qaction1Project.RelativePath);
-            Assert.AreEqual(FileSystem.Instance.Path.Combine(dir, @"QAction_1\QAction_1.csproj"), qaction1Project.AbsolutePath);
+            Assert.AreEqual(@"QAction_1\QAction_1.csproj", qaction1Project.RelativePath.Replace('/', '\\'));
+            Assert.AreEqual(FileSystem.Instance.Path.Combine(dir, "QAction_1", "QAction_1.csproj"), qaction1Project.AbsolutePath);
             Assert.AreEqual("QActions", qaction1Project.Parent.Name);
 
             if (!isSlnx)
@@ -395,8 +395,8 @@
             // QAction 2 project.
             var qaction2Project = solution.Projects.FirstOrDefault(p => p.Name == "QAction_2");
             Assert.AreEqual("QAction_2", qaction2Project.Name);
-            Assert.AreEqual(@"QAction_2\QAction_2.csproj", qaction2Project.RelativePath);
-            Assert.AreEqual(FileSystem.Instance.Path.Combine(dir, @"QAction_2\QAction_2.csproj"), qaction2Project.AbsolutePath);
+            Assert.AreEqual(@"QAction_2\QAction_2.csproj", qaction2Project.RelativePath.Replace('/', '\\'));
+            Assert.AreEqual(FileSystem.Instance.Path.Combine(dir, "QAction_2", "QAction_2.csproj"), qaction2Project.AbsolutePath);
             Assert.AreEqual("QActions", qaction2Project.Parent.Name);
 
             if (!isSlnx)

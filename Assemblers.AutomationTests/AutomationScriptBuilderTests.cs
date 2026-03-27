@@ -826,7 +826,7 @@ class Class1 {}]]>
         public async Task AutomationScriptBuilder_SolutionLibraries_SingleStandalone()
         {
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Projects\Project1"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Projects", "Project1"));
             var path = FileSystem.Instance.Path.Combine(dir, "Project1.csproj");
             
             var projects = new Dictionary<string, Project>
@@ -853,7 +853,7 @@ class Class1 {}]]>
         public async Task AutomationScriptBuilder_SolutionLibraries_StandAlone_DependingOnAnother()
         {
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Projects\Project2"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Projects", "Project2"));
             var path = FileSystem.Instance.Path.Combine(dir, "Project2.csproj");
 
             var projects = new Dictionary<string, Project>
@@ -883,7 +883,7 @@ class Class1 {}]]>
         public async Task AutomationScriptBuilder_SolutionLibraries_WithDependencies_DependingOnAnother()
         {
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Projects\Project3"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir,  "TestFiles", "Projects", "Project3"));
             var path = FileSystem.Instance.Path.Combine(dir, "Project3.csproj");
 
             var projects = new Dictionary<string, Project>
@@ -914,7 +914,7 @@ class Class1 {}]]>
         public async Task AutomationScriptBuilder_SolutionLibraries_WithDependencies_CustomDependency()
         {
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Projects\Project4"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Projects", "Project4"));
             var path = FileSystem.Instance.Path.Combine(dir, "Project4.csproj");
 
             var projects = new Dictionary<string, Project>

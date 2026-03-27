@@ -20,7 +20,7 @@
             // Arrange
             ILogCollector logCollector = new LogCollector();
             var baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, @"TestFiles\Solutions\Solution1"));
+            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, "TestFiles", "Solutions", "Solution1"));
             const string packageName = "MyPackageName";
 
             var packageVersion = DMAppVersion.FromBuildNumber(1);

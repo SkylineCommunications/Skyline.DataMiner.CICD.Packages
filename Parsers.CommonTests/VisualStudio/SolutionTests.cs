@@ -15,7 +15,7 @@
         {
             // Arrange
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"VisualStudio\TestFiles\Solutions\SolutionWithFilter"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "VisualStudio", "TestFiles", "Solutions", "SolutionWithFilter"));
             var path = FileSystem.Instance.Path.Combine(dir, "Filter1.slnf");
 
             // Act
@@ -32,7 +32,7 @@
         {
             // Arrange
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"VisualStudio\TestFiles\Solutions\SolutionWithFilter"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "VisualStudio", "TestFiles", "Solutions", "SolutionWithFilter"));
             var path = FileSystem.Instance.Path.Combine(dir, "SolutionWithFilter.slnx");
 
             // Act
@@ -48,7 +48,7 @@
         {
             // Arrange
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"VisualStudio\TestFiles\Solutions\SolutionWithFilter"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "VisualStudio", "TestFiles", "Solutions", "SolutionWithFilter"));
             var path = FileSystem.Instance.Path.Combine(dir, "SolutionWithFilter.sln");
 
             // Act

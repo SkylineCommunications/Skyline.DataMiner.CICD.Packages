@@ -30,7 +30,7 @@
             var logCollector = new Logging(true);
 
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solutions\Solution2"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Solutions", "Solution2"));
             var solutionFilePath = FileSystem.Instance.Path.Combine(dir, "protocol.sln");
 
             ProtocolSolution solution = ProtocolSolution.Load(solutionFilePath, logCollector);
@@ -49,7 +49,7 @@
             var logCollector = new Logging(true);
 
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solutions\Solution3"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Solutions", "Solution3"));
             var solutionFilePath = FileSystem.Instance.Path.Combine(dir, "protocol.sln");
 
             ProtocolSolution solution = ProtocolSolution.Load(solutionFilePath, logCollector);
@@ -683,7 +683,7 @@ class Class1 {}]]>
         {
             // arrange
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solutions\Solution1"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Solutions", "Solution1"));
             var path = FileSystem.Instance.Path.Combine(dir, "Protocol.sln");
 
             var solution = ProtocolSolution.Load(path);
@@ -810,7 +810,7 @@ namespace QAction_3
         {
             // Arrange
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solutions\Solution4"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Solutions", "Solution4"));
             var path = FileSystem.Instance.Path.Combine(dir, "Protocol.sln");
 
             var solution = ProtocolSolution.Load(path);
