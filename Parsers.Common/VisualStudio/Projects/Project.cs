@@ -5,9 +5,13 @@ namespace Skyline.DataMiner.CICD.Parsers.Common.VisualStudio.Projects
     using System.ComponentModel;
     using System.IO;
     using System.Linq;
+    using System.Runtime.InteropServices;
     using System.Text;
     using System.Xml.Linq;
+
     using Microsoft.Build.Evaluation;
+    using Microsoft.Build.Locator;
+
     using Skyline.DataMiner.CICD.FileSystem;
     using Skyline.DataMiner.CICD.Parsers.Common.Exceptions;
     using Skyline.DataMiner.CICD.Parsers.Common.Extensions;
@@ -184,6 +188,11 @@ namespace Skyline.DataMiner.CICD.Parsers.Common.VisualStudio.Projects
             if (!FileSystem.File.Exists(path))
             {
                 throw new FileNotFoundException("Could not find project file: " + path);
+            }
+
+            if (!MSBuildLocator.IsRegistered)
+            {
+                MSBuildLocator.RegisterDefaults();
             }
 
             using (var projectCollection = new ProjectCollection())

@@ -24,7 +24,7 @@
         {
             // arrange
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solutions\Solution1"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Solutions", "Solution1"));
             var path = FileSystem.Instance.Path.Combine(dir, "AutomationScript.sln");
 
             var solution = AutomationScriptSolution.Load(path);
@@ -47,7 +47,7 @@
         {
             // arrange
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solutions\Solution2"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Solutions", "Solution2"));
             var path = FileSystem.Instance.Path.Combine(dir, "AutomationScript.sln");
 
             var solution = AutomationScriptSolution.Load(path);
@@ -69,7 +69,7 @@
         {
             // arrange
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solutions\Solution3"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Solutions", "Solution3"));
             var path = FileSystem.Instance.Path.Combine(dir, "AutomationScript.sln");
 
             var solution = AutomationScriptSolution.Load(path);
@@ -93,7 +93,7 @@
         public async Task AutomationScriptCompilerUsingNuGetPackages_Solution4_SaveCompiledScriptAsync()
         {
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solutions\Solution4"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Solutions", "Solution4"));
             var path = FileSystem.Instance.Path.Combine(dir, "AutomationScript.sln");
 
             var solution = AutomationScriptSolution.Load(path);
@@ -139,7 +139,7 @@
         public async Task AutomationScriptCompilerUsingNuGetPackages_Solution5_SaveCompiledScriptAsync()
         {
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solutions\Solution5"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Solutions", "Solution5"));
             var path = FileSystem.Instance.Path.Combine(dir, "AutomationScript.sln");
 
             var solution = AutomationScriptSolution.Load(path);
@@ -185,7 +185,7 @@
             string expectedLine = "engine.GenerateInformation(\"test ›\");";
 
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solutions\SpecialChar"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Solutions", "SpecialChar"));
             var path = FileSystem.Instance.Path.Combine(dir, "AutomationScript.sln");
 
             var solution = AutomationScriptSolution.Load(path);
@@ -260,7 +260,7 @@ public class Script
 ";
 
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solutions\Solution6"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Solutions", "Solution6"));
             var path = FileSystem.Instance.Path.Combine(dir, "AutomationScript.sln");
 
             var solution = AutomationScriptSolution.Load(path);
@@ -342,7 +342,7 @@ public class Script
 </DMSScript>";
 
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solutions\Solution7"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Solutions", "Solution7"));
             var path = FileSystem.Instance.Path.Combine(dir, "AutomationScript.sln");
 
             var solution = AutomationScriptSolution.Load(path);
@@ -361,7 +361,7 @@ public class Script
         public async Task AutomationScriptCompilerUsingNuGetPackages_Solution8_SrmAsync()
         {
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solutions\Solution8"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Solutions", "Solution8"));
             var path = FileSystem.Instance.Path.Combine(dir, "Solution8.sln");
 
             var solution = AutomationScriptSolution.Load(path);
@@ -393,14 +393,14 @@ public class Script
 
             List<string> expectedEntries = new List<string>
             {
-                @"Microsoft.CSharp.dll",
-                @"System.Data.dll",
-                @"System.Data.DataSetExtensions.dll",
-                @"System.Drawing.dll",
-                @"System.IO.Compression.FileSystem.dll",
-                @"System.Runtime.Caching.dll",
-                @"System.Runtime.Serialization.dll",
-                @"System.Xml.Linq.dll",
+                "Microsoft.CSharp.dll",
+                "System.Data.dll",
+                "System.Data.DataSetExtensions.dll",
+                "System.Drawing.dll",
+                "System.IO.Compression.FileSystem.dll",
+                "System.Runtime.Caching.dll",
+                "System.Runtime.Serialization.dll",
+                "System.Xml.Linq.dll",
 
                 @"C:\Skyline DataMiner\ProtocolScripts\DllImport\SRM\SLSRMLibrary.dll",
                 @"C:\Skyline DataMiner\ProtocolScripts\DllImport\SRM\SLDijkstraSearch.dll"
@@ -414,7 +414,7 @@ public class Script
         public async Task AutomationScriptCompilerUsingNuGetPackages_Solution9_SrmAsDependencyAsync()
         {
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solutions\Solution9"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Solutions", "Solution9"));
             var path = FileSystem.Instance.Path.Combine(dir, "Solution9.sln");
 
             var solution = AutomationScriptSolution.Load(path);
@@ -446,14 +446,14 @@ public class Script
 
             List<string> expectedEntries = new List<string>
             {
-                @"Microsoft.CSharp.dll",
-                @"System.Data.dll",
-                @"System.Data.DataSetExtensions.dll",
-                @"System.Drawing.dll",
-                @"System.IO.Compression.FileSystem.dll",
-                @"System.Runtime.Caching.dll",
-                @"System.Runtime.Serialization.dll",
-                @"System.Xml.Linq.dll",
+                "Microsoft.CSharp.dll",
+                "System.Data.dll",
+                "System.Data.DataSetExtensions.dll",
+                "System.Drawing.dll",
+                "System.IO.Compression.FileSystem.dll",
+                "System.Runtime.Caching.dll",
+                "System.Runtime.Serialization.dll",
+                "System.Xml.Linq.dll",
 
                 @"C:\Skyline DataMiner\ProtocolScripts\DllImport\SRM\SLSRMLibrary.dll",
 

@@ -1,5 +1,7 @@
 ﻿namespace Assemblers.CommonTests
 {
+    using System.Runtime.InteropServices;
+
     using Microsoft.Build.Locator;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -10,7 +12,7 @@
         public static void AssemblyInitialize(TestContext context)
         {
             // Register MSBuild so it can find the .NET SDK
-            if (!MSBuildLocator.IsRegistered)
+            if (!MSBuildLocator.IsRegistered && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 MSBuildLocator.RegisterDefaults();
             }
