@@ -1,5 +1,7 @@
 ﻿namespace Assemblers.ProtocolTests
 {
+    using System.Runtime.InteropServices;
+
     using Microsoft.Build.Locator;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
