@@ -17,6 +17,7 @@ jobs:
     with:
       sonarcloud-project-name: SkylineCommunications_Skyline.DataMiner.CICD.Packages
       solution-filter-name: Skyline.DataMiner.CICD.Packages.sln
+      nuget-push-source: https://api.nuget.org/v3/index.json
       runs-on: windows-latest
     secrets:
       NUGET_API_KEY: ${{ secrets.NUGETAPIKEY }}
