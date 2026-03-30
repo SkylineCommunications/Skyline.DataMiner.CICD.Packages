@@ -12,7 +12,6 @@
 
     using Skyline.DataMiner.CICD.Assemblers.Automation;
     using Skyline.DataMiner.CICD.FileSystem;
-    using Skyline.DataMiner.CICD.Parsers.Automation.VisualStudio;
 
     [TestClass]
     public class AutomationScriptSolutionBuilderTests

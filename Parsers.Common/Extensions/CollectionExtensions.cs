@@ -61,29 +61,7 @@
                 list.RemoveAt(index);
             }
         }
-
-        /// <summary>
-        /// Returns the selected items from the specified source.
-        /// </summary>
-        /// <typeparam name="T">The item type.</typeparam>
-        /// <param name="source">The source from which to select items.</param>
-        /// <param name="selector">The selector function.</param>
-        /// <returns>The selected items.</returns>
-        public static IEnumerable<T> Descendants<T>(this IEnumerable<T> source, Func<T, IEnumerable<T>> selector)
-        {
-            var queue = new Queue<T>(source);
-            while (queue.Count > 0)
-            {
-                var item = queue.Dequeue();
-                yield return item;
-
-                foreach (var child in selector(item))
-                {
-                    queue.Enqueue(child);
-                }
-            }
-        }
-
+        
         /// <summary>
         /// Skips the specified number of elements in the specified list and returns the remaining elements.
         /// </summary>

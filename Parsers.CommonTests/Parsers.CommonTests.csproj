@@ -10,16 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="VisualStudio\TestFiles\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="VisualStudio\TestFiles\**">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="MSTest" />
     <PackageReference Include="System.IO.FileSystem.AccessControl" />

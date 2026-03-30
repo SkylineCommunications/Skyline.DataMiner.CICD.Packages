@@ -16,12 +16,20 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Build" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.Build.Locator" />
+    <PackageReference Include="Microsoft.VisualStudio.SolutionPersistence" />
     <PackageReference Include="NuGet.PackageManagement" />
     <PackageReference Include="Skyline.DataMiner.CICD.Common" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Parsers.Common\Parsers.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Assemblers.AutomationTests" />
+    <InternalsVisibleTo Include="Assemblers.ProtocolTests" />
   </ItemGroup>
 
 </Project>

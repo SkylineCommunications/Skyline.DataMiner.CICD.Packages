@@ -9,9 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Build" ExcludeAssets="runtime" />
-    <PackageReference Include="Microsoft.Build.Locator" />
-    <PackageReference Include="Microsoft.VisualStudio.SolutionPersistence" />
     <PackageReference Include="Skyline.DataMiner.CICD.FileSystem" />
     <PackageReference Include="Skyline.DataMiner.CICD.Loggers" />
     <PackageReference Include="System.Text.Json" />

@@ -11,6 +11,7 @@
     using NuGet.Versioning;
 
     using Skyline.DataMiner.CICD.Assemblers.Common;
+    using Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects;
     using Skyline.DataMiner.CICD.Common.NuGet;
     using Skyline.DataMiner.CICD.FileSystem;
     using Skyline.DataMiner.CICD.Loggers;

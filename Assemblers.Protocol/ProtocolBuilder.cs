@@ -12,6 +12,7 @@
     using NuGet.Versioning;
 
     using Skyline.DataMiner.CICD.Assemblers.Common;
+    using Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects;
     using Skyline.DataMiner.CICD.FileSystem;
     using Skyline.DataMiner.CICD.Loggers;
     using Skyline.DataMiner.CICD.Models.Protocol.Enums;
@@ -19,8 +20,6 @@
     using Skyline.DataMiner.CICD.Models.Protocol.Read.Interfaces;
     using Skyline.DataMiner.CICD.Parsers.Common.VisualStudio.Projects;
     using Skyline.DataMiner.CICD.Parsers.Common.Xml;
-    using Skyline.DataMiner.CICD.Parsers.Protocol.VisualStudio;
-
     using EditXml = Skyline.DataMiner.CICD.Parsers.Common.XmlEdit;
     using ProtocolDocumentEdit = Skyline.DataMiner.CICD.Models.Protocol.Edit.ProtocolDocumentEdit;
     using QActionsQAction = Skyline.DataMiner.CICD.Models.Protocol.Edit.QActionsQAction;
