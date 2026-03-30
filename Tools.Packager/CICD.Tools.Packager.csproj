@@ -8,19 +8,7 @@
     <Nullable>disable</Nullable>
     <AssemblyName>Skyline.DataMiner.CICD.Tools.Packager</AssemblyName>
     <RootNamespace>Skyline.DataMiner.CICD.Tools.Packager</RootNamespace>
-    <PackageTags>Skyline;DataMiner;CICD</PackageTags>
-    <PackageProjectUrl>https://skyline.be</PackageProjectUrl>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-    <PackageIcon>Icon.png</PackageIcon>
-    <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Authors>SkylineCommunications</Authors>
-    <Company>Skyline Communications</Company>
     <Description>This .NET tool allows you to create application (.dmapp) and protocol (.dmprotocol) packages.</Description>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/SkylineCommunications/Skyline.DataMiner.CICD.Packages</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
