@@ -1,8 +1,9 @@
 ﻿namespace Skyline.DataMiner.CICD.Assemblers.Protocol
 {
+    using System;
     using System.Collections.Generic;
 
-    using Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects;
+    using Skyline.DataMiner.CICD.Parsers.Common.VisualStudio.Projects;
 
     internal static class DevPackHelper
     {

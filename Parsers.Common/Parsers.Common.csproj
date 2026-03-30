@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Skyline.DataMiner.CICD.FileSystem" />
+    <PackageReference Include="Skyline.DataMiner.CICD.Loggers" />
     <PackageReference Include="System.Text.Json" />
   </ItemGroup>
 

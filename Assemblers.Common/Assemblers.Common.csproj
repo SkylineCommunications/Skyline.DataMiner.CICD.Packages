@@ -16,13 +16,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Build" ExcludeAssets="runtime" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.Build.Locator" ExcludeAssets="runtime" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.Build" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.Build.Locator" />
     <PackageReference Include="Microsoft.VisualStudio.SolutionPersistence" />
     <PackageReference Include="NuGet.PackageManagement" />
     <PackageReference Include="Skyline.DataMiner.CICD.Common" />
-    <PackageReference Include="Skyline.DataMiner.CICD.FileSystem" />
-    <PackageReference Include="Skyline.DataMiner.CICD.Loggers" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Parsers.Common\Parsers.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>

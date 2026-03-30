@@ -1,7 +1,8 @@
-namespace Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects
+namespace Skyline.DataMiner.CICD.Parsers.Common.VisualStudio.Projects
 {
     using System;
     using System.Collections.Generic;
+    using Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects;
     using Skyline.DataMiner.CICD.FileSystem;
 
     /// <summary>

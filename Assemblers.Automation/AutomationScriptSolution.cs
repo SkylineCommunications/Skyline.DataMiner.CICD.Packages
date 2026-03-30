@@ -7,6 +7,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Automation
     using Skyline.DataMiner.CICD.Loggers;
     using Skyline.DataMiner.CICD.Parsers.Automation.Xml;
     using Skyline.DataMiner.CICD.Parsers.Common.Exceptions;
+    using Skyline.DataMiner.CICD.Parsers.Common.VisualStudio;
 
     /// <summary>
     /// Represents an Automation script solution.
@@ -60,15 +61,9 @@ namespace Skyline.DataMiner.CICD.Assemblers.Automation
 
                 foreach (var file in folder.Files)
                 {
-                    string error = null;
                     if (!String.Equals(_fileSystem.Path.GetExtension(file.FileName), ".xml", StringComparison.OrdinalIgnoreCase)
-                        || !Script.IsAutomationScriptFile(file.AbsolutePath, out error))
+                        || !Script.IsAutomationScriptFile(file.AbsolutePath, logCollector))
                     {
-                        if (error != null)
-                        {
-                            logCollector?.ReportError(error);
-                        }
-
                         continue;
                     }
 

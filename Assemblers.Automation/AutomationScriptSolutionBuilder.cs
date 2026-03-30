@@ -11,6 +11,8 @@
     using Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects;
     using Skyline.DataMiner.CICD.Loggers;
     using Skyline.DataMiner.CICD.Parsers.Automation.Xml;
+    using Skyline.DataMiner.CICD.Parsers.Common.VisualStudio;
+    using Skyline.DataMiner.CICD.Parsers.Common.VisualStudio.Projects;
 
     /// <summary>
     /// Builds the scripts of an Automation script solution.

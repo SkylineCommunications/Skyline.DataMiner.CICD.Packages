@@ -20,7 +20,6 @@
 
   <ItemGroup>
     <PackageReference Include="MSTest" />
-    <PackageReference Include="Microsoft.Build.Locator" />
   </ItemGroup>
 
   <ItemGroup>

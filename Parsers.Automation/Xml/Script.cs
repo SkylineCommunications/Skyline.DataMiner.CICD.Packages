@@ -4,9 +4,9 @@
     using System.Collections.Generic;
     using System.Xml.Linq;
 
-    using FileSystem;
-
     using Skyline.DataMiner.CICD.Parsers.Common.Xml;
+    using FileSystem;
+    using Skyline.DataMiner.CICD.Loggers;
 
     /// <summary>
     /// Represents a script of an Automation script solution.
@@ -67,13 +67,11 @@
         /// Determines whether the specified file is an Automation script.
         /// </summary>
         /// <param name="path">The file path.</param>
-        /// <param name="error">The error in case the parsing fails.</param>
+        /// <param name="logCollector">The log collector.</param>
         /// <returns><c>true</c> if the specified file is an Automation script; otherwise, <c>false</c>.</returns>
         /// <exception cref="ArgumentException"><paramref name="path"/> is <see langword="null"/> or whitespace.</exception>
-        public static bool IsAutomationScriptFile(string path, out string error)
+        public static bool IsAutomationScriptFile(string path, ILogCollector logCollector = null)
         {
-            error = null;
-
             if (String.IsNullOrWhiteSpace(path))
             {
                 throw new ArgumentException($"'{nameof(path)}' cannot be null or whitespace", nameof(path));
@@ -87,7 +85,7 @@
             }
             catch (Exception e)
             {
-                error = "XDocument failed to Load with exception: " + e;
+                logCollector?.ReportError("XDocument failed to Load with exception: " + e);
                 return false;
             }
         }

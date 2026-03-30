@@ -4,7 +4,7 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects;
+    using Skyline.DataMiner.CICD.Parsers.Common.VisualStudio.Projects;
 
     [TestClass]
     public class ReferenceTests

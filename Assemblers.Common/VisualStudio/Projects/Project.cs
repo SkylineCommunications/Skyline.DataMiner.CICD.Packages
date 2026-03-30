@@ -9,6 +9,8 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects
     using Microsoft.Build.Locator;
     using NuGet.Packaging;
     using Skyline.DataMiner.CICD.FileSystem;
+    using Skyline.DataMiner.CICD.Parsers.Common.Exceptions;
+    using Skyline.DataMiner.CICD.Parsers.Common.VisualStudio.Projects;
 
     /// <summary>
     /// Represents a Visual Studio project file.
@@ -239,7 +241,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects
                 }
                 catch (Exception e)
                 {
-                    throw new AssemblerException($"Failed to load project '{projectName}' ({path}).", e);
+                    throw new ParserException($"Failed to load project '{projectName}' ({path}).", e);
                 }
             }
         }
