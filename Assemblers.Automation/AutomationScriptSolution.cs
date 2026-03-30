@@ -7,7 +7,6 @@ namespace Skyline.DataMiner.CICD.Assemblers.Automation
     using Skyline.DataMiner.CICD.Loggers;
     using Skyline.DataMiner.CICD.Parsers.Automation.Xml;
     using Skyline.DataMiner.CICD.Parsers.Common.Exceptions;
-    using Skyline.DataMiner.CICD.Parsers.Common.VisualStudio;
 
     /// <summary>
     /// Represents an Automation script solution.

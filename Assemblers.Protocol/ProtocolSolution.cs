@@ -9,8 +9,6 @@
     using Skyline.DataMiner.CICD.FileSystem;
     using Skyline.DataMiner.CICD.Loggers;
     using Skyline.DataMiner.CICD.Parsers.Common.Exceptions;
-    using Skyline.DataMiner.CICD.Parsers.Common.VisualStudio;
-    using Skyline.DataMiner.CICD.Parsers.Common.VisualStudio.Projects;
     using Skyline.DataMiner.CICD.Parsers.Common.Xml;
     using Skyline.DataMiner.CICD.Parsers.Protocol.Xml.QActions;
 

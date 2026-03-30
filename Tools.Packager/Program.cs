@@ -19,7 +19,6 @@
     using Skyline.DataMiner.CICD.DMProtocol;
     using Skyline.DataMiner.CICD.FileSystem;
     using Skyline.DataMiner.CICD.Loggers;
-    using Skyline.DataMiner.CICD.Parsers.Common.VisualStudio;
     using Skyline.DataMiner.CICD.Tools.Reporter;
 
     using Solution = Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Solution;

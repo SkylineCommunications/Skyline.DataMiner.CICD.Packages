@@ -16,7 +16,6 @@
     using Skyline.DataMiner.CICD.FileSystem;
     using Skyline.DataMiner.CICD.Loggers;
     using Skyline.DataMiner.CICD.Parsers.Automation.Xml;
-    using Skyline.DataMiner.CICD.Parsers.Common.VisualStudio.Projects;
     using Skyline.DataMiner.CICD.Parsers.Common.Xml;
 
     using EditXml = Skyline.DataMiner.CICD.Parsers.Common.XmlEdit;

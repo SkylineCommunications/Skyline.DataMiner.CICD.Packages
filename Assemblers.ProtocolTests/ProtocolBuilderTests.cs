@@ -18,7 +18,6 @@
     using Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects;
     using Skyline.DataMiner.CICD.Assemblers.Protocol;
     using Skyline.DataMiner.CICD.FileSystem;
-    using Skyline.DataMiner.CICD.Parsers.Common.VisualStudio.Projects;
     using Skyline.DataMiner.CICD.Parsers.Common.Xml;
 
     [TestClass]
