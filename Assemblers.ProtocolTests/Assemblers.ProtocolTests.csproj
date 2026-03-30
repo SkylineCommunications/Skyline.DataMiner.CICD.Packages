@@ -12,6 +12,7 @@
     <PackageReference Include="Moq" />
     <PackageReference Include="MSTest" />
     <PackageReference Include="XMLUnit.Core" />
+    <PackageReference Include="Microsoft.Build.Locator" />
   </ItemGroup>
 
   <ItemGroup>

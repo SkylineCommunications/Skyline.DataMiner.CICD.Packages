@@ -2,8 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+
     using Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects;
-    using Skyline.DataMiner.CICD.Parsers.Common.VisualStudio.Projects;
     using Skyline.DataMiner.CICD.Parsers.Protocol.Xml.QActions;
 
     /// <summary>

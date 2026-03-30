@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Reflection;
     using System.Text;
     using System.Threading.Tasks;
 
@@ -18,8 +17,8 @@
     using Skyline.DataMiner.CICD.Models.Protocol.Enums;
     using Skyline.DataMiner.CICD.Models.Protocol.Read;
     using Skyline.DataMiner.CICD.Models.Protocol.Read.Interfaces;
-    using Skyline.DataMiner.CICD.Parsers.Common.VisualStudio.Projects;
     using Skyline.DataMiner.CICD.Parsers.Common.Xml;
+
     using EditXml = Skyline.DataMiner.CICD.Parsers.Common.XmlEdit;
     using ProtocolDocumentEdit = Skyline.DataMiner.CICD.Models.Protocol.Edit.ProtocolDocumentEdit;
     using QActionsQAction = Skyline.DataMiner.CICD.Models.Protocol.Edit.QActionsQAction;
