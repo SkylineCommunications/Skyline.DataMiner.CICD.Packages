@@ -93,13 +93,7 @@ namespace Skyline.DataMiner.CICD.Parsers.Common.VisualStudio.Projects
             ".projitems",
             ".shproj"
         };
-
-        internal static readonly string[] SharedProjectExtensions =
-        {
-            ".projitems",
-            ".shproj"
-        };
-
+        
         /// <summary>
         /// Gets the project name.
         /// </summary>
@@ -133,7 +127,7 @@ namespace Skyline.DataMiner.CICD.Parsers.Common.VisualStudio.Projects
         public DataMinerProjectType? DataMinerProjectType { get; set; }
 
         /// <summary>
-        /// Gets the project C# files.
+        /// Gets the project C# files. These only include the ones that will be compiled. Files marked as e.g. content won't be included in this list.
         /// </summary>
         /// <value>The project C# files.</value>
         public IEnumerable<ProjectFile> Files => _files;

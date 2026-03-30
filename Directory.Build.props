@@ -12,7 +12,7 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
         <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-        <PackageIcon>Icon.png</PackageIcon>
+        <PackageIcon>icon.png</PackageIcon>
         <Authors>SkylineCommunications</Authors>
         <Company>Skyline Communications</Company>
         <RepositoryUrl>https://github.com/SkylineCommunications/Skyline.DataMiner.CICD.Packages</RepositoryUrl>

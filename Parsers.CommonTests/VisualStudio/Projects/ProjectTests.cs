@@ -23,7 +23,7 @@ namespace Parsers.CommonTests.VisualStudio.Projects
             var path = FileSystem.Instance.Path.Combine(dir, "Basic.csproj");
 
             // Act
-            var result = Project.Load(path, "Basic");
+            var result = Project.Load(path);
 
             // Assert
             result.Should().NotBeNull();
@@ -78,7 +78,7 @@ namespace Parsers.CommonTests.VisualStudio.Projects
             var path = FileSystem.Instance.Path.Combine(dir, fileName);
 
             // Act
-            var result = Project.Load(path, "name");
+            var result = Project.Load(path);
 
             // Assert
             result.TargetFrameworkMoniker.Should().BeEquivalentTo(expectedResult);
@@ -101,7 +101,7 @@ namespace Parsers.CommonTests.VisualStudio.Projects
             var path = FileSystem.Instance.Path.Combine(dir, fileName);
 
             // Act
-            var result = Project.Load(path, "name");
+            var result = Project.Load(path);
 
             // Assert
             result.Files.Should().HaveCount(expectedResult);
@@ -120,7 +120,7 @@ namespace Parsers.CommonTests.VisualStudio.Projects
             var path = FileSystem.Instance.Path.Combine(dir, fileName);
 
             // Act
-            var result = Project.Load(path, "name");
+            var result = Project.Load(path);
 
             // Assert
             result.References.Should().HaveCount(expectedResult);
@@ -139,7 +139,7 @@ namespace Parsers.CommonTests.VisualStudio.Projects
             var path = FileSystem.Instance.Path.Combine(dir, fileName);
 
             // Act
-            var result = Project.Load(path, "name");
+            var result = Project.Load(path);
 
             // Assert
             result.References.Should().HaveCount(1);
@@ -164,7 +164,7 @@ namespace Parsers.CommonTests.VisualStudio.Projects
             var path = FileSystem.Instance.Path.Combine(dir, fileName);
 
             // Act
-            var result = Project.Load(path, "name");
+            var result = Project.Load(path);
 
             // Assert
             result.ProjectReferences.Should().HaveCount(expectedResult);
@@ -182,7 +182,7 @@ namespace Parsers.CommonTests.VisualStudio.Projects
             var path = FileSystem.Instance.Path.Combine(dir, fileName);
 
             // Act
-            var result = Project.Load(path, "name");
+            var result = Project.Load(path);
 
             // Assert
             result.ProjectReferences.Should().HaveCount(1);
@@ -208,7 +208,7 @@ namespace Parsers.CommonTests.VisualStudio.Projects
             var path = FileSystem.Instance.Path.Combine(dir, fileName);
 
             // Act
-            var result = Project.Load(path, "name");
+            var result = Project.Load(path);
 
             // Assert
             result.PackageReferences.Should().HaveCount(expectedResult);
@@ -225,7 +225,7 @@ namespace Parsers.CommonTests.VisualStudio.Projects
             var path = FileSystem.Instance.Path.Combine(dir, fileName);
 
             // Act
-            var result = Project.Load(path, "name");
+            var result = Project.Load(path);
 
             // Assert
             result.PackageReferences.Should().HaveCount(1);
@@ -245,7 +245,7 @@ namespace Parsers.CommonTests.VisualStudio.Projects
             var path = FileSystem.Instance.Path.Combine(dir, "SpecialChar.csproj");
 
             // Act
-            var result = Project.Load(path, "Basic");
+            var result = Project.Load(path);
 
             // Assert
             result.Should().NotBeNull();
@@ -264,7 +264,7 @@ namespace Parsers.CommonTests.VisualStudio.Projects
             var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "VisualStudio", "TestFiles", "Protocol", "Solution1"));
             var path = FileSystem.Instance.Path.Combine(dir, "QAction_1", "QAction_1.csproj");
 
-            var project = Project.Load(path, "QAction_1");
+            var project = Project.Load(path);
 
             Assert.IsInstanceOfType(project, typeof(Project));
 
@@ -288,7 +288,7 @@ namespace Parsers.CommonTests.VisualStudio.Projects
             var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "VisualStudio", "TestFiles", "Protocol", "Solution1"));
             var path = FileSystem.Instance.Path.Combine(dir, "QAction_2", "QAction_2.csproj");
 
-            var project = Project.Load(path, "QAction_2");
+            var project = Project.Load(path);
 
             Assert.IsInstanceOfType(project, typeof(Project));
 
@@ -316,7 +316,7 @@ namespace Parsers.CommonTests.VisualStudio.Projects
             var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "VisualStudio", "TestFiles", "Protocol", "Solution1"));
             var path = FileSystem.Instance.Path.Combine(dir, "QAction_3", "QAction_3.csproj");
 
-            var project = Project.Load(path, "QAction_3");
+            var project = Project.Load(path);
 
             Assert.IsInstanceOfType(project, typeof(Project));
 
