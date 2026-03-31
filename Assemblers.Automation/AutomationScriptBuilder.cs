@@ -449,7 +449,7 @@
             AddOrUpdateReferenceInExeBlock(_fileSystem, destinationPath, editExe);
 
             // If custom DLL
-            if (r.HintPath != null && project.ProjectStyle == ProjectStyle.Sdk)
+            if (!String.IsNullOrWhiteSpace(r.HintPath) && project.ProjectStyle == ProjectStyle.Sdk)
             {
                 string dllPath = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(project.ProjectDirectory, r.HintPath));
 

@@ -406,7 +406,7 @@
                     continue;
                 }
 
-                if (r.HintPath != null && FileSystem.Instance.Path.IsPathRooted(r.HintPath))
+                if (!String.IsNullOrWhiteSpace(r.HintPath) && FileSystem.Instance.Path.IsPathRooted(r.HintPath))
                 {
                     string absolutePath = r.HintPath;
 
@@ -431,7 +431,7 @@
                 dllImports.Add(dllName);
 
                 // If custom DLL
-                if (r.HintPath != null && project.ProjectStyle == ProjectStyle.Sdk)
+                if (String.IsNullOrWhiteSpace(r.HintPath) && project.ProjectStyle == ProjectStyle.Sdk)
                 {
                     string dllPath = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(project.ProjectDirectory, r.HintPath));
 
