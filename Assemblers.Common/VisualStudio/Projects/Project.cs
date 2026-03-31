@@ -7,7 +7,6 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects
     using System.Linq;
 
     using Microsoft.Build.Evaluation;
-    using Microsoft.Build.Locator;
 
     using NuGet.Packaging;
 
@@ -166,11 +165,6 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects
             if (!FileSystem.File.Exists(path))
             {
                 throw new FileNotFoundException("Could not find project file: " + path);
-            }
-
-            if (!MSBuildLocator.IsRegistered)
-            {
-                MSBuildLocator.RegisterDefaults();
             }
 
             using (var projectCollection = new ProjectCollection())
