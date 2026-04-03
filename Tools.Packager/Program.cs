@@ -8,7 +8,10 @@
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
 
+    using Microsoft.Build.Locator;
+
     using Skyline.AppInstaller;
+    using Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio;
     using Skyline.DataMiner.CICD.DMApp.Automation;
     using Skyline.DataMiner.CICD.DMApp.Common;
     using Skyline.DataMiner.CICD.DMApp.Dashboard;
@@ -16,10 +19,9 @@
     using Skyline.DataMiner.CICD.DMProtocol;
     using Skyline.DataMiner.CICD.FileSystem;
     using Skyline.DataMiner.CICD.Loggers;
-    using Skyline.DataMiner.CICD.Parsers.Common.VisualStudio;
     using Skyline.DataMiner.CICD.Tools.Reporter;
 
-    using Solution = Skyline.DataMiner.CICD.Parsers.Common.VisualStudio.Solution;
+    using Solution = Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Solution;
 
     /// <summary>
     /// This .NET tool allows you to create dmapp and dmprotocol packages..
@@ -182,6 +184,11 @@
 
             rootCommand.Add(dmappSubCommand);
             rootCommand.Add(dmprotocolSubCommand);
+            
+            if (!MSBuildLocator.IsRegistered)
+            {
+                MSBuildLocator.RegisterDefaults();
+            }
 
             return await rootCommand.InvokeAsync(args);
         }

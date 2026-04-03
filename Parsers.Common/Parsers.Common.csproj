@@ -1,37 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>net48;net10.0</TargetFrameworks>
     <AssemblyName>Skyline.DataMiner.CICD.Parsers.Common</AssemblyName>
     <RootNamespace>Skyline.DataMiner.CICD.Parsers.Common</RootNamespace>
-    <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Authors>SkylineCommunications</Authors>
-    <Company>Skyline Communications</Company>
-    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-    <PackageIcon>icon.png</PackageIcon>
-    <PackageProjectUrl>https://skyline.be/</PackageProjectUrl>
-    <PackageTags>Skyline;DataMiner;CICD</PackageTags>
     <Description>Library providing Common methods to parse DataMiner XML files.</Description>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryUrl>https://github.com/SkylineCommunications/Skyline.DataMiner.CICD.Packages</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <Version>0.0.2-local</Version>
+    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\README.md" Pack="true" PackagePath="" />
-    <None Include="..\_NuGetItems\icon.png" Pack="true" PackagePath="" />
-    <None Include="..\_NuGetItems\LICENSE.txt" Pack="true" PackagePath="" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.VisualStudio.SolutionPersistence" Version="1.0.52" />
-    <PackageReference Include="NuGet.Frameworks" Version="6.6.2" />
-    <PackageReference Include="Skyline.DataMiner.CICD.FileSystem" Version="1.4.1" />
-    <PackageReference Include="Skyline.DataMiner.CICD.Loggers" Version="1.0.3" />
-    <PackageReference Include="System.Text.Json" Version="10.0.1" />
+    <PackageReference Include="Skyline.DataMiner.CICD.FileSystem" />
+    <PackageReference Include="Skyline.DataMiner.CICD.Loggers" />
+    <PackageReference Include="System.Text.Json" />
   </ItemGroup>
 
   <ItemGroup>
