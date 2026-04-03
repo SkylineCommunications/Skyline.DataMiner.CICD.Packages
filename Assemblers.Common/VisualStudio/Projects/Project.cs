@@ -5,6 +5,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects
     using System.ComponentModel;
     using System.IO;
     using System.Linq;
+    using System.Xml.Linq;
 
     using Microsoft.Build.Evaluation;
 
@@ -89,7 +90,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects
             ".projitems",
             ".shproj"
         };
-        
+
         /// <summary>
         /// Gets the project name.
         /// </summary>
@@ -167,6 +168,18 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects
                 throw new FileNotFoundException("Could not find project file: " + path);
             }
 
+            // .shproj files import Visual Studio CodeSharing targets that may not be available
+            // outside of Visual Studio (e.g. when using the .NET SDK MSBuild). Redirect to the
+            // referenced .projitems file which contains the actual compile items.
+            if (FileSystem.Path.GetExtension(path).Equals(".shproj", StringComparison.OrdinalIgnoreCase))
+            {
+                string projItemsPath = TryGetProjItemsPath(path);
+                if (projItemsPath != null)
+                {
+                    return Load(projItemsPath);
+                }
+            }
+
             using (var projectCollection = new ProjectCollection())
             {
                 projectCollection.DisableMarkDirty = true;
@@ -239,6 +252,37 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects
                     throw new AssemblerException($"Failed to load project '{projectName}' ({path}).", e);
                 }
             }
+        }
+
+        private static string TryGetProjItemsPath(string shprojPath)
+        {
+            try
+            {
+                XDocument doc = XDocument.Load(shprojPath);
+                XNamespace ns = "http://schemas.microsoft.com/developer/msbuild/2003";
+
+                XElement sharedImport = doc.Root?.Elements(ns + "Import")
+                    .FirstOrDefault(e => String.Equals(e.Attribute("Label")?.Value, "Shared", StringComparison.OrdinalIgnoreCase));
+
+                string relativePath = sharedImport?.Attribute("Project")?.Value;
+
+                if (!String.IsNullOrEmpty(relativePath))
+                {
+                    string dir = FileSystem.Path.GetDirectoryName(shprojPath);
+                    string fullPath = FileSystem.Path.GetFullPath(FileSystem.Path.Combine(dir, relativePath));
+
+                    if (FileSystem.File.Exists(fullPath))
+                    {
+                        return fullPath;
+                    }
+                }
+            }
+            catch
+            {
+                // Fall through to return null so the caller can attempt normal loading.
+            }
+
+            return null;
         }
     }
 }

@@ -88,9 +88,7 @@ namespace Parsers.CommonTests.VisualStudio.Projects
         [DataRow("Files_Valid.csproj", 2)]
         [DataRow("Files_NoFiles.csproj", 0)]
         [DataRow("SharedProject.projitems", 2)]
-#if NETFRAMEWORK
         [DataRow("SharedProject.shproj", 2)]
-#endif
         [DataRow("Files_ValidSharedProject.csproj", 4)]
         [DataRow("SdkStyle/SdkStyle.csproj", 2)]
         public void Load_Files_Amount(string fileName, int expectedResult)
