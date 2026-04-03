@@ -82,24 +82,14 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects
         }
 
         /// <summary>
-        /// Gets the type of projects that are supported to be loaded.
-        /// </summary>
-        internal static readonly string[] SupportedProjectExtensions =
-        {
-            ".csproj",
-            ".projitems",
-            ".shproj"
-        };
-
-        /// <summary>
         /// Gets the project name.
         /// </summary>
-        public string ProjectName { get; set; }
+        public string ProjectName { get; private set; }
 
         /// <summary>
         /// Gets the project directory.
         /// </summary>
-        public string ProjectDirectory { get; set; }
+        public string ProjectDirectory { get; private set; }
 
         /// <summary>
         /// Gets the assembly name.
@@ -121,7 +111,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects
         /// <summary>
         /// Gets the DataMiner project type.
         /// </summary>
-        public DataMinerProjectType? DataMinerProjectType { get; set; }
+        public DataMinerProjectType? DataMinerProjectType { get; private set; }
 
         /// <summary>
         /// Gets the project C# files. These only include the ones that will be compiled. Files marked as e.g. content won't be included in this list.

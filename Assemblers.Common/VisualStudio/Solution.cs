@@ -138,11 +138,6 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio
                 throw new ArgumentNullException(nameof(projectInSolution));
             }
 
-            if (!Project.SupportedProjectExtensions.Contains(_fileSystem.Path.GetExtension(projectInSolution.AbsolutePath)))
-            {
-                throw new NotSupportedException($"Project {projectInSolution.Name} is not supported to be loaded.");
-            }
-
             if (!_loadedProjects.TryGetValue(projectInSolution.Guid, out Project project))
             {
                 project = Project.Load(projectInSolution.AbsolutePath);
