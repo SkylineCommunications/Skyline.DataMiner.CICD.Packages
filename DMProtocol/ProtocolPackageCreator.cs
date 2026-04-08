@@ -11,7 +11,6 @@
     using Skyline.DataMiner.CICD.Assemblers.Protocol;
     using Skyline.DataMiner.CICD.Loggers;
     using Skyline.DataMiner.CICD.Models.Protocol.Read;
-    using Skyline.DataMiner.CICD.Parsers.Protocol.VisualStudio;
     using Skyline.DataMiner.CICD.FileSystem;
     using FileInfo = Skyline.DataMiner.CICD.FileSystem.FileInfoWrapper.FileInfo;
 

@@ -13,7 +13,6 @@ namespace Skyline.DataMiner.CICD.DMApp.Automation
     using Skyline.DataMiner.CICD.DMApp.Common;
     using Skyline.DataMiner.CICD.FileSystem;
     using Skyline.DataMiner.CICD.Loggers;
-    using Skyline.DataMiner.CICD.Parsers.Automation.VisualStudio;
     using Skyline.DataMiner.CICD.Parsers.Automation.Xml;
 
     /// <summary>

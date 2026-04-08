@@ -13,8 +13,11 @@ on:
 jobs:
 
   CICD:
-    uses: SkylineCommunications/_ReusableWorkflows/.github/workflows/NuGet Solution Master Workflow.yml@main
+    uses: SkylineCommunications/_ReusableWorkflows/.github/workflows/Master Workflow.yml@MasterWorkflow
     with:
-      sonarCloudProjectName: SkylineCommunications_Skyline.DataMiner.CICD.Packages
+      sonarcloud-project-name: SkylineCommunications_Skyline.DataMiner.CICD.Packages
+      solution-filter-name: Skyline.DataMiner.CICD.Packages.sln
+      nuget-push-source: https://api.nuget.org/v3/index.json
+      runs-on: windows-latest
     secrets:
-      nugetApiKey: ${{ secrets.NUGETAPIKEY }}
+      NUGET_API_KEY: ${{ secrets.NUGETAPIKEY }}

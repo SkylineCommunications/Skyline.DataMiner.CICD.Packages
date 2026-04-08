@@ -1,47 +1,34 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <TargetFrameworks>net48;net10.0</TargetFrameworks>
     <AssemblyName>Skyline.DataMiner.CICD.Assemblers.Common</AssemblyName>
     <RootNamespace>Skyline.DataMiner.CICD.Assemblers.Common</RootNamespace>
-    <GenerateDocumentationFile>True</GenerateDocumentationFile>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Authors>SkylineCommunications</Authors>
-    <Company>Skyline Communications</Company>
-    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-    <PackageIcon>icon.png</PackageIcon>
-    <PackageProjectUrl>https://skyline.be/</PackageProjectUrl>
-    <PackageTags>Skyline;DataMiner;CICD</PackageTags>
     <Description>Library providing common methods for converting Visual Studio DIS Solutions to individual DataMiner artifacts (e.g. xml, dlls,...).</Description>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryUrl>https://github.com/SkylineCommunications/Skyline.DataMiner.CICD.Packages</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <Version>0.0.2-local</Version>
   </PropertyGroup>
 
-  <ItemGroup>
-    <None Include="..\README.md" Pack="true" PackagePath="" />
-    <None Include="..\_NuGetItems\icon.png" Pack="true" PackagePath="" />
-    <None Include="..\_NuGetItems\LICENSE.txt" Pack="true" PackagePath="" />
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" VersionOverride="4.14.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NuGet.PackageManagement" Version="6.6.2" />
-    <PackageReference Include="Skyline.DataMiner.CICD.Common" Version="1.0.6" />
+    <PackageReference Include="Microsoft.Build" ExcludeAssets="runtime" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.VisualStudio.SolutionPersistence" />
+    <PackageReference Include="NuGet.PackageManagement" />
+    <PackageReference Include="Skyline.DataMiner.CICD.Common" />
   </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
-  </ItemGroup>
-
 
   <ItemGroup>
     <ProjectReference Include="..\Parsers.Common\Parsers.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Assemblers.AutomationTests" />
+    <InternalsVisibleTo Include="Assemblers.ProtocolTests" />
   </ItemGroup>
 
 </Project>

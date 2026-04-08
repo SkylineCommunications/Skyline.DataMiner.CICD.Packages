@@ -35,7 +35,7 @@ namespace DMApp.AutomationTests
         {
             // Arrange.
             var baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, @"TestFiles\Solutions\Solution1"));
+            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, "TestFiles", "Solutions", "Solution1"));
 
             var creator = AppPackageCreatorForAutomation.Factory.FromRepository(LogCollector, repositoryPath, PackageName, PackageVersion);
 
@@ -51,7 +51,7 @@ namespace DMApp.AutomationTests
         {
             // Arrange.
             var baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, @"TestFiles\Solutions\Solution1"));
+            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, "TestFiles", "Solutions", "Solution1"));
 
             var creator = AppPackageCreatorForAutomation.Factory.FromRepository(LogCollector, repositoryPath, PackageName, PackageVersion);
 
@@ -67,7 +67,7 @@ namespace DMApp.AutomationTests
         {
             // Arrange.
             var baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, @"TestFiles\Solutions\Solution1"));
+            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, "TestFiles", "Solutions", "Solution1"));
 
             var creator = AppPackageCreatorForAutomation.Factory.FromRepository(LogCollector, repositoryPath, PackageName, PackageVersion);
 
@@ -85,7 +85,7 @@ namespace DMApp.AutomationTests
         {
             // Arrange.
             var baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, @"TestFiles\Solutions\Solution1"));
+            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, "TestFiles", "Solutions", "Solution1"));
 
             var creator = AppPackageCreatorForAutomation.Factory.FromRepository(LogCollector, repositoryPath, PackageName, PackageVersion, new List<string> { "Script_1" });
 
@@ -103,7 +103,7 @@ namespace DMApp.AutomationTests
         {
             // Arrange.
             var baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, @"TestFiles\Solutions\Solution4"));
+            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, "TestFiles", "Solutions", "Solution4"));
 
             var creator = AppPackageCreatorForAutomation.Factory.FromRepository(LogCollector, repositoryPath, PackageName, PackageVersion);
 
@@ -130,7 +130,7 @@ namespace DMApp.AutomationTests
         {
             // Arrange.
             var baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, @"TestFiles\Solutions\Solution3"));
+            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, "TestFiles", "Solutions", "Solution3"));
 
             var creator = AppPackageCreatorForAutomation.Factory.FromRepository(LogCollector, repositoryPath, PackageName, PackageVersion);
 
@@ -152,7 +152,7 @@ namespace DMApp.AutomationTests
         {
             // Arrange.
             var baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, @"TestFiles\Solutions\Solution2"));
+            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, "TestFiles", "Solutions", "Solution2"));
 
             var creator = AppPackageCreatorForAutomation.Factory.FromRepository(LogCollector, repositoryPath, PackageName, PackageVersion);
 
@@ -179,7 +179,7 @@ namespace DMApp.AutomationTests
         {
             // Arrange.
             var baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, @"TestFiles\Solutions\Solution1"));
+            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, "TestFiles", "Solutions", "Solution1"));
 
             // Act.
             Action act = () => AppPackageCreatorForAutomation.Factory.FromRepository(LogCollector, repositoryPath, PackageName, PackageVersion);
@@ -193,7 +193,7 @@ namespace DMApp.AutomationTests
         {
             // Arrange.
             var baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, @"TestFiles\Solutions\Solution1"));
+            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, "TestFiles", "Solutions", "Solution1"));
 
             // Act.
             Action act = () => AppPackageCreatorForAutomation.Factory.FromRepository(null, repositoryPath, PackageName, PackageVersion);
@@ -219,7 +219,7 @@ namespace DMApp.AutomationTests
         {
             // Arrange.
             var baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, @"TestFiles\Solutions\Solution1"));
+            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, "TestFiles", "Solutions", "Solution1"));
 
             // Act.
             Action act = () => AppPackageCreatorForAutomation.Factory.FromRepository(LogCollector, repositoryPath, null, PackageVersion);
@@ -233,7 +233,7 @@ namespace DMApp.AutomationTests
         {
             // Arrange.
             var baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, @"TestFiles\Solutions\Solution1"));
+            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, "TestFiles", "Solutions", "Solution1"));
 
             // Act.
             Action act = () => AppPackageCreatorForAutomation.Factory.FromRepository(LogCollector, repositoryPath, PackageName, null);
@@ -247,7 +247,7 @@ namespace DMApp.AutomationTests
         {
             // Arrange.
             var baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, @"TestFiles\Solutions\Solution1"));
+            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, "TestFiles", "Solutions", "Solution1"));
 
             // Act.
             Action act = () => AppPackageCreatorForAutomation.Factory.FromRepository(LogCollector, repositoryPath, PackageName, PackageVersion, null);
@@ -261,7 +261,7 @@ namespace DMApp.AutomationTests
         {
             // Arrange.
             var baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, @"TestFiles\Solutions\Solution1"));
+            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, "TestFiles", "Solutions", "Solution1"));
 
             // Act.
             Action act = () => AppPackageCreatorForAutomation.Factory.FromRepository(LogCollector, repositoryPath, String.Empty, PackageVersion);
@@ -275,7 +275,7 @@ namespace DMApp.AutomationTests
         {
             // Arrange.
             var baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, @"TestFiles\Solutions\Solution1"));
+            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, "TestFiles", "Solutions", "Solution1"));
 
             // Act.
             Action act = () => AppPackageCreatorForAutomation.Factory.FromRepository(LogCollector, repositoryPath, "   ", PackageVersion);
@@ -408,7 +408,7 @@ namespace DMApp.AutomationTests
         {
             // Arrange.;
             var baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, @"TestFiles\Solutions\HugeSolution"));
+            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, "TestFiles", "Solutions", "HugeSolution"));
 
             var creator = AppPackageCreatorForAutomation.Factory.FromRepository(LogCollector, repositoryPath, PackageName, PackageVersion);
 
@@ -436,7 +436,7 @@ namespace DMApp.AutomationTests
         {
             // Arrange.
             var baseDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, @"TestFiles\Solutions\Solution5"));
+            string repositoryPath = Path.GetFullPath(Path.Combine(baseDir, "TestFiles", "Solutions", "Solution5"));
 
             var creator = AppPackageCreatorForAutomation.Factory.FromRepository(LogCollector, repositoryPath, PackageName, PackageVersion);
 

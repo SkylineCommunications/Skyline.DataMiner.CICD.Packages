@@ -11,11 +11,11 @@
     using NuGet.Versioning;
 
     using Skyline.DataMiner.CICD.Assemblers.Common;
+    using Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects;
     using Skyline.DataMiner.CICD.Common.NuGet;
     using Skyline.DataMiner.CICD.FileSystem;
     using Skyline.DataMiner.CICD.Loggers;
     using Skyline.DataMiner.CICD.Parsers.Automation.Xml;
-    using Skyline.DataMiner.CICD.Parsers.Common.VisualStudio.Projects;
     using Skyline.DataMiner.CICD.Parsers.Common.Xml;
 
     using EditXml = Skyline.DataMiner.CICD.Parsers.Common.XmlEdit;
@@ -449,7 +449,7 @@
             AddOrUpdateReferenceInExeBlock(_fileSystem, destinationPath, editExe);
 
             // If custom DLL
-            if (r.HintPath != null && project.ProjectStyle == ProjectStyle.Sdk)
+            if (!String.IsNullOrWhiteSpace(r.HintPath) && project.ProjectStyle == ProjectStyle.Sdk)
             {
                 string dllPath = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(project.ProjectDirectory, r.HintPath));
 
