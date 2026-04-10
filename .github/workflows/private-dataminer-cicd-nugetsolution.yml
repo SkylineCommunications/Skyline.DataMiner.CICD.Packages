@@ -13,7 +13,7 @@ on:
 jobs:
 
   CICD:
-    uses: SkylineCommunications/_ReusableWorkflows/.github/workflows/Master Workflow.yml@MasterWorkflow
+    uses: SkylineCommunications/_ReusableWorkflows/.github/workflows/Master Workflow.yml@main
     with:
       sonarcloud-project-name: SkylineCommunications_Skyline.DataMiner.CICD.Packages
       solution-filter-name: Skyline.DataMiner.CICD.Packages.sln
