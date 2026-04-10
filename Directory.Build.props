@@ -1,6 +1,7 @@
 <Project>
     <PropertyGroup>
         <Version>9.0.0</Version>
+        <PackageOutputPath Condition="$(USERPROFILE.Contains('MichielOD'))">C:\Users\MichielOD\OneDrive - Skyline Communications NV\Documents\MyNugets</PackageOutputPath>
     </PropertyGroup>
 
     <!-- Properties for NuGet projects -->
@@ -23,10 +24,6 @@
         <None Include="..\README.md" Pack="true" PackagePath="" />
         <None Include="..\_NuGetItems\icon.png" Pack="true" PackagePath="" />
         <None Include="..\_NuGetItems\LICENSE.txt" Pack="true" PackagePath="" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="NuGet.Frameworks" ExcludeAssets="runtime" PrivateAssets="all" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
