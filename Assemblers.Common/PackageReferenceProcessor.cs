@@ -104,6 +104,12 @@
             }
 
             LogDebug($"NuGet Root Path: {NuGetRootPath}");
+
+            LogDebug($"Directory with potential NuGet.config file: {directoryForNuGetConfig}");
+            foreach (string configFilePath in settings.GetConfigFilePaths())
+            {
+                LogDebug($"Config File: {configFilePath}");
+            }
         }
 
         /// <summary>
@@ -275,7 +281,7 @@
                             {
                                 nugetPackageAssemblies.ImplicitDllImportDirectoryReferences.Add(dllImportDirectory);
                             }
-                            
+
                             (bool dontAddToPackageToInstall, PackageAssemblyReference packageAssemblyReference) = CreatePackageAssemblyReference(resolvedPackage, filteredLibItem, dllImportDirectory);
 
                             // Needs to be added as a reference in the dllImport attribute/script references.
