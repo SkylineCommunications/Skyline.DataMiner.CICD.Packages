@@ -19,6 +19,7 @@
     <PackageReference Include="FluentAssertions" />
     <PackageReference Include="MSTest" />
     <PackageReference Include="Microsoft.Build.Locator" />
+    <PackageReference Include="NuGet.Frameworks" ExcludeAssets="runtime" />
   </ItemGroup>
 
   <ItemGroup>

@@ -11,6 +11,7 @@
     <PackageReference Include="MSTest" />
     <PackageReference Include="XMLUnit.Core" />
     <PackageReference Include="Microsoft.Build.Locator" />
+    <PackageReference Include="NuGet.Frameworks" ExcludeAssets="runtime" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

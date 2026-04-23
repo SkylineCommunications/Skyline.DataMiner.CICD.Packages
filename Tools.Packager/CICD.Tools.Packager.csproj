@@ -21,6 +21,7 @@
     <PackageReference Include="Skyline.DataMiner.CICD.Tools.Reporter" />
     <PackageReference Include="System.CommandLine" />
     <PackageReference Include="Microsoft.Build.Locator" />
+    <PackageReference Include="NuGet.Frameworks" ExcludeAssets="runtime" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
