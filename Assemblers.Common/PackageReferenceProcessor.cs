@@ -78,7 +78,7 @@
             }
 
             clientPolicyContext = ClientPolicyContext.GetClientPolicy(settings, nuGetLogger);
-            
+
             var provider = new PackageSourceProvider(settings);
             sourceRepositoryProvider = new SourceRepositoryProvider(provider, Repository.Provider.GetCoreV3());
 
