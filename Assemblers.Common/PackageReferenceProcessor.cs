@@ -109,6 +109,13 @@
             foreach (string configFilePath in settings.GetConfigFilePaths())
             {
                 LogDebug($"Config File: {configFilePath}");
+                string content = FileSystem.Instance.File.ReadAllText(configFilePath);
+                LogDebug($"Config File Content: {content}");
+            }
+
+            foreach (PackageSource loadPackageSource in sourceRepositoryProvider.PackageSourceProvider.LoadPackageSources())
+            {
+                LogDebug($"[{loadPackageSource.IsEnabled}] {loadPackageSource.Name} - {loadPackageSource.Source}");
             }
         }
 
