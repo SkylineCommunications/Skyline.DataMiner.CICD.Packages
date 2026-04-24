@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Runtime.InteropServices;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -57,9 +58,27 @@
             nuGetLogger = NullLogger.Instance;
 
             // Start with the lowest settings. It will automatically look at the other NuGet.config files it can find on the default locations
-            settings = Settings.LoadDefaultSettings(root: null);
-            clientPolicyContext = ClientPolicyContext.GetClientPolicy(settings, nuGetLogger);
+            settings = Settings.LoadDefaultSettings(root: directoryForNuGetConfig);
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                // Get current config paths
+                var configPaths = settings.GetConfigFilePaths().ToList();
 
+                // On Linux/Mac, .NET CLI writes to ~/.nuget/NuGet/NuGet.Config
+                // which differs from the SDK default ~/.config/NuGet/NuGet.Config.
+                string dotnetCliConfigPath = _fileSystem.Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                    ".nuget", "NuGet", "NuGet.Config");
+
+                if (_fileSystem.File.Exists(dotnetCliConfigPath) && !configPaths.Contains(dotnetCliConfigPath))
+                {
+                    configPaths.Add(dotnetCliConfigPath);
+                    settings = Settings.LoadSettingsGivenConfigPaths(configPaths);
+                }
+            }
+
+            clientPolicyContext = ClientPolicyContext.GetClientPolicy(settings, nuGetLogger);
+            
             var provider = new PackageSourceProvider(settings);
             sourceRepositoryProvider = new SourceRepositoryProvider(provider, Repository.Provider.GetCoreV3());
 
@@ -108,8 +127,6 @@
             foreach (string configFilePath in settings.GetConfigFilePaths())
             {
                 LogDebug($"Config File: {configFilePath}");
-                string content = FileSystem.Instance.File.ReadAllText(configFilePath);
-                LogDebug($"Config File Content: {content}");
             }
 
             foreach (PackageSource loadPackageSource in sourceRepositoryProvider.PackageSourceProvider.LoadPackageSources())
