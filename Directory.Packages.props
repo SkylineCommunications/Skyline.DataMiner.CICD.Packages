@@ -14,7 +14,7 @@
         <PackageVersion Include="NuGet.Frameworks" Version="7.3.0" />
         <PackageVersion Include="NuGet.PackageManagement" Version="7.3.0" />
         <PackageVersion Include="Skyline.DataMiner.CICD.Common" Version="1.0.6" />
-        <PackageVersion Include="Skyline.DataMiner.CICD.FileSystem" Version="1.4.1" />
+        <PackageVersion Include="Skyline.DataMiner.CICD.FileSystem" Version="1.4.2" />
         <PackageVersion Include="Skyline.DataMiner.CICD.Loggers" Version="1.0.3" />
         <PackageVersion Include="Skyline.DataMiner.CICD.Models.Protocol" Version="2.0.0" />
         <PackageVersion Include="Skyline.DataMiner.CICD.Tools.Reporter" Version="1.0.2" />
