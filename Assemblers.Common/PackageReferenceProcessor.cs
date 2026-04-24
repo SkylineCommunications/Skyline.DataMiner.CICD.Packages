@@ -57,8 +57,7 @@
             nuGetLogger = NullLogger.Instance;
 
             // Start with the lowest settings. It will automatically look at the other NuGet.config files it can find on the default locations
-            settings = Settings.LoadDefaultSettings(root: directoryForNuGetConfig);
-
+            settings = Settings.LoadDefaultSettings(root: null);
             clientPolicyContext = ClientPolicyContext.GetClientPolicy(settings, nuGetLogger);
 
             var provider = new PackageSourceProvider(settings);
