@@ -178,29 +178,82 @@
                 foreach (var projectPackage in projectPackages)
                 {
                     // Verify whether the specified package version actually is available.
-                    var packageIdentity = await GetPackageIdentityAsync(projectPackage, cacheContext, cancellationToken).ConfigureAwait(false);
-
-                    if (packageIdentity is null)
+                    var packageIdentity = await GetPackageIdentityAsync(projectPackage, cacheContext, cancellationToken).ConfigureAwait(false) ?? throw new InvalidOperationException($"Cannot find package {projectPackage.Id}, version {projectPackage.Version}.");
+                    if (IsPackageAllowedForInclusion(packageIdentity.Id, defaultIncludedFilesNuGetPackages))
                     {
-                        throw new InvalidOperationException($"Cannot find package {projectPackage.Id}, version {projectPackage.Version}.");
+                        filteredProjectPackages.Add(packageIdentity);
+
+                        await AddPackagesAndDependenciesAsync(packageIdentity, cacheContext, nugetFramework, nuGetLogger, repositories, allDependenciesPackageInfos, cancellationToken).ConfigureAwait(false);
                     }
-
-                    if (DevPackHelper.DevPackNuGetPackages.Contains(packageIdentity.Id) || defaultIncludedFilesNuGetPackages.Contains(packageIdentity.Id))
-                    {
-                        continue;
-                    }
-
-                    filteredProjectPackages.Add(packageIdentity);
-
-                    await AddPackagesAndDependenciesAsync(packageIdentity, cacheContext, nugetFramework, nuGetLogger, repositories, allDependenciesPackageInfos, cancellationToken).ConfigureAwait(false);
                 }
 
-                var unifiedPackages = GetResolvedPackages(sourceRepositoryProvider, nuGetLogger, filteredProjectPackages, allDependenciesPackageInfos);
+                var packagesToInstall = GetResolvedPackages(sourceRepositoryProvider, nuGetLogger, filteredProjectPackages, allDependenciesPackageInfos, false);
 
-                var references = await ProcessPackagesAsync(unifiedPackages, allDependenciesPackageInfos, nugetFramework, defaultIncludedFilesNuGetPackages);
+                var references = await ProcessPackagesAsync(packagesToInstall, nugetFramework, defaultIncludedFilesNuGetPackages);
 
                 return references;
             }
+        }
+
+        /// <summary>
+        /// Processes the NuGet packages.
+        /// </summary>
+        /// <param name="projectPackages">The NuGet packages referenced by the project.</param>
+        /// <param name="solutionPackages">The NuGet packages referenced by all the scripts included in the solution.</param>
+        /// <param name="targetFrameworkMoniker">The target framework moniker.</param>
+        /// <param name="defaultIncludedFilesNuGetPackages">Specifies the NuGet package IDs that are included by default.</param>
+        /// <returns>The assembly info of the processed packages.</returns>
+        /// <exception cref="InvalidOperationException">Cannot find the package with the identity.</exception>
+        public async Task<NuGetPackageAssemblyData> ProcessAsync(IList<PackageIdentity> projectPackages, IList<PackageIdentity> solutionPackages, string targetFrameworkMoniker, IReadOnlyCollection<string> defaultIncludedFilesNuGetPackages)
+        {
+            var cancellationToken = CancellationToken.None;
+
+            var provider = DefaultFrameworkNameProvider.Instance;
+            NuGetFramework nugetFramework = NuGetFramework.ParseFrameworkName(targetFrameworkMoniker, provider);
+
+            using (var cacheContext = new SourceCacheContext())
+            {
+                cacheContext.MaxAge = DateTimeOffset.UtcNow;
+
+                var allSolutionDependenciesPackageInfos = new HashSet<SourcePackageDependencyInfo>(PackageIdentityComparer.Default);
+
+                var filteredProjectPackages = new List<PackageIdentity>();
+
+                foreach (var projectPackage in projectPackages)
+                {
+                    // Verify whether the specified package version is actually available.
+                    var packageIdentity = await GetPackageIdentityAsync(projectPackage, cacheContext, cancellationToken).ConfigureAwait(false) ?? throw new InvalidOperationException($"Cannot find package {projectPackage.Id}, version {projectPackage.Version}.");
+
+                    if (IsPackageAllowedForInclusion(packageIdentity.Id, defaultIncludedFilesNuGetPackages))
+                    {
+                        filteredProjectPackages.Add(packageIdentity);
+                    }
+                }
+
+                foreach (var solutionPackage in solutionPackages)
+                {
+                    // Verify whether the specified package version actually is available.
+                    var packageIdentity = await GetPackageIdentityAsync(solutionPackage, cacheContext, cancellationToken).ConfigureAwait(false) ?? throw new InvalidOperationException($"Cannot find package {solutionPackage.Id}, version {solutionPackage.Version}.");
+
+                    await AddSolutionPackageAndDependenciesAsync(packageIdentity, cacheContext, nugetFramework, nuGetLogger, repositories, allSolutionDependenciesPackageInfos, defaultIncludedFilesNuGetPackages, cancellationToken).ConfigureAwait(false);
+                }
+
+                var unifiedPackages = GetResolvedPackages(sourceRepositoryProvider, nuGetLogger, filteredProjectPackages, allSolutionDependenciesPackageInfos, true);
+
+                var references = await ProcessPackagesAsync(unifiedPackages, nugetFramework, defaultIncludedFilesNuGetPackages);
+
+                return references;
+            }
+        }
+
+        private static bool IsPackageAllowedForInclusion(string packageId, IReadOnlyCollection<string> defaultIncludedFilesNuGetPackages)
+        {
+            if (DevPackHelper.DevPackNuGetPackages.Contains(packageId) || defaultIncludedFilesNuGetPackages.Contains(packageId))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -210,10 +263,12 @@
         /// <param name="logger">The NuGet Logger</param>
         /// <param name="extensions">The NuGet packages.</param>
         /// <param name="allPackagesAndDependencies">All top level packages and their dependencies.</param>
+        /// <param name="solutionResolver">Indicates whether the resolving is done on solution level.</param>
         /// <returns>The resolved NuGet packages.</returns>
         private static IEnumerable<PackageIdentity> GetResolvedPackages(ISourceRepositoryProvider sourceRepositoryProvider,
                                                                               ILogger logger, IList<PackageIdentity> extensions,
-                                                                              HashSet<SourcePackageDependencyInfo> allPackagesAndDependencies)
+                                                                              HashSet<SourcePackageDependencyInfo> allPackagesAndDependencies,
+                                                                              bool solutionResolver)
         {
             if (allPackagesAndDependencies.Count == 0)
             {
@@ -221,9 +276,11 @@
                 return extensions;
             }
 
+            var dependencyBehavior = solutionResolver ? DependencyBehavior.Highest : DependencyBehavior.Lowest;
+
             // Create a package resolver context (this is used to help figure out which actual package versions to install).
             var resolverContext = new PackageResolverContext(
-                DependencyBehavior.Lowest,
+                dependencyBehavior,
                 extensions.Select(identity => identity.Id).Distinct(),
                 Enumerable.Empty<string>(),
                 Enumerable.Empty<PackageReference>(),
@@ -257,6 +314,30 @@
 
             // Remaining Packages are Dependencies
             await ProcessRemainingPackagesAsync(filteredAllPackages, nugetPackageAssemblies, processedPackages, nugetFramework, defaultIncludedFilesNuGetPackages);
+
+            return nugetPackageAssemblies;
+        }
+
+        /// <summary>
+        /// Processes the packages in the resolved package list.
+        /// </summary>
+        /// <param name="resolvedPackages">The resolved packages.</param>
+        /// <param name="nugetFramework">The NuGet framework.</param>
+        /// <param name="defaultIncludedFilesNuGetPackages">The default NuGet "Skyline.DataMiner.Files." NuGet packages that are already referenced by default.</param>
+        /// <returns>The assembly a</returns>
+        private async Task<NuGetPackageAssemblyData> ProcessPackagesAsync(IEnumerable<PackageIdentity> resolvedPackages, NuGetFramework nugetFramework, IReadOnlyCollection<string> defaultIncludedFilesNuGetPackages)
+        {
+            var nugetPackageAssemblies = new NuGetPackageAssemblyData();
+
+            if (resolvedPackages == null || !resolvedPackages.Any())
+            {
+                return nugetPackageAssemblies;
+            }
+
+            HashSet<string> processedPackages = new HashSet<string>();
+
+            // Resolved Packages are top level NuGet Packages
+            await ProcessResolvedPackagesAsync(resolvedPackages, nugetPackageAssemblies, processedPackages, nugetFramework, defaultIncludedFilesNuGetPackages);
 
             return nugetPackageAssemblies;
         }
@@ -664,7 +745,115 @@
             }
         }
 
-        private async Task InstallPackageIfNotFound(PackageIdentity packageToInstall, SourceCacheContext cacheContext, CancellationToken cancelToken)
+        /// <summary>
+        /// Searches the package dependency graph for the chain of all packages to install.
+        /// </summary>
+        private async Task AddSolutionPackageAndDependenciesAsync(
+            PackageIdentity package,
+            SourceCacheContext cacheContext,
+            NuGetFramework framework,
+            ILogger logger,
+            ICollection<SourceRepository> repositories,
+            ISet<SourcePackageDependencyInfo> allPackages,
+            IReadOnlyCollection<string> defaultIncludedFilesNuGetPackages,
+            CancellationToken cancellationToken)
+        {
+            if (allPackages.Contains(package))
+            {
+                // Package was already processed.
+                return;
+            }
+
+            if (!IsPackageAllowedForInclusion(package.Id, defaultIncludedFilesNuGetPackages))
+            {
+                return;
+            }
+
+            await InstallPackageIfNotFound(package, cacheContext, cancellationToken);
+
+            if (NuGetHelper.SkipPackageDependencies(package.Id))
+            {
+                // Add it to the allPackages as the PackageResolver later on needs it (in case there would be multiple versions).
+                SourceRepository packageSourceRepository = null;
+                foreach (var sourceRepository in repositories)
+                {
+                    FindPackageByIdResource findPackageResource = await sourceRepository.GetResourceAsync<FindPackageByIdResource>(cancellationToken).ConfigureAwait(false);
+                    var exists = await findPackageResource.DoesPackageExistAsync(package.Id, package.Version, cacheContext, nuGetLogger, cancellationToken).ConfigureAwait(false);
+
+                    if (exists)
+                    {
+                        packageSourceRepository = sourceRepository;
+                        break;
+                    }
+                }
+
+                if (packageSourceRepository == null)
+                {
+                    logCollector?.ReportError($"PackageReferenceProcessor|InstallPackageIfNotFound|Unable to find package '{package.Id}' with version '{package.Version}");
+                    return;
+                }
+
+                allPackages.Add(new SourcePackageDependencyInfo(package.Id, package.Version, Array.Empty<PackageDependency>(), true,
+                    packageSourceRepository));
+                return;
+            }
+
+            foreach (var sourceRepository in repositories)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    break;
+                }
+
+                // Get the dependency info for the package.
+                var dependencyInfoResource = await sourceRepository.GetResourceAsync<DependencyInfoResource>(cancellationToken).ConfigureAwait(false);
+                var dependencyInfo = await dependencyInfoResource.ResolvePackage(
+                    package,
+                    framework,
+                    cacheContext,
+                    logger,
+                    cancellationToken).ConfigureAwait(false);
+
+                if (dependencyInfo == null)
+                {
+                    continue;
+                }
+
+                var filteredDependencyInfo = dependencyInfo.Dependencies.Where(d => !NuGetHelper.IsDevPackNuGetPackage(d.Id));
+
+                var filteredDependencies = new SourcePackageDependencyInfo(dependencyInfo.Id, dependencyInfo.Version, filteredDependencyInfo, dependencyInfo.Listed, dependencyInfo.Source);
+
+                allPackages.Add(filteredDependencies);
+
+                // Process dependencies of dependency.
+                foreach (var dependency in dependencyInfo.Dependencies)
+                {
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        break;
+                    }
+
+                    if(!IsPackageAllowedForInclusion(dependency.Id, defaultIncludedFilesNuGetPackages))
+                    {
+                        continue;
+                    }
+
+                    await AddSolutionPackageAndDependenciesAsync(
+                        new PackageIdentity(dependency.Id, dependency.VersionRange.MinVersion),
+                        cacheContext,
+                        framework,
+                        logger,
+                        repositories,
+                        allPackages,
+                        defaultIncludedFilesNuGetPackages,
+                        cancellationToken).ConfigureAwait(false);
+                }
+
+                break;
+            }
+        }
+
+        internal async Task InstallPackageIfNotFound(PackageIdentity packageToInstall, SourceCacheContext cacheContext, CancellationToken cancelToken)
         {
             var existsResource = await rootRepository.GetResourceAsync<FindLocalPackagesResource>(cancelToken);
             if (existsResource.Exists(packageToInstall, nuGetLogger, cancelToken))

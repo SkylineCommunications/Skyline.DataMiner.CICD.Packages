@@ -27,6 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="Assemblers.CommonTests" />
     <InternalsVisibleTo Include="Assemblers.AutomationTests" />
     <InternalsVisibleTo Include="Assemblers.ProtocolTests" />
   </ItemGroup>

@@ -71,6 +71,30 @@
         /// </summary>
         /// <param name="script">The Automation script.</param>
         /// <param name="projects">The projects corresponding with the C# Exe blocks.</param>
+        /// <param name="solutionProjects">The projects of the whole solution, not only the ones corresponding with the C# Exe blocks of this automation script.</param>
+        /// <param name="allScripts">All the scripts in the Automation script solution.</param>
+        /// <param name="directoryForNuGetConfig">Directory where the solution is located</param>
+        /// <exception cref="ArgumentNullException"><paramref name="script"/> is <see langword="null"/>.</exception>
+        public AutomationScriptBuilder(Script script, IDictionary<string, Project> projects, ICollection<Project> solutionProjects, IEnumerable<Script> allScripts, string directoryForNuGetConfig)
+        {
+            IsSolutionScript = true;
+
+            Model = script ?? throw new ArgumentNullException(nameof(script));
+            Document = script.Document;
+            Projects = projects ?? new Dictionary<string, Project>();
+            SolutionProjects = solutionProjects ?? new List<Project>();
+
+            // ToList as it will be enumerated multiple times later on.
+            AllScripts = allScripts.ToList();
+
+            this.directoryForNuGetConfig = directoryForNuGetConfig;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AutomationScriptBuilder"/> class.
+        /// </summary>
+        /// <param name="script">The Automation script.</param>
+        /// <param name="projects">The projects corresponding with the C# Exe blocks.</param>
         /// <param name="allScripts">All the scripts in the Automation script solution.</param>
         /// <param name="logCollector">The log collector</param>
         /// <exception cref="ArgumentNullException"><paramref name="script"/> is <see langword="null"/>.</exception>
@@ -97,11 +121,41 @@
             this.logCollector = logCollector ?? throw new ArgumentNullException(nameof(logCollector));
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AutomationScriptBuilder"/> class.
+        /// </summary>
+        /// <param name="script">The Automation script.</param>
+        /// <param name="projects">The projects corresponding with the C# Exe blocks.</param>
+        /// <param name="solutionProjects">The projects of the whole solution, not only the ones corresponding with the C# Exe blocks of this automation script.</param>
+        /// <param name="allScripts">All the scripts in the Automation script solution.</param>
+        /// <param name="logCollector">The log collector</param>
+        /// <param name="directoryForNuGetConfig">Directory where the solution is located</param>
+        /// <exception cref="ArgumentNullException"><paramref name="script"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="logCollector"/> is <see langword="null"/>.</exception>
+        public AutomationScriptBuilder(Script script, IDictionary<string, Project> projects, ICollection<Project> solutionProjects, IEnumerable<Script> allScripts, ILogCollector logCollector, string directoryForNuGetConfig)
+            : this(script, projects, solutionProjects, allScripts, directoryForNuGetConfig)
+        {
+            this.logCollector = logCollector ?? throw new ArgumentNullException(nameof(logCollector));
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this builder is used for building a script that is part of a solution with multiple scripts,
+        /// which requires special handling to unify NuGet packages across the different projects corresponding to the different scripts.
+        /// </summary>
+        /// <value><c>true</c> if this builder is used for building a script that is part of a solution with multiple scripts; otherwise, <c>false</c>.</value>
+        private bool IsSolutionScript { get; }
+
         private XmlDocument Document { get; }
 
         private Script Model { get; }
 
         private IDictionary<string, Project> Projects { get; }
+
+        /// <summary>
+        /// Gets the projects of the whole solution, not only the ones corresponding with the C# Exe blocks of this automation script.
+        /// </summary>
+        /// <remarks>This is for automation scripts that are part of a bigger solution for which the NuGet packages need to be unified across the solution.</remarks>
+        private ICollection<Project> SolutionProjects { get; }
 
         private IEnumerable<Script> AllScripts { get; }
 
@@ -203,16 +257,36 @@
         private async Task<NuGetPackageAssemblyData> ProcessPackageReferences(EditXml.XmlElement editExe, Project project, PackageReferenceProcessor packageReferenceProcessor,
             BuildResultItems buildResultItems, IList<PackageIdentity> packageIdentities)
         {
+            if (packageIdentities.Count == 0)
+            {
+                return null;
+            }
+
             NuGetPackageAssemblyData nugetAssemblyData = null;
 
-            if (packageIdentities.Count > 0)
+            if (!IsSolutionScript)
             {
                 nugetAssemblyData = await packageReferenceProcessor.ProcessAsync(packageIdentities, project.TargetFrameworkMoniker, DevPackHelper.AutomationDevPackNuGetDependenciesIncludingTransitive).ConfigureAwait(false);
-                LogDebug($"NuGetPackageAssemblyData: {nugetAssemblyData}");
-
-                ProcessFrameworkAssemblies(editExe, nugetAssemblyData);
-                ProcessLibAssemblies(editExe, buildResultItems, nugetAssemblyData);
             }
+            else
+            {
+                var solutionPackageIdentities = new List<PackageIdentity>(packageIdentities);
+
+                foreach(var solutionProject in SolutionProjects)
+                {
+                    if (solutionProject.PackageReferences != null)
+                    {
+                        solutionPackageIdentities.AddRange(GetPackageIdentities(solutionProject.PackageReferences));
+                    }
+                }
+
+                nugetAssemblyData = await packageReferenceProcessor.ProcessAsync(packageIdentities, solutionPackageIdentities, project.TargetFrameworkMoniker, DevPackHelper.AutomationDevPackNuGetDependenciesIncludingTransitive).ConfigureAwait(false);
+            }
+
+            LogDebug($"NuGetPackageAssemblyData: {nugetAssemblyData}");
+
+            ProcessFrameworkAssemblies(editExe, nugetAssemblyData);
+            ProcessLibAssemblies(editExe, buildResultItems, nugetAssemblyData);
 
             return nugetAssemblyData;
         }
@@ -609,7 +683,7 @@
                 }
 
                 // Find exe from another script
-                (string scriptName, ScriptExe scriptExe) = FindExeFromOtherScript(project, r);
+                (string scriptName, ScriptExe scriptExe) = FindExeFromOtherScript(project, r.Name);
 
                 if (scriptExe != null)
                 {
@@ -623,13 +697,11 @@
             }
         }
 
-        private (string scriptName, ScriptExe scriptExe) FindExeFromOtherScript(Project project, ProjectReference r)
+        private (string scriptName, ScriptExe scriptExe) FindExeFromOtherScript(Project project, string referencedProjectName)
         {
             // Check if the exe block belongs to another script.
             foreach (var script in AllScripts)
             {
-                var referencedProjectName = r.Name;
-
                 foreach (var exe in script.ScriptExes)
                 {
                     if (TryFindProjectPlaceholder(exe.Code, out string projectName, out _)
@@ -688,10 +760,12 @@
 
             foreach (var exe in Model.ScriptExes)
             {
-                if (String.Equals(exe.Type, "csharp", StringComparison.OrdinalIgnoreCase))
+                if (!String.Equals(exe.Type, "csharp", StringComparison.OrdinalIgnoreCase))
                 {
-                    await BuildExeActionAsync(xmlEdit, exe, packageReferenceProcessor, buildResultItems).ConfigureAwait(false);
+                    continue;
                 }
+
+                await BuildExeActionAsync(xmlEdit, exe, packageReferenceProcessor, buildResultItems).ConfigureAwait(false);
             }
 
             buildResultItems.Document = xmlEdit.GetXml();

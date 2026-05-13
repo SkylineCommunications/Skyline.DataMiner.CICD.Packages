@@ -121,6 +121,49 @@
         }
 
         [TestMethod]
+        public async Task ProcessAsyncTest_MulitpleVersionOfSameNuGet()
+        {
+            // Arrange
+            var packageReferenceProcessor = new PackageReferenceProcessor(directoryForNuGetConfig: null);
+
+            IList<PackageIdentity> projectPackages = new List<PackageIdentity>
+            {
+                new PackageIdentity("Newtonsoft.Json", new NuGetVersion("13.0.3")),
+                new PackageIdentity("Newtonsoft.Json", new NuGetVersion("13.0.4")),
+            };
+
+            const string targetFrameworkMoniker = ".NETFramework,Version=v4.8";
+
+            const string pathJson = "newtonsoft.json\\13.0.4\\lib\\net45";
+
+            var expectedResult = new NuGetPackageAssemblyData
+            {
+                ImplicitDllImportDirectoryReferences =
+                {
+                    pathJson,
+                },
+                DllImportNugetAssemblyReferences =
+                {
+                    new PackageAssemblyReference(pathJson + "\\Newtonsoft.Json.dll", null, false),
+                },
+                NugetAssemblies =
+                {
+                    new PackageAssemblyReference(pathJson + "\\Newtonsoft.Json.dll", null, false),
+                },
+                ProcessedAssemblies =
+                {
+                    "Newtonsoft.Json.dll",
+                }
+            };
+
+            // Act
+            var result = await packageReferenceProcessor.ProcessAsync(projectPackages, targetFrameworkMoniker);
+
+            // Assert
+            result.Should().BeEquivalentTo(expectedResult, ExcludeAssemblyPath);
+        }
+
+        [TestMethod]
         public async Task ProcessAsyncTest_UseOfOtherDevPackFile()
         {
             // Arrange

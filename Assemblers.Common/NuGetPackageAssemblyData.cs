@@ -54,7 +54,7 @@
         /// Gets a map of a folder and an assembly that resides in that folder.
         /// </summary>
         /// <value>A map of a folder and an assembly that resides in that folder.</value>
-        /// <remarks>For Automation scripts, providing a directory is not supported. Therefore, a DLL of that exists in the specified folder must be provided. This map stores the name of an assembly that exists in the specified folder.</remarks>
+        /// <remarks>For Automation scripts, providing a directory is not supported. Therefore, a DLL that exists in the specified folder must be provided. This map stores the name of an assembly that exists in the specified folder.</remarks>
         public IDictionary<string, string> DllImportDirectoryReferencesAssembly { get; }
 
         /// <summary>
