@@ -1,6 +1,7 @@
 ﻿namespace Skyline.DataMiner.CICD.Assemblers.Common.Tests
 {
     using System.Collections.Generic;
+    using System.IO;
     using System.Threading.Tasks;
 
     using FluentAssertions;
@@ -98,13 +99,13 @@
                 },
                 DllImportNugetAssemblyReferences =
                 {
-                    new PackageAssemblyReference(pathJson + "\\Newtonsoft.Json.dll", null, false),
-                    new PackageAssemblyReference(pathExportImport + "\\Skyline.DataMiner.Utils.ExportImport.dll", null, false),
+                    new PackageAssemblyReference(Path.Combine(pathJson, "Newtonsoft.Json.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathExportImport, "Skyline.DataMiner.Utils.ExportImport.dll"), null, false),
                 },
                 NugetAssemblies =
                 {
-                    new PackageAssemblyReference(pathJson + "\\Newtonsoft.Json.dll", null, false),
-                    new PackageAssemblyReference(pathExportImport + "\\Skyline.DataMiner.Utils.ExportImport.dll", null, false),
+                    new PackageAssemblyReference(Path.Combine(pathJson, "Newtonsoft.Json.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathExportImport, "Skyline.DataMiner.Utils.ExportImport.dll"), null, false),
                 },
                 ProcessedAssemblies =
                 {
@@ -144,11 +145,11 @@
                 },
                 DllImportNugetAssemblyReferences =
                 {
-                    new PackageAssemblyReference(pathJson + "\\Newtonsoft.Json.dll", null, false),
+                    new PackageAssemblyReference(Path.Combine(pathJson, "Newtonsoft.Json.dll"), null, false),
                 },
                 NugetAssemblies =
                 {
-                    new PackageAssemblyReference(pathJson + "\\Newtonsoft.Json.dll", null, false),
+                    new PackageAssemblyReference(Path.Combine(pathJson, "Newtonsoft.Json.dll"), null, false),
                 },
                 ProcessedAssemblies =
                 {
@@ -190,16 +191,16 @@
                 },
                 DllImportNugetAssemblyReferences =
                 {
-                    new PackageAssemblyReference(pathJson + "\\Newtonsoft.Json.dll", null, false),
-                    new PackageAssemblyReference(pathExportImport + "\\Skyline.DataMiner.Utils.ExportImport.dll", null, false),
+                    new PackageAssemblyReference(Path.Combine(pathJson, "Newtonsoft.Json.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathExportImport, "Skyline.DataMiner.Utils.ExportImport.dll"), null, false),
 
                     // Is a files package
                     new PackageAssemblyReference("SLManagedScripting.dll", null, true),
                 },
                 NugetAssemblies =
                 {
-                    new PackageAssemblyReference(pathJson + "\\Newtonsoft.Json.dll", null, false),
-                    new PackageAssemblyReference(pathExportImport + "\\Skyline.DataMiner.Utils.ExportImport.dll", null, false),
+                    new PackageAssemblyReference(Path.Combine(pathJson, "Newtonsoft.Json.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathExportImport, "Skyline.DataMiner.Utils.ExportImport.dll"), null, false),
                 },
                 ProcessedAssemblies =
                 {
@@ -252,29 +253,29 @@
                 },
                 DllImportNugetAssemblyReferences =
                 {
-                    new PackageAssemblyReference(pathJson + "\\Newtonsoft.Json.dll", null, false),
-                    new PackageAssemblyReference(pathExportImport + "\\Skyline.DataMiner.Utils.ExportImport.dll", null, false),
-                    new PackageAssemblyReference(pathMoq + "\\Moq.dll", null, false),
+                    new PackageAssemblyReference(Path.Combine(pathJson, "Newtonsoft.Json.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathExportImport, "Skyline.DataMiner.Utils.ExportImport.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathMoq, "Moq.dll"), null, false),
 
                     // Dependencies from Moq
-                    new PackageAssemblyReference(pathCastleCore + "\\Castle.Core.dll", null, false),
-                    new PackageAssemblyReference(pathThreading + "\\System.Threading.Tasks.Extensions.dll", null, false),
+                    new PackageAssemblyReference(Path.Combine(pathCastleCore, "Castle.Core.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathThreading, "System.Threading.Tasks.Extensions.dll"), null, false),
 
                     // Dependencies from System.Threading.Tasks.Extensions
-                    new PackageAssemblyReference(pathCompiler + "\\System.Runtime.CompilerServices.Unsafe.dll", null, false),
+                    new PackageAssemblyReference(Path.Combine(pathCompiler, "System.Runtime.CompilerServices.Unsafe.dll"), null, false),
                 },
                 NugetAssemblies =
                 {
-                    new PackageAssemblyReference(pathJson + "\\Newtonsoft.Json.dll", null, false),
-                    new PackageAssemblyReference(pathExportImport + "\\Skyline.DataMiner.Utils.ExportImport.dll", null, false),
-                    new PackageAssemblyReference(pathMoq + "\\Moq.dll", null, false),
+                    new PackageAssemblyReference(Path.Combine(pathJson, "Newtonsoft.Json.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathExportImport, "Skyline.DataMiner.Utils.ExportImport.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathMoq, "Moq.dll"), null, false),
 
                     // Dependencies from Moq
-                    new PackageAssemblyReference(pathCastleCore + "\\Castle.Core.dll", null, false),
-                    new PackageAssemblyReference(pathThreading + "\\System.Threading.Tasks.Extensions.dll", null, false),
+                    new PackageAssemblyReference(Path.Combine(pathCastleCore, "Castle.Core.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathThreading, "System.Threading.Tasks.Extensions.dll"), null, false),
 
                     // Dependencies from System.Threading.Tasks.Extensions
-                    new PackageAssemblyReference(pathCompiler + "\\System.Runtime.CompilerServices.Unsafe.dll", null, false),
+                    new PackageAssemblyReference(Path.Combine(pathCompiler, "System.Runtime.CompilerServices.Unsafe.dll"), null, false),
                 },
                 ProcessedAssemblies =
                 {
@@ -352,35 +353,35 @@
                 },
                 DllImportNugetAssemblyReferences =
                 {
-                    new PackageAssemblyReference(pathJson + "\\Newtonsoft.Json.dll", null, false),
-                    new PackageAssemblyReference(pathSharpZipLib + "\\ICSharpCode.SharpZipLib.dll", null, false),
-                    new PackageAssemblyReference(pathNpoi + "\\NPOI.dll", null, false),
-                    new PackageAssemblyReference(pathNpoi + "\\NPOI.OOXML.dll", null, false),
-                    new PackageAssemblyReference(pathNpoi + "\\NPOI.OpenXml4Net.dll", null, false),
-                    new PackageAssemblyReference(pathNpoi + "\\NPOI.OpenXmlFormats.dll", null, false),
-                    new PackageAssemblyReference(pathCoreDmsCommonNew + "\\Skyline.DataMiner.Core.DataMinerSystem.Common.dll", null, false),
-                    new PackageAssemblyReference(pathCoreInterApp + "\\Skyline.DataMiner.Core.InterAppCalls.Common.dll", null, false),
-                    new PackageAssemblyReference(pathEvs + "\\Skyline.DataMiner.ConnectorAPI.EVS.IPD-VIA.dll", null, false),
-                    new PackageAssemblyReference(pathOrder + "\\Skyline.DataMiner.ConnectorAPI.YLE.OrderManager.dll", null, false),
-                    new PackageAssemblyReference(pathToolkit + "\\Skyline.DataMiner.Utils.InteractiveAutomationScriptToolkit.dll", null, false),
-                    new PackageAssemblyReference(pathIntegrations + "\\Skyline.DataMiner.Utils.YLE.Integrations.dll", null, false),
+                    new PackageAssemblyReference(Path.Combine(pathJson, "Newtonsoft.Json.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSharpZipLib, "ICSharpCode.SharpZipLib.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathNpoi, "NPOI.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathNpoi, "NPOI.OOXML.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathNpoi, "NPOI.OpenXml4Net.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathNpoi, "NPOI.OpenXmlFormats.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathCoreDmsCommonNew, "Skyline.DataMiner.Core.DataMinerSystem.Common.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathCoreInterApp, "Skyline.DataMiner.Core.InterAppCalls.Common.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathEvs, "Skyline.DataMiner.ConnectorAPI.EVS.IPD-VIA.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathOrder, "Skyline.DataMiner.ConnectorAPI.YLE.OrderManager.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathToolkit, "Skyline.DataMiner.Utils.InteractiveAutomationScriptToolkit.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathIntegrations, "Skyline.DataMiner.Utils.YLE.Integrations.dll"), null, false),
                 },
                 NugetAssemblies =
                 {
-                    new PackageAssemblyReference(pathJson + "\\Newtonsoft.Json.dll", null, false),
-                    new PackageAssemblyReference(pathSharpZipLib + "\\ICSharpCode.SharpZipLib.dll", null, false),
-                    new PackageAssemblyReference(pathNpoi + "\\NPOI.dll", null, false),
-                    new PackageAssemblyReference(pathNpoi + "\\NPOI.OOXML.dll", null, false),
-                    new PackageAssemblyReference(pathNpoi + "\\NPOI.OpenXml4Net.dll", null, false),
-                    new PackageAssemblyReference(pathNpoi + "\\NPOI.OpenXmlFormats.dll", null, false),
-                    new PackageAssemblyReference(pathCoreDmsCommonNew + "\\Skyline.DataMiner.Core.DataMinerSystem.Common.dll", null, false),
-                    new PackageAssemblyReference(pathCoreInterApp + "\\Skyline.DataMiner.Core.InterAppCalls.Common.dll", null, false),
-                    new PackageAssemblyReference(pathEvs + "\\Skyline.DataMiner.ConnectorAPI.EVS.IPD-VIA.dll", null, false),
-                    new PackageAssemblyReference(pathOrder + "\\Skyline.DataMiner.ConnectorAPI.YLE.OrderManager.dll", null, false),
-                    new PackageAssemblyReference(pathToolkit + "\\Skyline.DataMiner.Utils.InteractiveAutomationScriptToolkit.dll", null, false),
-                    new PackageAssemblyReference(pathIntegrations + "\\Skyline.DataMiner.Utils.YLE.Integrations.dll", null, false),
-                    new PackageAssemblyReference(pathCoreDmsCommonOld + "\\Skyline.DataMiner.Core.DataMinerSystem.Common.dll", null, false),
-                    new PackageAssemblyReference(pathJsonOld + "\\Newtonsoft.Json.dll", null, false),
+                    new PackageAssemblyReference(Path.Combine(pathJson, "Newtonsoft.Json.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSharpZipLib, "ICSharpCode.SharpZipLib.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathNpoi, "NPOI.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathNpoi, "NPOI.OOXML.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathNpoi, "NPOI.OpenXml4Net.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathNpoi, "NPOI.OpenXmlFormats.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathCoreDmsCommonNew, "Skyline.DataMiner.Core.DataMinerSystem.Common.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathCoreInterApp, "Skyline.DataMiner.Core.InterAppCalls.Common.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathEvs, "Skyline.DataMiner.ConnectorAPI.EVS.IPD-VIA.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathOrder, "Skyline.DataMiner.ConnectorAPI.YLE.OrderManager.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathToolkit, "Skyline.DataMiner.Utils.InteractiveAutomationScriptToolkit.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathIntegrations, "Skyline.DataMiner.Utils.YLE.Integrations.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathCoreDmsCommonOld, "Skyline.DataMiner.Core.DataMinerSystem.Common.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathJsonOld, "Newtonsoft.Json.dll"), null, false),
                 },
                 ProcessedAssemblies =
                 {
@@ -403,8 +404,8 @@
                 },
                 DllImportDirectoryReferencesAssembly =
                 {
-                    [pathCoreDmsCommonOld + "\\"] = pathCoreDmsCommonOld + "\\Skyline.DataMiner.Core.DataMinerSystem.Common.dll",
-                    [pathJsonOld + "\\"] = pathJsonOld + "\\Newtonsoft.Json.dll",
+                    [pathCoreDmsCommonOld + "\\"] = Path.Combine(pathCoreDmsCommonOld, "Skyline.DataMiner.Core.DataMinerSystem.Common.dll"),
+                    [pathJsonOld + "\\"] = Path.Combine(pathJsonOld, "Newtonsoft.Json.dll"),
                 },
                 DllImportDirectoryReferences =
                 {
@@ -447,14 +448,14 @@
                 },
                 DllImportNugetAssemblyReferences =
                 {
-                    new PackageAssemblyReference(pathJson + "\\Newtonsoft.Json.dll", null, false),
-                    new PackageAssemblyReference(pathExportImport + "\\Skyline.DataMiner.Utils.ExportImport.dll", null, false),
+                    new PackageAssemblyReference(Path.Combine(pathJson, "Newtonsoft.Json.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathExportImport, "Skyline.DataMiner.Utils.ExportImport.dll"), null, false),
                     new PackageAssemblyReference("SolutionLibraries\\ModSolutionLib\\Skyline.DataMiner.Dev.Utils.ModSolutionLib.dll", null, false),
                  },
                 NugetAssemblies =
                 {
-                    new PackageAssemblyReference(pathJson + "\\Newtonsoft.Json.dll", null, false),
-                    new PackageAssemblyReference(pathExportImport + "\\Skyline.DataMiner.Utils.ExportImport.dll", null, false),
+                    new PackageAssemblyReference(Path.Combine(pathJson, "Newtonsoft.Json.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathExportImport, "Skyline.DataMiner.Utils.ExportImport.dll"), null, false),
                 },
                 ProcessedAssemblies =
                 {
@@ -605,37 +606,37 @@
                 },
                 DllImportNugetAssemblyReferences =
                 {
-                    new PackageAssemblyReference(pathAlphaFs + "\\AlphaFS.dll", null, false),
-                    new PackageAssemblyReference(pathJson + "\\Newtonsoft.Json.dll", null, false),
-                    new PackageAssemblyReference(pathSharpZipLib + "\\ICSharpCode.SharpZipLib.dll", null, false),
-                    new PackageAssemblyReference(pathFileSystem + "\\Skyline.DataMiner.CICD.FileSystem.dll", null, false),
-                    new PackageAssemblyReference(pathSdmSourcegenerator + "\\Skyline.DataMiner.SDM.SourceGenerator.Runtime.dll", null, false),
-                    new PackageAssemblyReference(pathSdm + "\\Skyline.DataMiner.SDM.dll", null, false),
-                    new PackageAssemblyReference(pathSdmRegistration + "\\Skyline.DataMiner.SDM.Registration.Common.dll", null, false),
-                    new PackageAssemblyReference(pathDom + "\\Skyline.DataMiner.Utils.DOM.dll", null, false),
-                    new PackageAssemblyReference(pathPerformanceAnalyzer + "\\Skyline.DataMiner.Utils.PerformanceAnalyzer.dll", null, false),
-                    new PackageAssemblyReference(pathBuffers + "\\System.Buffers.dll", null, false),
-                    new PackageAssemblyReference(pathNumericsVectors + "\\System.Numerics.Vectors.dll", null, false),
-                    new PackageAssemblyReference(pathRuntimeCompilerservicesUnsafe + "\\System.Runtime.CompilerServices.Unsafe.dll", null, false),
-                    new PackageAssemblyReference(pathMemory + "\\System.Memory.dll", null, false),
-                    new PackageAssemblyReference(pathPrimitives + "\\Microsoft.Extensions.Primitives.dll", null, false),
-                    new PackageAssemblyReference(pathDiagnosticSource + "\\System.Diagnostics.DiagnosticSource.dll", null, false),
-                    new PackageAssemblyReference(pathDataflow + "\\System.Threading.Tasks.Dataflow.dll", null, false),
-                    new PackageAssemblyReference(pathCoreDmsCommon + "\\Skyline.DataMiner.Core.DataMinerSystem.Common.dll", null, false),
-                    new PackageAssemblyReference(pathThreadingTasksExtensions + "\\System.Threading.Tasks.Extensions.dll", null, false),
-                    new PackageAssemblyReference(pathBcl + "\\Microsoft.Bcl.AsyncInterfaces.dll", null, false),
-                    new PackageAssemblyReference(pathDiAbstraction + "\\Microsoft.Extensions.DependencyInjection.Abstractions.dll", null, false),
-                    new PackageAssemblyReference(pathDi + "\\Microsoft.Extensions.DependencyInjection.dll", null, false),
-                    new PackageAssemblyReference(pathLoggingAbstraction + "\\Microsoft.Extensions.Logging.Abstractions.dll", null, false),
-                    new PackageAssemblyReference(pathLogging + "\\Microsoft.Extensions.Logging.dll", null, false),
-                    new PackageAssemblyReference(pathValueTuple + "\\System.ValueTuple.dll", null, false),
-                    new PackageAssemblyReference(pathOptions + "\\Microsoft.Extensions.Options.dll", null, false),
-                    new PackageAssemblyReference(pathFormatsAsn1 + "\\System.Formats.Asn1.dll", null, false),
-                    new PackageAssemblyReference(pathCryptography + "\\Microsoft.Bcl.Cryptography.dll", null, false),
-                    new PackageAssemblyReference(pathSecurityCryptographyPkcs + "\\System.Security.Cryptography.Pkcs.dll", null, false),
-                    new PackageAssemblyReference(pathSecureCoding + "\\Skyline.DataMiner.Utils.SecureCoding.dll", null, false),
-                    new PackageAssemblyReference(pathCoreInterapp + "\\Skyline.DataMiner.Core.InterAppCalls.Common.dll", null, false),
-                    new PackageAssemblyReference(pathConnectorApiLock + "\\Skyline.DataMiner.ConnectorAPI.SkylineLockManager.dll", null, false),
+                    new PackageAssemblyReference(Path.Combine(pathAlphaFs, "AlphaFS.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathJson, "Newtonsoft.Json.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSharpZipLib, "ICSharpCode.SharpZipLib.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathFileSystem, "Skyline.DataMiner.CICD.FileSystem.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSdmSourcegenerator, "Skyline.DataMiner.SDM.SourceGenerator.Runtime.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSdm, "Skyline.DataMiner.SDM.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSdmRegistration, "Skyline.DataMiner.SDM.Registration.Common.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathDom, "Skyline.DataMiner.Utils.DOM.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathPerformanceAnalyzer, "Skyline.DataMiner.Utils.PerformanceAnalyzer.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathBuffers, "System.Buffers.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathNumericsVectors, "System.Numerics.Vectors.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathRuntimeCompilerservicesUnsafe, "System.Runtime.CompilerServices.Unsafe.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathMemory, "System.Memory.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathPrimitives, "Microsoft.Extensions.Primitives.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathDiagnosticSource, "System.Diagnostics.DiagnosticSource.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathDataflow, "System.Threading.Tasks.Dataflow.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathCoreDmsCommon, "Skyline.DataMiner.Core.DataMinerSystem.Common.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathThreadingTasksExtensions, "System.Threading.Tasks.Extensions.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathBcl, "Microsoft.Bcl.AsyncInterfaces.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathDiAbstraction, "Microsoft.Extensions.DependencyInjection.Abstractions.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathDi, "Microsoft.Extensions.DependencyInjection.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathLoggingAbstraction, "Microsoft.Extensions.Logging.Abstractions.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathLogging, "Microsoft.Extensions.Logging.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathValueTuple, "System.ValueTuple.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathOptions, "Microsoft.Extensions.Options.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathFormatsAsn1, "System.Formats.Asn1.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathCryptography, "Microsoft.Bcl.Cryptography.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSecurityCryptographyPkcs, "System.Security.Cryptography.Pkcs.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSecureCoding, "Skyline.DataMiner.Utils.SecureCoding.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathCoreInterapp, "Skyline.DataMiner.Core.InterAppCalls.Common.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathConnectorApiLock, "Skyline.DataMiner.ConnectorAPI.SkylineLockManager.dll"), null, false),
 
                     new PackageAssemblyReference(scriptPathSolLibSdmAbstractions, null, false),
                     new PackageAssemblyReference(scriptPathSolLibCategories, null, false),
@@ -646,37 +647,37 @@
                 },
                 NugetAssemblies =
                 {
-                    new PackageAssemblyReference(pathAlphaFs + "\\AlphaFS.dll", null, false),
-                    new PackageAssemblyReference(pathJson + "\\Newtonsoft.Json.dll", null, false),
-                    new PackageAssemblyReference(pathSharpZipLib + "\\ICSharpCode.SharpZipLib.dll", null, false),
-                    new PackageAssemblyReference(pathFileSystem + "\\Skyline.DataMiner.CICD.FileSystem.dll", null, false),
-                    new PackageAssemblyReference(pathSdmSourcegenerator + "\\Skyline.DataMiner.SDM.SourceGenerator.Runtime.dll", null, false),
-                    new PackageAssemblyReference(pathSdm + "\\Skyline.DataMiner.SDM.dll", null, false),
-                    new PackageAssemblyReference(pathSdmRegistration + "\\Skyline.DataMiner.SDM.Registration.Common.dll", null, false),
-                    new PackageAssemblyReference(pathDom + "\\Skyline.DataMiner.Utils.DOM.dll", null, false),
-                    new PackageAssemblyReference(pathPerformanceAnalyzer + "\\Skyline.DataMiner.Utils.PerformanceAnalyzer.dll", null, false),
-                    new PackageAssemblyReference(pathBuffers + "\\System.Buffers.dll", null, false),
-                    new PackageAssemblyReference(pathNumericsVectors + "\\System.Numerics.Vectors.dll", null, false),
-                    new PackageAssemblyReference(pathRuntimeCompilerservicesUnsafe + "\\System.Runtime.CompilerServices.Unsafe.dll", null, false),
-                    new PackageAssemblyReference(pathMemory + "\\System.Memory.dll", null, false),
-                    new PackageAssemblyReference(pathPrimitives + "\\Microsoft.Extensions.Primitives.dll", null, false),
-                    new PackageAssemblyReference(pathDiagnosticSource + "\\System.Diagnostics.DiagnosticSource.dll", null, false),
-                    new PackageAssemblyReference(pathDataflow + "\\System.Threading.Tasks.Dataflow.dll", null, false),
-                    new PackageAssemblyReference(pathCoreDmsCommon + "\\Skyline.DataMiner.Core.DataMinerSystem.Common.dll", null, false),
-                    new PackageAssemblyReference(pathThreadingTasksExtensions + "\\System.Threading.Tasks.Extensions.dll", null, false),
-                    new PackageAssemblyReference(pathBcl + "\\Microsoft.Bcl.AsyncInterfaces.dll", null, false),
-                    new PackageAssemblyReference(pathDiAbstraction + "\\Microsoft.Extensions.DependencyInjection.Abstractions.dll", null, false),
-                    new PackageAssemblyReference(pathDi + "\\Microsoft.Extensions.DependencyInjection.dll", null, false),
-                    new PackageAssemblyReference(pathLoggingAbstraction + "\\Microsoft.Extensions.Logging.Abstractions.dll", null, false),
-                    new PackageAssemblyReference(pathLogging + "\\Microsoft.Extensions.Logging.dll", null, false),
-                    new PackageAssemblyReference(pathValueTuple + "\\System.ValueTuple.dll", null, false),
-                    new PackageAssemblyReference(pathOptions + "\\Microsoft.Extensions.Options.dll", null, false),
-                    new PackageAssemblyReference(pathFormatsAsn1 + "\\System.Formats.Asn1.dll", null, false),
-                    new PackageAssemblyReference(pathCryptography + "\\Microsoft.Bcl.Cryptography.dll", null, false),
-                    new PackageAssemblyReference(pathSecurityCryptographyPkcs + "\\System.Security.Cryptography.Pkcs.dll", null, false),
-                    new PackageAssemblyReference(pathSecureCoding + "\\Skyline.DataMiner.Utils.SecureCoding.dll", null, false),
-                    new PackageAssemblyReference(pathCoreInterapp + "\\Skyline.DataMiner.Core.InterAppCalls.Common.dll", null, false),
-                    new PackageAssemblyReference(pathConnectorApiLock + "\\Skyline.DataMiner.ConnectorAPI.SkylineLockManager.dll", null, false),
+                    new PackageAssemblyReference(Path.Combine(pathAlphaFs, "AlphaFS.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathJson, "Newtonsoft.Json.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSharpZipLib, "ICSharpCode.SharpZipLib.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathFileSystem, "Skyline.DataMiner.CICD.FileSystem.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSdmSourcegenerator, "Skyline.DataMiner.SDM.SourceGenerator.Runtime.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSdm, "Skyline.DataMiner.SDM.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSdmRegistration, "Skyline.DataMiner.SDM.Registration.Common.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathDom, "Skyline.DataMiner.Utils.DOM.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathPerformanceAnalyzer, "Skyline.DataMiner.Utils.PerformanceAnalyzer.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathBuffers, "System.Buffers.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathNumericsVectors, "System.Numerics.Vectors.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathRuntimeCompilerservicesUnsafe, "System.Runtime.CompilerServices.Unsafe.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathMemory, "System.Memory.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathPrimitives, "Microsoft.Extensions.Primitives.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathDiagnosticSource, "System.Diagnostics.DiagnosticSource.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathDataflow, "System.Threading.Tasks.Dataflow.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathCoreDmsCommon, "Skyline.DataMiner.Core.DataMinerSystem.Common.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathThreadingTasksExtensions, "System.Threading.Tasks.Extensions.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathBcl, "Microsoft.Bcl.AsyncInterfaces.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathDiAbstraction, "Microsoft.Extensions.DependencyInjection.Abstractions.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathDi, "Microsoft.Extensions.DependencyInjection.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathLoggingAbstraction, "Microsoft.Extensions.Logging.Abstractions.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathLogging, "Microsoft.Extensions.Logging.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathValueTuple, "System.ValueTuple.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathOptions, "Microsoft.Extensions.Options.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathFormatsAsn1, "System.Formats.Asn1.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathCryptography, "Microsoft.Bcl.Cryptography.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSecurityCryptographyPkcs, "System.Security.Cryptography.Pkcs.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSecureCoding, "Skyline.DataMiner.Utils.SecureCoding.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathCoreInterapp, "Skyline.DataMiner.Core.InterAppCalls.Common.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathConnectorApiLock, "Skyline.DataMiner.ConnectorAPI.SkylineLockManager.dll"), null, false),
 
                     // Dependencies with lower versions
                     new PackageAssemblyReference("newtonsoft.json\\13.0.2\\lib\\net45\\Newtonsoft.Json.dll", null, false),
