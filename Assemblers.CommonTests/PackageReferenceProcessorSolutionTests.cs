@@ -746,15 +746,6 @@
             const string pathSystemThreadingTasksDataflow = @"system.threading.tasks.dataflow\7.0.0\lib\net462";
             const string pathSkylineDataMinerCoreDataMinerSystemCommon = @"skyline.dataminer.core.dataminersystem.common\1.1.3.8\lib\net462";
 
-            //const string pathSecureCoding = @"skyline.dataminer.utils.securecoding\2.2.3\lib\netstandard2.0";
-            //const string pathAlphaFs = @"alphafs.new\2.3.0\lib\net47";
-            //const string pathFileSystem = @"skyline.dataminer.cicd.filesystem\1.4.2\lib\netstandard2.0";
-
-
-            //const string pathSystemFormatsAsn1 = @"system.formats.asn1\10.0.8\lib\net462";
-            //const string pathMicrosoftBclCryptography = @"microsoft.bcl.cryptography\10.0.8\lib\net462";
-            //const string pathSystemSecurityCryptographyPkcs = @"system.security.cryptography.pkcs\10.0.5\lib\net462";
-
             var expectedResult = new NuGetPackageAssemblyData
             {
                 ImplicitDllImportDirectoryReferences =
@@ -1167,6 +1158,237 @@
             const string pathSystemRuntimeCompilerServicesUnsafe = @"system.runtime.compilerservices.unsafe\6.1.2\lib\net462";
             const string pathSerilogSinksAsync = @"serilog.sinks.async\2.0.0\lib\net471";
             const string pathSerilogSinksFile = @"serilog.sinks.file\6.0.0\lib\net471";
+            const string pathSystemThreadingTaskExtensions = @"system.threading.tasks.extensions\4.5.4\lib\net461";
+            const string pathSystemThreadingTasksDataflow = @"system.threading.tasks.dataflow\7.0.0\lib\net462";
+            const string pathSkylineDataMinerCoreDataMinerSystemCommon = @"skyline.dataminer.core.dataminersystem.common\1.1.3.8\lib\net462";
+            const string pathSecureCoding = @"skyline.dataminer.utils.securecoding\2.2.1\lib\netstandard2.0";
+            const string pathAlphaFs = @"alphafs.new\2.3.0\lib\net47";
+            const string pathFileSystem = @"skyline.dataminer.cicd.filesystem\1.1.0\lib\netstandard2.0";
+            const string pathSystemFormatsAsn1 = @"system.formats.asn1\9.0.2\lib\net462";
+            const string pathMicrosoftBclCryptography = @"microsoft.bcl.cryptography\9.0.2\lib\net462";
+            const string pathSystemSecurityCryptographyPkcs = @"system.security.cryptography.pkcs\9.0.2\lib\net462";
+            const string pathSystemValueTuple = @"system.valuetuple\4.5.0\lib\net47";
+            const string pathSkylineDataMinerCoreInterAppCallsCommon = @"skyline.dataminer.core.interappcalls.common\1.1.1.1\lib\net462";
+
+            var expectedResult = new NuGetPackageAssemblyData
+            {
+                ImplicitDllImportDirectoryReferences =
+                {
+                    pathJson,
+                    pathGoogleProtobuf,
+                    pathSerilog,
+                    pathSystemDiagnosticsDiagnosticSource,
+                    pathSystemThreadingChannels,
+                    pathSystemMemory,
+                    pathSystemBuffers,
+                    pathSystemNumericsVectors,
+                    pathSystemRuntimeCompilerServicesUnsafe,
+                    pathSerilogSinksAsync,
+                    pathSerilogSinksFile,
+                    pathSystemThreadingTaskExtensions,
+                    pathSystemThreadingTasksDataflow,
+                    pathSkylineDataMinerCoreDataMinerSystemCommon,
+                    pathSecureCoding,
+                    pathAlphaFs,
+                    pathFileSystem,
+                    pathSystemFormatsAsn1,
+                    pathMicrosoftBclCryptography,
+                    pathSystemSecurityCryptographyPkcs,
+                    pathSystemValueTuple,
+                    pathSkylineDataMinerCoreInterAppCallsCommon
+                },
+                DllImportNugetAssemblyReferences =
+                {
+                    new PackageAssemblyReference(Path.Combine(pathAlphaFs, "AlphaFS.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathJson, "Newtonsoft.Json.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathFileSystem, "Skyline.DataMiner.CICD.FileSystem.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSystemBuffers, "System.Buffers.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSystemNumericsVectors, "System.Numerics.Vectors.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSystemRuntimeCompilerServicesUnsafe, "System.Runtime.CompilerServices.Unsafe.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSystemMemory, "System.Memory.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathGoogleProtobuf, "Google.Protobuf.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSystemDiagnosticsDiagnosticSource, "System.Diagnostics.DiagnosticSource.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSystemThreadingTasksDataflow, "System.Threading.Tasks.Dataflow.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSystemThreadingTaskExtensions, "System.Threading.Tasks.Extensions.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSystemThreadingChannels, "System.Threading.Channels.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSerilog, "Serilog.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSerilogSinksAsync, "Serilog.Sinks.Async.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSerilogSinksFile, "Serilog.Sinks.File.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSkylineDataMinerCoreDataMinerSystemCommon, "Skyline.DataMiner.Core.DataMinerSystem.Common.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSystemValueTuple, "System.ValueTuple.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSystemFormatsAsn1, "System.Formats.Asn1.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathMicrosoftBclCryptography, "Microsoft.Bcl.Cryptography.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSystemSecurityCryptographyPkcs, "System.Security.Cryptography.Pkcs.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSecureCoding, "Skyline.DataMiner.Utils.SecureCoding.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSkylineDataMinerCoreInterAppCallsCommon, "Skyline.DataMiner.Core.InterAppCalls.Common.dll"), null, false)
+                },
+                NugetAssemblies =
+                {
+                    new PackageAssemblyReference(Path.Combine(pathAlphaFs, "AlphaFS.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathJson, "Newtonsoft.Json.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathFileSystem, "Skyline.DataMiner.CICD.FileSystem.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSystemBuffers, "System.Buffers.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSystemNumericsVectors, "System.Numerics.Vectors.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSystemRuntimeCompilerServicesUnsafe, "System.Runtime.CompilerServices.Unsafe.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSystemMemory, "System.Memory.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathGoogleProtobuf, "Google.Protobuf.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSystemDiagnosticsDiagnosticSource, "System.Diagnostics.DiagnosticSource.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSystemThreadingTasksDataflow, "System.Threading.Tasks.Dataflow.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSystemThreadingTaskExtensions, "System.Threading.Tasks.Extensions.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSystemThreadingChannels, "System.Threading.Channels.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSerilog, "Serilog.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSerilogSinksAsync, "Serilog.Sinks.Async.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSerilogSinksFile, "Serilog.Sinks.File.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSkylineDataMinerCoreDataMinerSystemCommon, "Skyline.DataMiner.Core.DataMinerSystem.Common.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSystemValueTuple, "System.ValueTuple.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSystemFormatsAsn1, "System.Formats.Asn1.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathMicrosoftBclCryptography, "Microsoft.Bcl.Cryptography.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSystemSecurityCryptographyPkcs, "System.Security.Cryptography.Pkcs.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSecureCoding, "Skyline.DataMiner.Utils.SecureCoding.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathSkylineDataMinerCoreInterAppCallsCommon, "Skyline.DataMiner.Core.InterAppCalls.Common.dll"), null, false)
+                },
+                ProcessedAssemblies =
+                {
+                    "Newtonsoft.Json.dll",
+                    "Google.Protobuf.dll",
+                    "Serilog.dll",
+                    "System.Diagnostics.DiagnosticSource.dll",
+                    "System.Threading.Channels.dll",
+                    "System.Memory.dll",
+                    "System.Buffers.dll",
+                    "System.Numerics.Vectors.dll",
+                    "System.Runtime.CompilerServices.Unsafe.dll",
+                    "Serilog.Sinks.Async.dll",
+                    "Serilog.Sinks.File.dll",
+                    "System.Threading.Tasks.Extensions.dll",
+                    "System.Threading.Tasks.Dataflow.dll",
+                    "Skyline.DataMiner.Core.DataMinerSystem.Common.dll",
+                    "Skyline.DataMiner.Utils.SecureCoding.dll",
+                    "AlphaFS.dll",
+                    "Skyline.DataMiner.CICD.FileSystem.dll",
+                    "System.Formats.Asn1.dll",
+                    "System.Security.Cryptography.Pkcs.dll",
+                    "Microsoft.Bcl.Cryptography.dll",
+                    "System.ValueTuple.dll",
+                    // Framework assemblies
+                    "mscorlib.dll",
+                    "Microsoft.CSharp.dll",
+                    "System.Core.dll",
+                    "System.dll",
+                    "System.Numerics.dll",
+                    "System.Transactions.dll",
+                    "System.Security.dll",
+                    "Skyline.DataMiner.Core.InterAppCalls.Common.dll"
+                },
+                DllImportDirectoryReferencesAssembly =
+                {
+                },
+                DllImportDirectoryReferences =
+                {
+                },
+                DllImportFrameworkAssemblyReferences =
+                {
+                    "mscorlib.dll",
+                    "Microsoft.CSharp.dll",
+                    "System.Core.dll",
+                    "System.dll",
+                    "System.Numerics.dll",
+                    "System.Transactions.dll",
+                    "System.Security.dll"
+                }
+            };
+
+            // Act
+            var result = await packageReferenceProcessor.ProcessAsync(topLevelProjectBPackages, solutionPackages, targetFrameworkMoniker, DevPackHelper.AutomationDevPackNuGetDependenciesIncludingTransitive);
+
+            // Assert
+            result.Should().BeEquivalentTo(expectedResult, ExcludeAssemblyPath);
+        }
+
+        [TestMethod]
+        public async Task ProcessAsyncTest_SolutionLibraries_ProjectAReferencingHigherVersionOfSerilogSinksFile()
+        {
+            // Arrange
+            var packageReferenceProcessor = new PackageReferenceProcessor(directoryForNuGetConfig: null);
+
+            // Project A top level package references:
+            //IList<PackageIdentity> topLevelProjectAPackages = new List<PackageIdentity>
+            //{
+            //    new PackageIdentity("Skyline.DataMiner.Dev.Automation", new NuGetVersion("10.3.5")),
+            //    new PackageIdentity("Newtonsoft.Json", new NuGetVersion("13.0.3")),
+            //    new PackageIdentity("Skyline.DataMiner.Core.DataMinerSystem.Common", new NuGetVersion("1.1.1.11")),
+            //    new PackageIdentity("Serilog.Sinks.File", new NuGetVersion("7.0.0")),
+            //};
+
+            // Project B top level package references:
+            IList<PackageIdentity> topLevelProjectBPackages = new List<PackageIdentity>
+            {
+                new PackageIdentity("Skyline.DataMiner.Dev.Automation", new NuGetVersion("10.3.5")),
+                new PackageIdentity("Newtonsoft.Json", new NuGetVersion("13.0.4")),
+                new PackageIdentity("Skyline.DataMiner.Core.InterAppCalls.Common", new NuGetVersion("1.1.1.1")),
+            };
+
+            IList<PackageIdentity> solutionPackages = new List<PackageIdentity>
+            {
+                new PackageIdentity("AlphaFS.New", new NuGetVersion("2.3.0")),
+                new PackageIdentity("Google.Protobuf", new NuGetVersion("3.29.3")),
+                new PackageIdentity("Microsoft.Bcl.Cryptography", new NuGetVersion("9.0.2")),
+                new PackageIdentity("Newtonsoft.Json", new NuGetVersion("13.0.3")),
+                new PackageIdentity("Newtonsoft.Json", new NuGetVersion("13.0.2")),
+                new PackageIdentity("Newtonsoft.Json", new NuGetVersion("13.0.4")),
+                new PackageIdentity("Serilog", new NuGetVersion("4.0.0")),
+                new PackageIdentity("Serilog", new NuGetVersion("4.2.0")),
+                new PackageIdentity("Serilog.Sinks.Async", new NuGetVersion("2.0.0")),
+                new PackageIdentity("Serilog.Sinks.File", new NuGetVersion("6.0.0")),
+                new PackageIdentity("Serilog.Sinks.File", new NuGetVersion("7.0.0")),
+                new PackageIdentity("Skyline.DataMiner.CICD.FileSystem", new NuGetVersion("1.1.0")),
+                new PackageIdentity("Skyline.DataMiner.Core.DataMinerSystem.Common", new NuGetVersion("1.1.1.11")),
+                new PackageIdentity("Skyline.DataMiner.Core.DataMinerSystem.Common", new NuGetVersion("1.1.2.2")),
+                new PackageIdentity("Skyline.DataMiner.Core.DataMinerSystem.Common", new NuGetVersion("1.1.3.8")),
+                new PackageIdentity("Skyline.DataMiner.Core.InterAppCalls.Common", new NuGetVersion("1.1.1.1")),
+                new PackageIdentity("Skyline.DataMiner.Utils.SecureCoding", new NuGetVersion("2.2.1")),
+                new PackageIdentity("System.Buffers", new NuGetVersion("4.5.1")),
+                new PackageIdentity("System.Buffers", new NuGetVersion("4.4.0")),
+                new PackageIdentity("System.Diagnostics.DiagnosticSource", new NuGetVersion("8.0.1")),
+                new PackageIdentity("System.Formats.Asn1", new NuGetVersion("9.0.2")),
+                new PackageIdentity("System.Memory", new NuGetVersion("4.5.5")),
+                new PackageIdentity("System.Memory", new NuGetVersion("4.5.3")),
+                new PackageIdentity("System.Numerics.Vectors", new NuGetVersion("4.5.0")),
+                new PackageIdentity("System.Numerics.Vectors", new NuGetVersion("4.4.0")),
+                new PackageIdentity("System.Runtime.CompilerServices.Unsafe", new NuGetVersion("4.5.3")),
+                new PackageIdentity("System.Runtime.CompilerServices.Unsafe", new NuGetVersion("6.0.0")),
+                new PackageIdentity("System.Runtime.CompilerServices.Unsafe", new NuGetVersion("4.5.2")),
+                new PackageIdentity("System.Security.Cryptography.Pkcs", new NuGetVersion("9.0.2")),
+                new PackageIdentity("System.Threading.Channels", new NuGetVersion("8.0.0")),
+                new PackageIdentity("System.Threading.Tasks.Dataflow", new NuGetVersion("7.0.0")),
+                new PackageIdentity("System.Threading.Tasks.Extensions", new NuGetVersion("4.5.0")),
+                new PackageIdentity("System.Threading.Tasks.Extensions", new NuGetVersion("4.5.4")),
+                new PackageIdentity("System.ValueTuple", new NuGetVersion("4.5.0"))
+            };
+
+            using (var cacheContext = new SourceCacheContext())
+            {
+                cacheContext.MaxAge = DateTimeOffset.UtcNow;
+
+                foreach (var package in solutionPackages)
+                {
+                    await packageReferenceProcessor.InstallPackageIfNotFound(package, cacheContext, CancellationToken.None);
+                }
+            }
+
+            const string targetFrameworkMoniker = ".NETFramework,Version=v4.8";
+
+            const string pathJson = @"newtonsoft.json\13.0.4\lib\net45";
+            const string pathGoogleProtobuf = @"google.protobuf\3.29.3\lib\net45";
+            const string pathSerilog = @"serilog\4.2.0\lib\net471";
+            const string pathSystemDiagnosticsDiagnosticSource = @"system.diagnostics.diagnosticsource\8.0.1\lib\net462";
+            const string pathSystemThreadingChannels = @"system.threading.channels\8.0.0\lib\net462";
+            const string pathSystemMemory = @"system.memory\4.5.5\lib\net461";
+            const string pathSystemBuffers = @"system.buffers\4.5.1\lib\net461";
+            const string pathSystemNumericsVectors = @"system.numerics.vectors\4.5.0\lib\net46";
+            const string pathSystemRuntimeCompilerServicesUnsafe = @"system.runtime.compilerservices.unsafe\6.0.0\lib\net461";
+            const string pathSerilogSinksAsync = @"serilog.sinks.async\2.0.0\lib\net471";
+            const string pathSerilogSinksFile = @"serilog.sinks.file\7.0.0\lib\net471";
             const string pathSystemThreadingTaskExtensions = @"system.threading.tasks.extensions\4.5.4\lib\net461";
             const string pathSystemThreadingTasksDataflow = @"system.threading.tasks.dataflow\7.0.0\lib\net462";
             const string pathSkylineDataMinerCoreDataMinerSystemCommon = @"skyline.dataminer.core.dataminersystem.common\1.1.3.8\lib\net462";

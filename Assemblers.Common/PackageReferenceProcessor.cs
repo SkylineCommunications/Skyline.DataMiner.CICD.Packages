@@ -238,11 +238,82 @@
                     await AddSolutionPackageAndDependenciesAsync(packageIdentity, cacheContext, nugetFramework, nuGetLogger, repositories, allSolutionDependenciesPackageInfos, defaultIncludedFilesNuGetPackages, cancellationToken).ConfigureAwait(false);
                 }
 
-                var unifiedPackages = GetResolvedPackages(sourceRepositoryProvider, nuGetLogger, filteredProjectPackages, allSolutionDependenciesPackageInfos, true);
+                var (allSolutionDependenciesPackageInfosUpdated, relaxedPackageInfo) = RelaxVersionConstraints(allSolutionDependenciesPackageInfos);
+
+                var unifiedPackages = GetResolvedPackages(sourceRepositoryProvider, nuGetLogger, filteredProjectPackages, allSolutionDependenciesPackageInfosUpdated, true);
+
+                LogVersionMismatches(unifiedPackages, relaxedPackageInfo);
 
                 var references = await ProcessPackagesAsync(unifiedPackages, nugetFramework, defaultIncludedFilesNuGetPackages);
 
                 return references;
+            }
+        }
+
+        private static (ISet<SourcePackageDependencyInfo>, Dictionary<string, List<(string dependencyId, NuGetVersion originalVersion)>>) RelaxVersionConstraints(ISet<SourcePackageDependencyInfo> solutionPackages)
+        {
+            var relaxedDependencies = new HashSet<SourcePackageDependencyInfo>(PackageIdentityComparer.Default);
+            var relaxedPackages = new Dictionary<string, List<(string dependencyId, NuGetVersion originalVersion)>>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var package in solutionPackages)
+            {
+                var packageRelaxations = new List<(string dependencyId, NuGetVersion originalVersion)>();
+
+                var relaxedDeps = package.Dependencies.Select(dep =>
+                {
+                    // Convert exact version [x.y.z] to minimum version >= x.y.z
+                    if (dep.VersionRange.HasLowerAndUpperBounds &&
+                        dep.VersionRange.MinVersion == dep.VersionRange.MaxVersion)
+                    {
+                        var minVersion = dep.VersionRange.MinVersion;
+                        var newRange = new VersionRange(minVersion, true, null, false);
+                        packageRelaxations.Add((dep.Id, minVersion));
+                        return new PackageDependency(dep.Id, newRange);
+                    }
+                    return dep;
+                }).ToList();
+
+                if (packageRelaxations.Count > 0)
+                {
+                    relaxedPackages[package.Id] = packageRelaxations;
+                }
+
+                relaxedDependencies.Add(new SourcePackageDependencyInfo(
+                    package.Id,
+                    package.Version,
+                    relaxedDeps,
+                    package.Listed,
+                    package.Source));
+            }
+
+            return (relaxedDependencies, relaxedPackages);
+        }
+
+        private void LogVersionMismatches(IEnumerable<PackageIdentity> resolvedPackages, Dictionary<string, List<(string dependencyId, NuGetVersion originalVersion)>> relaxedPackageInfo)
+        {
+            if (resolvedPackages == null || relaxedPackageInfo == null || relaxedPackageInfo.Count == 0)
+            {
+                return;
+            }
+
+            // Create a lookup of resolved packages by ID for quick access
+            var resolvedPackageLookup = resolvedPackages.ToDictionary(p => p.Id, p => p.Version, StringComparer.OrdinalIgnoreCase);
+
+            foreach (var kvp in relaxedPackageInfo)
+            {
+                string packageId = kvp.Key;
+                var relaxedDependencies = kvp.Value;
+
+                foreach (var (dependencyId, originalVersion) in relaxedDependencies)
+                {
+                    if (resolvedPackageLookup.TryGetValue(dependencyId, out var resolvedVersion))
+                    {
+                        if (resolvedVersion != originalVersion)
+                        {
+                            logCollector?.ReportWarning($"Detected package version outside of dependency constraint: Package '{packageId}' requires '{dependencyId}' version '{originalVersion}', but version '{resolvedVersion}' was resolved.");
+                        }
+                    }
+                }
             }
         }
 
@@ -267,7 +338,7 @@
         /// <returns>The resolved NuGet packages.</returns>
         private static IEnumerable<PackageIdentity> GetResolvedPackages(ISourceRepositoryProvider sourceRepositoryProvider,
                                                                               ILogger logger, IList<PackageIdentity> extensions,
-                                                                              HashSet<SourcePackageDependencyInfo> allPackagesAndDependencies,
+                                                                              ISet<SourcePackageDependencyInfo> allPackagesAndDependencies,
                                                                               bool solutionResolver)
         {
             if (allPackagesAndDependencies.Count == 0)
