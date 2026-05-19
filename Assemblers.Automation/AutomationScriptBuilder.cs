@@ -69,15 +69,17 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="AutomationScriptBuilder"/> class.
         /// </summary>
+        /// <param name="solutionId">The ID of the solution this script is part of.</param>
         /// <param name="script">The Automation script.</param>
         /// <param name="projects">The projects corresponding with the C# Exe blocks.</param>
         /// <param name="solutionProjects">The projects of the whole solution, not only the ones corresponding with the C# Exe blocks of this automation script.</param>
         /// <param name="allScripts">All the scripts in the Automation script solution.</param>
         /// <param name="directoryForNuGetConfig">Directory where the solution is located</param>
         /// <exception cref="ArgumentNullException"><paramref name="script"/> is <see langword="null"/>.</exception>
-        public AutomationScriptBuilder(Script script, IDictionary<string, Project> projects, ICollection<Project> solutionProjects, IEnumerable<Script> allScripts, string directoryForNuGetConfig)
+        public AutomationScriptBuilder(string solutionId, Script script, IDictionary<string, Project> projects, ICollection<Project> solutionProjects, IEnumerable<Script> allScripts, string directoryForNuGetConfig)
         {
             IsSolutionScript = true;
+            SolutionId = solutionId;
 
             Model = script ?? throw new ArgumentNullException(nameof(script));
             Document = script.Document;
@@ -124,6 +126,7 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="AutomationScriptBuilder"/> class.
         /// </summary>
+        /// <param name="solutionId">The ID of the solution this script is part of.</param>
         /// <param name="script">The Automation script.</param>
         /// <param name="projects">The projects corresponding with the C# Exe blocks.</param>
         /// <param name="solutionProjects">The projects of the whole solution, not only the ones corresponding with the C# Exe blocks of this automation script.</param>
@@ -132,8 +135,8 @@
         /// <param name="directoryForNuGetConfig">Directory where the solution is located</param>
         /// <exception cref="ArgumentNullException"><paramref name="script"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="logCollector"/> is <see langword="null"/>.</exception>
-        public AutomationScriptBuilder(Script script, IDictionary<string, Project> projects, ICollection<Project> solutionProjects, IEnumerable<Script> allScripts, ILogCollector logCollector, string directoryForNuGetConfig)
-            : this(script, projects, solutionProjects, allScripts, directoryForNuGetConfig)
+        public AutomationScriptBuilder(string solutionId, Script script, IDictionary<string, Project> projects, ICollection<Project> solutionProjects, IEnumerable<Script> allScripts, ILogCollector logCollector, string directoryForNuGetConfig)
+            : this(solutionId, script, projects, solutionProjects, allScripts, directoryForNuGetConfig)
         {
             this.logCollector = logCollector ?? throw new ArgumentNullException(nameof(logCollector));
         }
@@ -144,6 +147,8 @@
         /// </summary>
         /// <value><c>true</c> if this builder is used for building a script that is part of a solution with multiple scripts; otherwise, <c>false</c>.</value>
         private bool IsSolutionScript { get; }
+
+        private string SolutionId { get; } 
 
         private XmlDocument Document { get; }
 
@@ -212,6 +217,8 @@
         public async Task<BuildResultItems> BuildAsync()
         {
             var xmlEdit = new EditXml.XmlDocument(Document);
+
+            UpdateSolutionIdElement(xmlEdit, SolutionId);
 
             return await BuildExeActionsAsync(xmlEdit).ConfigureAwait(false);
         }
@@ -799,6 +806,66 @@
         private void LogDebug(string message)
         {
             logCollector?.ReportDebug(Model?.Name + "|" + message);
+        }
+
+        /// <summary>
+        /// Updates or creates the SolutionId XML element next to the Name element.
+        /// If the solutionId is null or empty, removes any existing SolutionId element.
+        /// </summary>
+        /// <param name="xmlEdit">The XML document to modify.</param>
+        /// <param name="solutionId">The solution ID value to set, or null/empty to remove the element.</param>
+        private void UpdateSolutionIdElement(EditXml.XmlDocument xmlEdit, string solutionId)
+        {
+            var scriptElement = xmlEdit.Root;
+            if (scriptElement == null)
+            {
+                return;
+            }
+
+            var solutionIdElement = scriptElement.Element["SolutionId"];
+
+            if (String.IsNullOrEmpty(solutionId))
+            {
+                // Remove existing element if solutionId is null or empty
+                if (solutionIdElement != null)
+                {
+                    scriptElement.Children.Remove(solutionIdElement);
+                }
+            }
+            else if (solutionIdElement != null)
+            {
+                // Update existing element
+                solutionIdElement.InnerText = solutionId;
+            }
+            else
+            {
+                // Create new element
+                var newSolutionIdElement = new EditXml.XmlElement("SolutionId", solutionId);
+
+                // Find the Name element to insert after it
+                var nameElement = scriptElement.Element["Name"];
+                if (nameElement != null)
+                {
+                    // Insert after Name element
+                    int nameIndex = scriptElement.Children.IndexOf(nameElement);
+                    if (nameIndex >= 0)
+                    {
+                        scriptElement.Children.Insert(nameIndex + 1, newSolutionIdElement);
+                    }
+                    else
+                    {
+                        scriptElement.Children.Add(newSolutionIdElement);
+                    }
+                }
+                else
+                {
+                    // If Name doesn't exist, just add it at the beginning (should not occur).
+                    scriptElement.Children.Insert(0, newSolutionIdElement);
+                }
+
+                // Format to ensure proper indentation and newlines
+                scriptElement.Format();
+            }
         }
     }
 }
