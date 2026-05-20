@@ -77,19 +77,12 @@
         /// <param name="directoryForNuGetConfig">Directory where the solution is located</param>
         /// <exception cref="ArgumentNullException"><paramref name="script"/> is <see langword="null"/>.</exception>
         public AutomationScriptBuilder(string solutionId, Script script, IDictionary<string, Project> projects, ICollection<Project> solutionProjects, IEnumerable<Script> allScripts, string directoryForNuGetConfig)
+            : this(script, projects, allScripts, directoryForNuGetConfig)
         {
             IsSolutionScript = true;
             SolutionId = solutionId;
 
-            Model = script ?? throw new ArgumentNullException(nameof(script));
-            Document = script.Document;
-            Projects = projects ?? new Dictionary<string, Project>();
             SolutionProjects = solutionProjects ?? new List<Project>();
-
-            // ToList as it will be enumerated multiple times later on.
-            AllScripts = allScripts.ToList();
-
-            this.directoryForNuGetConfig = directoryForNuGetConfig;
         }
 
         /// <summary>
