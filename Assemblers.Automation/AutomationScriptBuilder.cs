@@ -211,7 +211,7 @@
         {
             var xmlEdit = new EditXml.XmlDocument(Document);
 
-            UpdateSolutionIdElement(xmlEdit, SolutionId);
+            UpdateSolutionIdElement(xmlEdit);
 
             return await BuildExeActionsAsync(xmlEdit).ConfigureAwait(false);
         }
@@ -806,8 +806,7 @@
         /// If the solutionId is null or empty, removes any existing SolutionId element.
         /// </summary>
         /// <param name="xmlEdit">The XML document to modify.</param>
-        /// <param name="solutionId">The solution ID value to set, or null/empty to remove the element.</param>
-        private void UpdateSolutionIdElement(EditXml.XmlDocument xmlEdit, string solutionId)
+        private void UpdateSolutionIdElement(EditXml.XmlDocument xmlEdit)
         {
             var scriptElement = xmlEdit.Root;
             if (scriptElement == null)
@@ -817,7 +816,7 @@
 
             var solutionIdElement = scriptElement.Element["SolutionId"];
 
-            if (String.IsNullOrEmpty(solutionId))
+            if (String.IsNullOrEmpty(SolutionId))
             {
                 // Remove existing element if solutionId is null or empty
                 if (solutionIdElement != null)
@@ -828,12 +827,12 @@
             else if (solutionIdElement != null)
             {
                 // Update existing element
-                solutionIdElement.InnerText = solutionId;
+                solutionIdElement.InnerText = SolutionId;
             }
             else
             {
                 // Create new element
-                var newSolutionIdElement = new EditXml.XmlElement("SolutionId", solutionId);
+                var newSolutionIdElement = new EditXml.XmlElement("SolutionId", SolutionId);
 
                 // Find the Name element to insert after it
                 var nameElement = scriptElement.Element["Name"];
