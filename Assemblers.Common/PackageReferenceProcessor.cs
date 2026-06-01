@@ -187,9 +187,9 @@
                     }
                 }
 
-                var packagesToInstall = GetResolvedPackages(sourceRepositoryProvider, nuGetLogger, filteredProjectPackages, allDependenciesPackageInfos, false);
+                var unifiedPackages = GetResolvedPackages(sourceRepositoryProvider, nuGetLogger, filteredProjectPackages, allDependenciesPackageInfos, false);
 
-                var references = await ProcessPackagesAsync(packagesToInstall, nugetFramework, defaultIncludedFilesNuGetPackages);
+                var references = await ProcessPackagesAsync(unifiedPackages, allDependenciesPackageInfos, nugetFramework, defaultIncludedFilesNuGetPackages);
 
                 return references;
             }
@@ -454,7 +454,18 @@
 
                             if (!resolvedPackage.Id.StartsWith(DevPackHelper.FilesPrefix) && !NuGetHelper.IsSolutionLibraryNuGetPackage(resolvedPackage.Id, out _))
                             {
-                                nugetPackageAssemblies.ImplicitDllImportDirectoryReferences.Add(dllImportDirectory);
+                                if (NuGetHelper.CustomNuGetPackages.TryGetValue(resolvedPackage.Id, out var customInfo))
+                                {
+                                    string folderPath = _fileSystem.Path.GetDirectoryName(customInfo.path);
+                                    if (!string.IsNullOrEmpty(folderPath))
+                                {
+                                        nugetPackageAssemblies.ImplicitDllImportDirectoryReferences.Add(folderPath);
+                                    }
+                                }
+                                else
+                                {
+                                    nugetPackageAssemblies.ImplicitDllImportDirectoryReferences.Add(dllImportDirectory);
+                                }
                             }
 
                             (bool dontAddToPackageToInstall, PackageAssemblyReference packageAssemblyReference) = CreatePackageAssemblyReference(resolvedPackage, filteredLibItem, dllImportDirectory);

@@ -135,21 +135,31 @@
 
             const string targetFrameworkMoniker = ".NETFramework,Version=v4.8";
 
-            const string pathJson = "newtonsoft.json\\13.0.4\\lib\\net45";
+            const string pathJson_13_0_3 = "newtonsoft.json\\13.0.3\\lib\\net45";
+            const string pathJson_13_0_4 = "newtonsoft.json\\13.0.4\\lib\\net45";
 
             var expectedResult = new NuGetPackageAssemblyData
             {
                 ImplicitDllImportDirectoryReferences =
                 {
-                    pathJson,
+                    pathJson_13_0_4,
                 },
                 DllImportNugetAssemblyReferences =
                 {
-                    new PackageAssemblyReference(Path.Combine(pathJson, "Newtonsoft.Json.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathJson_13_0_4, "Newtonsoft.Json.dll"), null, false),
+                },
+                DllImportDirectoryReferences =
+                {
+                    $@"{pathJson_13_0_3}\",
+                },
+                DllImportDirectoryReferencesAssembly =
+                {
+                    [$@"{pathJson_13_0_3}\"] = Path.Combine(pathJson_13_0_3, "Newtonsoft.Json.dll")
                 },
                 NugetAssemblies =
                 {
-                    new PackageAssemblyReference(Path.Combine(pathJson, "Newtonsoft.Json.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathJson_13_0_3, "Newtonsoft.Json.dll"), null, false),
+                    new PackageAssemblyReference(Path.Combine(pathJson_13_0_4, "Newtonsoft.Json.dll"), null, false),
                 },
                 ProcessedAssemblies =
                 {
