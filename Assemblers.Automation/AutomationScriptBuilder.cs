@@ -69,20 +69,18 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="AutomationScriptBuilder"/> class.
         /// </summary>
-        /// <param name="solutionId">The ID of the solution this script is part of.</param>
+        /// <param name="dataMinerSolutionId">The ID of the script runner this script should run in.</param>
         /// <param name="script">The Automation script.</param>
         /// <param name="projects">The projects corresponding with the C# Exe blocks.</param>
-        /// <param name="solutionProjects">The projects of the whole solution, not only the ones corresponding with the C# Exe blocks of this automation script.</param>
+        /// <param name="dataMinerSolutionProjects">The projects matching with the dataMinerSolutionId, not only the ones corresponding with the C# Exe blocks of this automation script.</param>
         /// <param name="allScripts">All the scripts in the Automation script solution.</param>
         /// <param name="directoryForNuGetConfig">Directory where the solution is located</param>
         /// <exception cref="ArgumentNullException"><paramref name="script"/> is <see langword="null"/>.</exception>
-        public AutomationScriptBuilder(string solutionId, Script script, IDictionary<string, Project> projects, ICollection<Project> solutionProjects, IEnumerable<Script> allScripts, string directoryForNuGetConfig)
+        public AutomationScriptBuilder(string dataMinerSolutionId, Script script, IDictionary<string, Project> projects, ICollection<Project> dataMinerSolutionProjects, IEnumerable<Script> allScripts, string directoryForNuGetConfig)
             : this(script, projects, allScripts, directoryForNuGetConfig)
         {
-            IsSolutionScript = true;
-            SolutionId = solutionId;
-
-            SolutionProjects = solutionProjects ?? new List<Project>();
+            DataMinerSolutionId = dataMinerSolutionId;
+            DataMinerSolutionProjects = dataMinerSolutionProjects ?? new List<Project>();
         }
 
         /// <summary>
@@ -119,29 +117,22 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="AutomationScriptBuilder"/> class.
         /// </summary>
-        /// <param name="solutionId">The ID of the solution this script is part of.</param>
+        /// <param name="dataMinerSolutionId">The ID of the solution this script is part of.</param>
         /// <param name="script">The Automation script.</param>
         /// <param name="projects">The projects corresponding with the C# Exe blocks.</param>
-        /// <param name="solutionProjects">The projects of the whole solution, not only the ones corresponding with the C# Exe blocks of this automation script.</param>
+        /// <param name="dataMinerSolutionProjects">The projects of the whole solution, not only the ones corresponding with the C# Exe blocks of this automation script.</param>
         /// <param name="allScripts">All the scripts in the Automation script solution.</param>
         /// <param name="logCollector">The log collector</param>
         /// <param name="directoryForNuGetConfig">Directory where the solution is located</param>
         /// <exception cref="ArgumentNullException"><paramref name="script"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="logCollector"/> is <see langword="null"/>.</exception>
-        public AutomationScriptBuilder(string solutionId, Script script, IDictionary<string, Project> projects, ICollection<Project> solutionProjects, IEnumerable<Script> allScripts, ILogCollector logCollector, string directoryForNuGetConfig)
-            : this(solutionId, script, projects, solutionProjects, allScripts, directoryForNuGetConfig)
+        public AutomationScriptBuilder(string dataMinerSolutionId, Script script, IDictionary<string, Project> projects, ICollection<Project> dataMinerSolutionProjects, IEnumerable<Script> allScripts, ILogCollector logCollector, string directoryForNuGetConfig)
+            : this(dataMinerSolutionId, script, projects, dataMinerSolutionProjects, allScripts, directoryForNuGetConfig)
         {
             this.logCollector = logCollector ?? throw new ArgumentNullException(nameof(logCollector));
         }
-
-        /// <summary>
-        /// Gets a value indicating whether this builder is used for building a script that is part of a solution with multiple scripts,
-        /// which requires special handling to unify NuGet packages across the different projects corresponding to the different scripts.
-        /// </summary>
-        /// <value><c>true</c> if this builder is used for building a script that is part of a solution with multiple scripts; otherwise, <c>false</c>.</value>
-        private bool IsSolutionScript { get; }
-
-        private string SolutionId { get; } 
+        
+        private string DataMinerSolutionId { get; } 
 
         private XmlDocument Document { get; }
 
@@ -153,7 +144,7 @@
         /// Gets the projects of the whole solution, not only the ones corresponding with the C# Exe blocks of this automation script.
         /// </summary>
         /// <remarks>This is for automation scripts that are part of a bigger solution for which the NuGet packages need to be unified across the solution.</remarks>
-        private ICollection<Project> SolutionProjects { get; }
+        private ICollection<Project> DataMinerSolutionProjects { get; }
 
         private IEnumerable<Script> AllScripts { get; }
 
@@ -262,23 +253,17 @@
                 return null;
             }
 
-            NuGetPackageAssemblyData nugetAssemblyData = null;
+            NuGetPackageAssemblyData nugetAssemblyData;
 
-            if (!IsSolutionScript)
+            if (String.IsNullOrWhiteSpace(DataMinerSolutionId))
             {
                 nugetAssemblyData = await packageReferenceProcessor.ProcessAsync(packageIdentities, project.TargetFrameworkMoniker, DevPackHelper.AutomationDevPackNuGetDependenciesIncludingTransitive).ConfigureAwait(false);
             }
             else
             {
-                var solutionPackageIdentities = new List<PackageIdentity>(packageIdentities);
-
-                foreach(var solutionProject in SolutionProjects)
-                {
-                    if (solutionProject.PackageReferences != null)
-                    {
-                        solutionPackageIdentities.AddRange(GetPackageIdentities(solutionProject.PackageReferences));
-                    }
-                }
+                var solutionPackageIdentities = GetPackageIdentities(DataMinerSolutionProjects.Where(solProject => solProject.PackageReferences != null)
+                                                                                     .SelectMany(solProject => solProject.PackageReferences)
+                                                                                     .Distinct());
 
                 nugetAssemblyData = await packageReferenceProcessor.ProcessAsync(packageIdentities, solutionPackageIdentities, project.TargetFrameworkMoniker, DevPackHelper.AutomationDevPackNuGetDependenciesIncludingTransitive).ConfigureAwait(false);
             }
@@ -803,7 +788,7 @@
 
         /// <summary>
         /// Updates or creates the SolutionId XML element next to the Name element.
-        /// If the solutionId is null or empty, removes any existing SolutionId element.
+        /// If the dataMinerSolutionId is null or empty, removes any existing SolutionId element.
         /// </summary>
         /// <param name="xmlEdit">The XML document to modify.</param>
         private void UpdateSolutionIdElement(EditXml.XmlDocument xmlEdit)
@@ -816,9 +801,9 @@
 
             var solutionIdElement = scriptElement.Element["SolutionId"];
 
-            if (String.IsNullOrEmpty(SolutionId))
+            if (String.IsNullOrEmpty(DataMinerSolutionId))
             {
-                // Remove existing element if solutionId is null or empty
+                // Remove existing element if dataMinerSolutionId is null or empty
                 if (solutionIdElement != null)
                 {
                     scriptElement.Children.Remove(solutionIdElement);
@@ -827,12 +812,12 @@
             else if (solutionIdElement != null)
             {
                 // Update existing element
-                solutionIdElement.InnerText = SolutionId;
+                solutionIdElement.InnerText = DataMinerSolutionId;
             }
             else
             {
                 // Create new element
-                var newSolutionIdElement = new EditXml.XmlElement("SolutionId", SolutionId);
+                var newSolutionIdElement = new EditXml.XmlElement("SolutionId", DataMinerSolutionId);
 
                 // Find the Name element to insert after it
                 var nameElement = scriptElement.Element["Name"];

@@ -8,6 +8,8 @@
 
     using FluentAssertions;
 
+    using Microsoft.Build.Utilities.ProjectCreation;
+    using Microsoft.Testing.Platform.Extensions.Messages;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using Org.XmlUnit.Builder;
@@ -17,6 +19,8 @@
     using Skyline.DataMiner.CICD.Assemblers.Common;
     using Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects;
     using Skyline.DataMiner.CICD.FileSystem;
+    using Skyline.DataMiner.CICD.Packages.TestHelpers;
+    using Skyline.DataMiner.CICD.Packages.TestHelpers.Projects;
     using Skyline.DataMiner.CICD.Parsers.Automation.Xml;
     using Skyline.DataMiner.CICD.Parsers.Common.Xml;
 
@@ -97,7 +101,7 @@
             };
 
             Script script = new Script(XmlDocument.Parse(original));
-            AutomationScriptBuilder builder = new AutomationScriptBuilder(script, projects, new List<Script> { script}, directoryForNuGetConfig: null);
+            AutomationScriptBuilder builder = new AutomationScriptBuilder(script, projects, new List<Script> { script }, directoryForNuGetConfig: null);
 
             string result = (await builder.BuildAsync().ConfigureAwait(false)).Document;
 
@@ -106,7 +110,6 @@
 
             Assert.IsFalse(d.HasDifferences(), d.ToString());
         }
-
 
         [TestMethod]
         public async Task SLDisCompiler_AutomationScriptBuilder_IgnoreTestingFilesAsync()
@@ -761,7 +764,7 @@ class Class1 {}]]>
 
             Assert.IsFalse(d.HasDifferences(), d.ToString());
         }
-        
+
         [TestMethod]
         public async Task SLDisCompiler_AutomationScriptBuilder_Yle_Library()
         {
@@ -820,27 +823,32 @@ class Class1 {}]]>
 
             Diff d = DiffBuilder.Compare(Input.FromString(expected))
                                 .WithTest(Input.FromString(result)).Build();
-            
+
             Assert.IsFalse(d.HasDifferences(), d.ToString());
         }
 
         [TestMethod]
         public async Task AutomationScriptBuilder_SolutionLibraries_SingleStandalone()
         {
-            var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Projects", "Project1"));
-            var path = FileSystem.Instance.Path.Combine(dir, "Project1.csproj");
-            
+            // Arrange
+            string testDirectory = TestFixture.InitializeDirectoryForTest();
+
+            var projectBuilder = new AutomationScriptProjectBuilder(testDirectory, devAutomationVersion: "10.3.0.25")
+                                    .WithPackageReference("Skyline.DataMiner.Dev.Utils.DummySolutionLib", "1.0.1")
+                                    .Build();
+
             var projects = new Dictionary<string, Project>
             {
-                { "Project1", Project.Load(path) },
+                { projectBuilder.ProjectName, Project.Load(projectBuilder.FullPath) },
             };
-            
-            Script script = Script.Load(FileSystem.Instance.Path.Combine(dir, "Project1.xml"));
+
+            Script script = Script.Load(projectBuilder.ScriptXmlPath);
             AutomationScriptBuilder builder = new AutomationScriptBuilder(script, projects, new List<Script> { script }, directoryForNuGetConfig: null);
 
+            // Act
             var result = await builder.BuildAsync().ConfigureAwait(false);
 
+            // Assert
             result.Should().NotBeNull();
             result.Document.Should()
                   .ContainEquivalentOf(
@@ -854,20 +862,25 @@ class Class1 {}]]>
         [TestMethod]
         public async Task AutomationScriptBuilder_SolutionLibraries_StandAlone_DependingOnAnother()
         {
-            var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Projects", "Project2"));
-            var path = FileSystem.Instance.Path.Combine(dir, "Project2.csproj");
+            // Arrange
+            string testDirectory = TestFixture.InitializeDirectoryForTest();
+
+            var projectBuilder = new AutomationScriptProjectBuilder(testDirectory, devAutomationVersion: "10.3.0.25")
+                                    .WithPackageReference("Skyline.DataMiner.Dev.Utils.DummySolutionLib.Automation", "1.0.1")
+                                    .Build();
 
             var projects = new Dictionary<string, Project>
             {
-                { "Project2", Project.Load(path) },
+                { projectBuilder.ProjectName, Project.Load(projectBuilder.FullPath) },
             };
 
-            Script script = Script.Load(FileSystem.Instance.Path.Combine(dir, "Project2.xml"));
+            Script script = Script.Load(projectBuilder.ScriptXmlPath);
             AutomationScriptBuilder builder = new AutomationScriptBuilder(script, projects, new List<Script> { script }, directoryForNuGetConfig: null);
 
+            // Act
             var result = await builder.BuildAsync().ConfigureAwait(false);
 
+            // Assert
             result.Should().NotBeNull();
             result.Document.Should()
                   .ContainEquivalentOf(
@@ -884,20 +897,25 @@ class Class1 {}]]>
         [TestMethod]
         public async Task AutomationScriptBuilder_SolutionLibraries_WithDependencies_DependingOnAnother()
         {
-            var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir,  "TestFiles", "Projects", "Project3"));
-            var path = FileSystem.Instance.Path.Combine(dir, "Project3.csproj");
+            // Arrange
+            string testDirectory = TestFixture.InitializeDirectoryForTest();
+
+            var projectBuilder = new AutomationScriptProjectBuilder(testDirectory, devAutomationVersion: "10.3.0.25")
+                                    .WithPackageReference("Skyline.DataMiner.Dev.Utils.DummySolutionLib.Deps.Protocol", "1.0.1")
+                                    .Build();
 
             var projects = new Dictionary<string, Project>
             {
-                { "Project3", Project.Load(path) },
+                { projectBuilder.ProjectName, Project.Load(projectBuilder.FullPath) },
             };
 
-            Script script = Script.Load(FileSystem.Instance.Path.Combine(dir, "Project3.xml"));
+            Script script = Script.Load(projectBuilder.ScriptXmlPath);
             AutomationScriptBuilder builder = new AutomationScriptBuilder(script, projects, new List<Script> { script }, directoryForNuGetConfig: null);
 
+            // Act
             var result = await builder.BuildAsync().ConfigureAwait(false);
 
+            // Assert
             result.Should().NotBeNull();
             result.Document.Should()
                   .ContainEquivalentOf(
@@ -915,20 +933,26 @@ class Class1 {}]]>
         [TestMethod]
         public async Task AutomationScriptBuilder_SolutionLibraries_WithDependencies_CustomDependency()
         {
-            var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Projects", "Project4"));
-            var path = FileSystem.Instance.Path.Combine(dir, "Project4.csproj");
+            // Arrange
+            string testDirectory = TestFixture.InitializeDirectoryForTest();
+
+            var projectBuilder = new AutomationScriptProjectBuilder(testDirectory, devAutomationVersion: "10.3.0.25")
+                                    .WithPackageReference("Newtonsoft.Json", "13.0.4")
+                                    .WithPackageReference("Skyline.DataMiner.Dev.Utils.DummySolutionLib.Deps", "1.0.1")
+                                    .Build();
 
             var projects = new Dictionary<string, Project>
             {
-                { "Project4", Project.Load(path) },
+                { projectBuilder.ProjectName, Project.Load(projectBuilder.FullPath) },
             };
 
-            Script script = Script.Load(FileSystem.Instance.Path.Combine(dir, "Project4.xml"));
+            Script script = Script.Load(projectBuilder.ScriptXmlPath);
             AutomationScriptBuilder builder = new AutomationScriptBuilder(script, projects, new List<Script> { script }, directoryForNuGetConfig: null);
 
+            // Act
             var result = await builder.BuildAsync().ConfigureAwait(false);
 
+            // Assert
             result.Should().NotBeNull();
             result.Document.Should()
                   .ContainEquivalentOf(
@@ -942,6 +966,198 @@ class Class1 {}]]>
             result.Assemblies.Should().Contain(a => a.DllImport == "newtonsoft.json\\13.0.4\\lib\\net45\\Newtonsoft.Json.dll");
             result.Assemblies.Should().Contain(a => a.DllImport == "newtonsoft.json\\13.0.2\\lib\\net45\\Newtonsoft.Json.dll");
             result.DllAssemblies.Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public async Task AutomationScriptBuilder_DataMinerSolutionId_Script1ShouldHaveSameNuGetVersion()
+        {
+            // Arrange
+            string testDirectory = TestFixture.InitializeDirectoryForTest();
+
+            var script1Builder = new AutomationScriptProjectBuilder(testDirectory)
+                                    .WithPackageReference("Newtonsoft.Json", "13.0.3")
+                                    .Build();
+
+            var script2Builder = new AutomationScriptProjectBuilder(testDirectory)
+                                    .WithPackageReference("Newtonsoft.Json", "13.0.4")
+                                    .Build();
+
+            var projectScript1 = Project.Load(script1Builder.FullPath);
+            var scriptProjects = new Dictionary<string, Project>
+            {
+                // Will always be one
+                [projectScript1.ProjectName] = projectScript1,
+            };
+
+            var solutionProjects = new List<Project>
+            {
+                projectScript1,
+                Project.Load(script2Builder.FullPath),
+            };
+
+            Script script1 = Script.Load(script1Builder.ScriptXmlPath);
+
+            var allScripts = new List<Script>
+            {
+                script1,
+                Script.Load(script2Builder.ScriptXmlPath)
+            };
+
+            const string dataMinerSolutionId = "RANDOM_DATAMINER_SOLUTION_ID";
+
+            // Act
+            AutomationScriptBuilder builder = new AutomationScriptBuilder(dataMinerSolutionId, script1, scriptProjects, solutionProjects, allScripts, directoryForNuGetConfig: null);
+            var result = await builder.BuildAsync().ConfigureAwait(false);
+
+            // Assert
+            result.Should().NotBeNull();
+
+            // Assert SolutionId
+            result.Document.Should().ContainEquivalentOf($"<SolutionId>{dataMinerSolutionId}</SolutionId>");
+
+            // Assert the correct reference is used (highest one is in script 2, so that one should be used)
+            result.Document.Should()
+                  .ContainEquivalentOf(
+                      "<Param type=\"ref\">C:\\Skyline DataMiner\\ProtocolScripts\\DllImport\\newtonsoft.json\\13.0.4\\lib\\net45\\Newtonsoft.Json.dll</Param>");
+
+            result.Document.Should()
+                  .NotContainEquivalentOf(
+                      "<Param type=\"ref\">C:\\Skyline DataMiner\\ProtocolScripts\\DllImport\\newtonsoft.json\\13.0.3\\lib\\net45\\Newtonsoft.Json.dll</Param>");
+
+            result.Assemblies.Should().HaveCount(1);
+            result.Assemblies.Should().Contain(a => a.DllImport == @"newtonsoft.json\13.0.4\lib\net45\Newtonsoft.Json.dll");
+
+            result.DllAssemblies.Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public async Task AutomationScriptBuilder_NoDataMinerSolutionId_Script1ShouldHaveDifferentNuGetVersion()
+        {
+            // Arrange
+            string testDirectory = TestFixture.InitializeDirectoryForTest();
+
+            var script1Builder = new AutomationScriptProjectBuilder(testDirectory)
+                                    .WithPackageReference("Newtonsoft.Json", "13.0.3")
+                                    .Build();
+
+            var script2Builder = new AutomationScriptProjectBuilder(testDirectory)
+                                    .WithPackageReference("Newtonsoft.Json", "13.0.4")
+                                    .Build();
+
+            var projectScript1 = Project.Load(script1Builder.FullPath);
+            var scriptProjects = new Dictionary<string, Project>
+            {
+                // Will always be one
+                [projectScript1.ProjectName] = projectScript1,
+            };
+
+            Script script1 = Script.Load(script1Builder.ScriptXmlPath);
+
+            var allScripts = new List<Script>
+            {
+                script1,
+                Script.Load(script2Builder.ScriptXmlPath)
+            };
+
+            // Act
+            AutomationScriptBuilder builder = new AutomationScriptBuilder(script1, scriptProjects, allScripts, directoryForNuGetConfig: null);
+            var result = await builder.BuildAsync().ConfigureAwait(false);
+
+            // Assert
+            result.Should().NotBeNull();
+
+            // Assert SolutionId
+            result.Document.Should().NotContainEquivalentOf("<SolutionId>");
+
+            // Assert the correct reference is used (highest one is in script 2, but no solution id, so shouldn't change)
+            result.Document.Should()
+                  .ContainEquivalentOf(
+                      "<Param type=\"ref\">C:\\Skyline DataMiner\\ProtocolScripts\\DllImport\\newtonsoft.json\\13.0.3\\lib\\net45\\Newtonsoft.Json.dll</Param>");
+
+            result.Document.Should()
+                  .NotContainEquivalentOf(
+                      "<Param type=\"ref\">C:\\Skyline DataMiner\\ProtocolScripts\\DllImport\\newtonsoft.json\\13.0.4\\lib\\net45\\Newtonsoft.Json.dll</Param>");
+
+            result.Assemblies.Should().HaveCount(1);
+            result.Assemblies.Should().Contain(a => a.DllImport == @"newtonsoft.json\13.0.3\lib\net45\Newtonsoft.Json.dll");
+
+            result.DllAssemblies.Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public async Task AutomationScriptBuilder_DataMinerSolutionId_AllScriptsShouldHaveSameNuGetVersion()
+        {
+            // Arrange
+            string testDirectory = TestFixture.InitializeDirectoryForTest();
+
+            var script1Builder = new AutomationScriptProjectBuilder(testDirectory)
+                                 .WithPackageReference("Newtonsoft.Json", "13.0.3")
+                                 .Build();
+
+            var script2Builder = new AutomationScriptProjectBuilder(testDirectory)
+                                 .WithPackageReference("Newtonsoft.Json", "13.0.4")
+                                 .Build();
+
+            var script3Builder = new AutomationScriptProjectBuilder(testDirectory)
+                                 .WithPackageReference("Newtonsoft.Json", "13.0.2")
+                                 .Build();
+
+            List<(AutomationScriptProjectBuilder mainScript, List<AutomationScriptProjectBuilder> otherSolutionScripts)> builders =
+            [
+                (script1Builder, [script2Builder, script3Builder]),
+                (script2Builder, [script1Builder, script3Builder]),
+                (script3Builder, [script1Builder, script2Builder])
+            ];
+
+            foreach ((AutomationScriptProjectBuilder mainScript, List<AutomationScriptProjectBuilder> otherSolutionScripts) in builders)
+            {
+                var mainScriptProject = Project.Load(mainScript.FullPath);
+                var scriptProjects = new Dictionary<string, Project>
+                {
+                    // Will always be one
+                    [mainScriptProject.ProjectName] = mainScriptProject,
+                };
+
+                var solutionProjects = new List<Project>
+                {
+                    mainScriptProject,
+                };
+
+                Script script = Script.Load(mainScript.ScriptXmlPath);
+
+                var allScripts = new List<Script>
+                {
+                    script,
+                };
+
+                foreach (AutomationScriptProjectBuilder otherSolutionScript in otherSolutionScripts)
+                {
+                    allScripts.Add(Script.Load(otherSolutionScript.ScriptXmlPath));
+                    solutionProjects.Add(Project.Load(otherSolutionScript.FullPath));
+                }
+
+                const string dataMinerSolutionId = "RANDOM_DATAMINER_SOLUTION_ID";
+
+                // Act
+                AutomationScriptBuilder builder = new AutomationScriptBuilder(dataMinerSolutionId, script, scriptProjects, solutionProjects, allScripts, directoryForNuGetConfig: null);
+                var result = await builder.BuildAsync().ConfigureAwait(false);
+
+                // Assert
+                result.Should().NotBeNull();
+
+                // Assert SolutionId
+                result.Document.Should().ContainEquivalentOf($"<SolutionId>{dataMinerSolutionId}</SolutionId>");
+
+                // Assert the correct reference is used
+                result.Document.Should()
+                      .ContainEquivalentOf(
+                          "<Param type=\"ref\">C:\\Skyline DataMiner\\ProtocolScripts\\DllImport\\newtonsoft.json\\13.0.4\\lib\\net45\\Newtonsoft.Json.dll</Param>");
+
+                result.Assemblies.Should().HaveCount(1);
+                result.Assemblies.Should().Contain(a => a.DllImport == @"newtonsoft.json\13.0.4\lib\net45\Newtonsoft.Json.dll");
+
+                result.DllAssemblies.Should().BeEmpty();
+            }
         }
     }
 }

@@ -1,9 +1,8 @@
 ﻿namespace Assemblers.AutomationTests
 {
-    using System.Runtime.InteropServices;
-
-    using Microsoft.Build.Locator;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+    using Skyline.DataMiner.CICD.Packages.TestHelpers;
 
     [TestClass]
     public static class TestHelper
@@ -11,11 +10,13 @@
         [AssemblyInitialize]
         public static void AssemblyInitialize(TestContext context)
         {
-            // Register MSBuild so it can find the .NET SDK
-            if (!MSBuildLocator.IsRegistered && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                MSBuildLocator.RegisterDefaults();
-            }
+            AssemblyInitializer.OnAssemblyInitialize(context);
+        }
+
+        [AssemblyCleanup]
+        public static void Cleanup()
+        {
+            AssemblyInitializer.OnAssemblyCleanup();
         }
     }
 }
