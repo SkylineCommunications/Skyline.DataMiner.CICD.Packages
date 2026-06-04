@@ -20,7 +20,7 @@
     <PackageVersion Include="Skyline.DataMiner.CICD.Models.Protocol" Version="2.0.0" />
     <PackageVersion Include="Skyline.DataMiner.CICD.Tools.Reporter" Version="1.0.2" />
     <PackageVersion Include="Skyline.DataMiner.Core.AppPackageCreator" Version="4.0.0" />
-    <PackageVersion Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
+    <PackageVersion Include="System.CommandLine" Version="2.0.8" />
     <PackageVersion Include="System.IO.FileSystem.AccessControl" Version="5.0.0" />
     <PackageVersion Include="System.Text.Json" Version="10.0.8" />
     <PackageVersion Include="XMLUnit.Core" Version="2.11.1" />
