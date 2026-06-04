@@ -5,7 +5,7 @@
     </PropertyGroup>
 
     <!-- Properties for NuGet projects -->
-    <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('Tests')) == false">
+    <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('Tests')) == false And '$(MSBuildProjectName)' != 'TestHelpers'">
         <GenerateDocumentationFile>True</GenerateDocumentationFile>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <PackageTags>Skyline;DataMiner;CICD</PackageTags>
