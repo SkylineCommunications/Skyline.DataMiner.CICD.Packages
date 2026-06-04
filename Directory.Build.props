@@ -20,7 +20,7 @@
         <RepositoryType>git</RepositoryType>
     </PropertyGroup>
 
-    <ItemGroup Condition="$(MSBuildProjectName.EndsWith('Tests')) == false And '$(MSBuildProjectName)' != 'CICD.Tools.Packager'">
+    <ItemGroup Condition="$(MSBuildProjectName.EndsWith('Tests')) == false And '$(MSBuildProjectName)' != 'TestHelpers' And '$(MSBuildProjectName)' != 'CICD.Tools.Packager'">
         <None Include="..\README.md" Pack="true" PackagePath="" />
         <None Include="..\_NuGetItems\icon.png" Pack="true" PackagePath="" />
         <None Include="..\_NuGetItems\LICENSE.txt" Pack="true" PackagePath="" />
