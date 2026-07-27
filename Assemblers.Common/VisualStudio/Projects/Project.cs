@@ -205,6 +205,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects
                                                                              r.GetMetadataValue("Project"));
                                                                      }));
                     bool isCpm = String.Equals(loadedProject.GetPropertyValue("ManagePackageVersionsCentrally"), "true", StringComparison.OrdinalIgnoreCase);
+                    bool isCptpEnabled = isCpm && String.Equals(loadedProject.GetPropertyValue("CentralPackageTransitivePinningEnabled"), "true", StringComparison.OrdinalIgnoreCase);
                     Dictionary<string, string> packageVersions = null;
                     if (isCpm)
                     {
@@ -212,26 +213,40 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects
                                                        .ToDictionary(pv => pv.EvaluatedInclude, pv => pv.GetMetadataValue("Version"), StringComparer.OrdinalIgnoreCase);
                     }
 
-                    project._packageReferences.AddRange(loadedProject.GetItems("PackageReference")
-                                                                     .Select(r =>
+                    var explicitPackageReferences = loadedProject.GetItems("PackageReference")
+                                                                 .Select(r =>
+                                                                 {
+                                                                     string version = r.GetMetadataValue("Version");
+
+                                                                     if (isCpm && String.IsNullOrEmpty(version))
                                                                      {
-                                                                         string version = r.GetMetadataValue("Version");
-
-                                                                         if (isCpm && String.IsNullOrEmpty(version))
+                                                                         string versionOverride = r.GetMetadataValue("VersionOverride");
+                                                                         if (!String.IsNullOrEmpty(versionOverride))
                                                                          {
-                                                                             string versionOverride = r.GetMetadataValue("VersionOverride");
-                                                                             if (!String.IsNullOrEmpty(versionOverride))
-                                                                             {
-                                                                                 version = versionOverride;
-                                                                             }
-                                                                             else if (packageVersions.TryGetValue(r.EvaluatedInclude, out string centralVersion))
-                                                                             {
-                                                                                 version = centralVersion;
-                                                                             }
+                                                                             version = versionOverride;
                                                                          }
+                                                                         else if (packageVersions.TryGetValue(r.EvaluatedInclude, out string centralVersion))
+                                                                         {
+                                                                             version = centralVersion;
+                                                                         }
+                                                                     }
 
-                                                                         return new PackageReference(r.EvaluatedInclude, version);
-                                                                     }));
+                                                                     return new PackageReference(r.EvaluatedInclude, version);
+                                                                 })
+                                                                 .ToList();
+
+                    project._packageReferences.AddRange(explicitPackageReferences);
+
+                    // When CentralPackageTransitivePinningEnabled is true, all PackageVersion entries are pinned
+                    // (including transitive dependencies). Add those not already covered by an explicit PackageReference.
+                    if (isCptpEnabled && packageVersions != null)
+                    {
+                        var explicitIds = new HashSet<string>(explicitPackageReferences.Select(p => p.Name), StringComparer.OrdinalIgnoreCase);
+                        project._packageReferences.AddRange(
+                            packageVersions
+                                .Where(kv => !explicitIds.Contains(kv.Key))
+                                .Select(kv => new PackageReference(kv.Key, kv.Value)));
+                    }
 
                     project._files.AddRange(loadedProject.GetItems("Compile")
                                                         .Select(i => new ProjectFile(i.EvaluatedInclude, FileSystem.File.ReadAllText(i.GetMetadataValue("FullPath")))));
