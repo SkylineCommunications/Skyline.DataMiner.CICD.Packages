@@ -16,3 +16,5 @@ updates:
     ignore:
       - dependency-name: "FluentAssertions"
         versions: [ ">=8.0.0" ]
+      - dependency-name: "System.CommandLine"
+    open-pull-requests-limit: 10
