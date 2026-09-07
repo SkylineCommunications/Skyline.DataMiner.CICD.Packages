@@ -15,5 +15,9 @@
   <ItemGroup>
     <InternalsVisibleTo Include="$(MSBuildProjectName)Tests" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Build" ExcludeAssets="runtime" PrivateAssets="all" />
+   
+  </ItemGroup>
 
 </Project>
