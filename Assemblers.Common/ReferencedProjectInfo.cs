@@ -42,6 +42,10 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common
         /// </summary>
         public bool IsPackable { get; set; }
         /// <summary>
+        /// Indicates whether to generate a package on build for the referenced project.
+        /// </summary>
+        public bool GeneratePackageOnBuild { get; set; }
+        /// <summary>
         /// Indicates the type of DataMiner.
         /// </summary>
         public string DataMinerType { get; set; }
@@ -54,7 +58,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common
         /// Constructor for the <see cref="ReferencedProjectInfo"/> class.
         /// </summary>
         public ReferencedProjectInfo(string projectPath, string packageId, string packageVersion, string targetFramework, string targetPath,
-                                 string assemblyName, bool isPackable, string dataMinerType,
+                                 string assemblyName, bool isPackable, bool generatePackageOnBuild, string dataMinerType,
                                   IReadOnlyList<PackageIdentity> directPackageReferences)
         {
             ProjectPath = projectPath;
@@ -64,6 +68,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common
             TargetPath = targetPath ?? string.Empty;
             AssemblyName = assemblyName ?? string.Empty;
             IsPackable = isPackable;
+            GeneratePackageOnBuild = generatePackageOnBuild;
             DataMinerType = dataMinerType ?? string.Empty;
             DirectPackageReferences = directPackageReferences ?? new List<PackageIdentity>();
         }
@@ -75,7 +80,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common
         /// <summary>
         /// Checks if the referenced project should be harvested as NuGet assemblies.
         /// </summary>
-        public bool ShouldHarvestAsNuGetAssemblies() => !IsDataMinerProject && IsPackable;
+        public bool ShouldHarvestAsNuGetAssemblies() => !IsDataMinerProject && (IsPackable || GeneratePackageOnBuild);
 
         /// <summary>
         /// Gets the relative path for DllImport based on the package information.
