@@ -96,5 +96,17 @@ namespace Skyline.DataMiner.CICD.Assemblers.Automation
                 generatePackageOnBuild: genPkgOnBuild,
                 directPackageReferences: directPackages);
         }
+        /// <summary>
+        /// creates a synthetic package assembly reference from the referenced project information.
+        /// </summary>
+        /// <returns>the synthetic package assembly reference, or null if the referenced project is invalid.</returns>
+        public static PackageAssemblyReference CreateSyntheticPackageAssembyReference(ReferencedProjectInfo referencedProjectInfo)
+        {
+            if(referencedProjectInfo == null || !referencedProjectInfo.ShouldHarvestAsNuGetAssemblies()) return null;
+            var dllImportInfo = referencedProjectInfo.GetDllImportRelativePath().Replace('\\', '/');
+            var assemblyPath = referencedProjectInfo.GetSourceAssemblyPath();
+            return new PackageAssemblyReference(dllImportInfo, Path.GetFullPath(assemblyPath));
+        }
     }
+   
 }
