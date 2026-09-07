@@ -6,10 +6,11 @@
     using System.Reflection;
     using System.Text.RegularExpressions;
     using System.Threading.Tasks;
-
+    
     using NuGet.Packaging.Core;
     using NuGet.Versioning;
-
+    using MSBuildEval = Microsoft.Build.Evaluation;
+    
     using Skyline.DataMiner.CICD.Assemblers.Common;
     using Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects;
     using Skyline.DataMiner.CICD.Common.NuGet;
@@ -62,7 +63,7 @@
 
             // ToList as it will be enumerated multiple times later on.
             AllScripts = allScripts.ToList();
-
+            
             this.directoryForNuGetConfig = directoryForNuGetConfig;
         }
 
@@ -214,6 +215,8 @@
                    && content.Contains("class Script")
                    && (content.Contains("void Run(Engine") || content.Contains("void Run(IEngine"));
         }
+        
+      
 
         private async Task BuildDllImportsAsync(EditXml.XmlElement editExe, Project project, PackageReferenceProcessor packageReferenceProcessor, BuildResultItems buildResultItems)
         {
