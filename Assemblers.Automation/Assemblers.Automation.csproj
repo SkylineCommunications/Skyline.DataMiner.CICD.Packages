@@ -15,8 +15,8 @@
   <ItemGroup>
     <InternalsVisibleTo Include="$(MSBuildProjectName)Tests" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
-    <PackageReference Include="Microsoft.Build" ExcludeAssets="runtime" PrivateAssets="all" />
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Build" PrivateAssets="all" />
     <PackageReference Include="NuGet.Versioning" />
     <PackageReference Include="NuGet.Packaging" />
   </ItemGroup>
