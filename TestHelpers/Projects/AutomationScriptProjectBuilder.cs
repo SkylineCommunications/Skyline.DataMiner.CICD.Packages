@@ -42,7 +42,7 @@ namespace Skyline.DataMiner.CICD.Packages.TestHelpers.Projects
             this.devAutomationVersion = devAutomationVersion;
 
             scriptXml = GetDefaultScriptXml();
-            csharpFiles[$"{projectName}.cs"] = GetDefaultCSharpContent();
+            csharpFiles[$"{this.projectName}.cs"] = GetDefaultCSharpContent();
         }
 
         /// <summary>
@@ -63,12 +63,12 @@ namespace Skyline.DataMiner.CICD.Packages.TestHelpers.Projects
         /// <summary>
         /// Gets the full path to the script XML file after Build() is called.
         /// </summary>
-        public string ScriptXmlPath => FileSystem.Instance.Path.Combine(DirectoryPath, $"{projectName}.xml");
+        public string ScriptXmlPath => FileSystem.Instance.Path.Combine(DirectoryPath, $"{this.projectName}.xml");
 
         /// <summary>
         /// Gets the project name.
         /// </summary>
-        public string ProjectName => projectName;
+        public string ProjectName => this.projectName;
 
         /// <summary>
         /// Sets a custom script XML content (overrides default).
@@ -141,8 +141,8 @@ namespace Skyline.DataMiner.CICD.Packages.TestHelpers.Projects
         /// <returns>This builder instance (for chaining or accessing FullPath/etc.).</returns>
         public AutomationScriptProjectBuilder Build()
         {
-            string projectDir = FileSystem.Instance.Path.Combine(testDirectory, projectName);
-            string csprojPath = FileSystem.Instance.Path.Combine(projectDir, $"{projectName}.csproj");
+            string projectDir = FileSystem.Instance.Path.Combine(testDirectory, this.projectName);
+            string csprojPath = FileSystem.Instance.Path.Combine(projectDir, $"{this.projectName}.csproj");
             
             // Create the .csproj via ProjectCreator
             var creator = ProjectCreator.Templates.SdkCsproj(
@@ -181,13 +181,13 @@ namespace Skyline.DataMiner.CICD.Packages.TestHelpers.Projects
 
             // Write script XML
             string xmlContent = scriptXml ?? GetDefaultScriptXml();
-            TestFixture.WriteFile(FileSystem.Instance.Path.Combine(projectDir, $"{projectName}.xml"), xmlContent);
+            TestFixture.WriteFile(FileSystem.Instance.Path.Combine(projectDir, $"{this.projectName}.xml"), xmlContent);
 
             // Write C# files
             if (csharpFiles.Count == 0)
             {
                 // Write default if none specified
-                TestFixture.WriteFile(FileSystem.Instance.Path.Combine(projectDir, $"{projectName}.cs"), GetDefaultCSharpContent());
+                TestFixture.WriteFile(FileSystem.Instance.Path.Combine(projectDir, $"{this.projectName}.cs"), GetDefaultCSharpContent());
             }
             else
             {
@@ -212,7 +212,7 @@ namespace Skyline.DataMiner.CICD.Packages.TestHelpers.Projects
             return $"""
                     <?xml version="1.0" encoding="utf-8" ?>
                     <DMSScript options="272" xmlns="http://www.skyline.be/automation">
-                        <Name>{projectName}</Name>
+                        <Name>{this.projectName}</Name>
                         <Description></Description>
                         <Type>Automation</Type>
                         <Author>MOD</Author>
@@ -231,7 +231,7 @@ namespace Skyline.DataMiner.CICD.Packages.TestHelpers.Projects
 
                         <Script>
                             <Exe id="1" type="csharp">
-                                <Value><![CDATA[[Project:{projectName}]]]></Value>
+                                <Value><![CDATA[[Project:{this.projectName}]]]></Value>
                                 <!--<Param type="debug">true</Param>-->
                                 <Message></Message>
                             </Exe>
