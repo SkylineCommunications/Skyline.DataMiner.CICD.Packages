@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if NET10_0
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -110,3 +111,30 @@ namespace Skyline.DataMiner.CICD.Assemblers.Automation
     }
    
 }
+#else
+using Skyline.DataMiner.CICD.Assemblers.Common;
+
+namespace Skyline.DataMiner.CICD.Assemblers.Automation
+{
+/// <summary>
+    /// Provides helper methods for evaluating MSBuild projects for net48.
+    /// </summary>
+    public static class MSBuildHelpers
+    {
+    /// <summary>
+        /// Evaluates a referenced project and returns information about it for net48.
+        /// </summary>
+        /// <param name="referencedProjectFullPath">The full path to the referenced project file.</param>
+        /// <returns>The evaluated project information, or null if the project is invalid.</returns>
+        /// 
+        public static ReferencedProjectInfo EvaluateReferenceProject(string referencedProjectFullPath) => null;
+
+         /// <summary>
+        /// creates a synthetic package assembly reference from the referenced project information for net48.
+        /// </summary>
+        /// <returns>the synthetic package assembly reference, or null if the referenced project is invalid.</returns>
+
+        public static PackageAssemblyReference CreateSyntheticPackageAssembyReference(ReferencedProjectInfo referencedProjectInfo) => null;
+    }
+}
+#endif
