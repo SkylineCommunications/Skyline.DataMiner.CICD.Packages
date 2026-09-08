@@ -9,7 +9,7 @@
     
     using NuGet.Packaging.Core;
     using NuGet.Versioning;
-    using MSBuildEval = Microsoft.Build.Evaluation;
+    
     
     using Skyline.DataMiner.CICD.Assemblers.Common;
     using Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects;
@@ -276,7 +276,7 @@
             }
             catch (Exception ex)
             {
-
+                LogDebug($"BuildDllImportsAsync|Unexpected error while evaluating project references for '{project?.AssemblyName}': {ex.Message}");
             }
             var packageIdentities = project.PackageReferences != null ? GetPackageIdentities(project.PackageReferences) : new List<PackageIdentity>();
             foreach (var hrp in harvestedReferencedProjects)
@@ -289,17 +289,22 @@
             }
             if (packageIdentities.Count > 0)
             {
-                nugetAssemblyData = await packageReferenceProcessor.ProcessAsync(packageIdentities, project.TargetFrameworkMoniker,
+                if (string.IsNullOrWhiteSpace(DataMinerSolutionId))
+                {
+                    nugetAssemblyData = await packageReferenceProcessor.ProcessAsync(packageIdentities, project.TargetFrameworkMoniker,
                     DevPackHelper.AutomationDevPackNuGetDependenciesIncludingTransitive).ConfigureAwait(false);
+                }
+                else
+                {
+                    var solutionPackageIdentities = GetPackageIdentities(DataMinerSolutionProjects.Where(solProject => solProject.PackageReferences != null)
+                                                                                         .SelectMany(solProject => solProject.PackageReferences)
+                                                                                         .Distinct());
+                    nugetAssemblyData = await packageReferenceProcessor.ProcessAsync(packageIdentities, solutionPackageIdentities, project.TargetFrameworkMoniker,
+                        DevPackHelper.AutomationDevPackNuGetDependenciesIncludingTransitive).ConfigureAwait(false);
+                }
+
             }
-            else
-            {
-                var solutionPackageIdentities = GetPackageIdentities(DataMinerSolutionProjects.Where(solProject => solProject.PackageReferences != null)
-                                                                                     .SelectMany(solProject => solProject.PackageReferences)
-                                                                                     .Distinct());
-                nugetAssemblyData = await packageReferenceProcessor.ProcessAsync(packageIdentities, solutionPackageIdentities, project.TargetFrameworkMoniker,
-                    DevPackHelper.AutomationDevPackNuGetDependenciesIncludingTransitive).ConfigureAwait(false);
-            }
+           
             if (nugetAssemblyData == null)
             {
                 nugetAssemblyData = new NuGetPackageAssemblyData();
