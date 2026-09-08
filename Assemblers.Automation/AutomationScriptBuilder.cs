@@ -713,7 +713,12 @@
         private static IList<ProjectFile> GetRelevantCodeFilesSorted(Project project)
         {
             var files = project.Files
-                               .Where(x => x.Name.EndsWith(".cs") && !x.Name.EndsWith("AssemblyInfo.cs") && !x.Name.Contains("TestPackageContent\\TestHarvesting\\") && !x.Name.Contains("TestPackageContent/TestHarvesting/") && !x.Name.Contains("TestPackageContent\\Tests\\") && !x.Name.Contains("TestPackageContent/Tests/"))
+                               .Where(x => x.Name.EndsWith(".cs") &&
+                               !x.Name.EndsWith("AssemblyInfo.cs") &&
+                               !x.Name.Contains("TestPackageContent\\TestHarvesting\\") &&
+                               !x.Name.Contains("TestPackageContent/TestHarvesting/") &&
+                               !x.Name.Contains("TestPackageContent\\Tests\\") &&
+                               !x.Name.Contains("TestPackageContent/Tests/"))
                                .OrderByDescending(IsMainCodeFile)
                                .ThenByDescending(x => x.Name.StartsWith("script", StringComparison.OrdinalIgnoreCase))
                                .ThenBy(x => x.Name)
