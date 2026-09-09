@@ -362,6 +362,94 @@
 
             return nugetAssemblyData;
         }
+        private List<ReferencedProjectInfo> GetHarvestedReferencedProjects(Project project)
+        {
+            var harvestedReferencedProjects = new List<ReferencedProjectInfo>();
+            var visitedProjectPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            CollectHarvestedReferencedProjects(project, harvestedReferencedProjects, visitedProjectPaths);
+
+            return harvestedReferencedProjects;
+        }
+
+        private void CollectHarvestedReferencedProjects(Project project, List<ReferencedProjectInfo> harvestedReferencedProjects, HashSet<string> visitedProjectPaths)
+        {
+            if (project?.ProjectReferences == null)
+            {
+                return;
+            }
+            foreach (var pr in project.ProjectReferences)
+            {
+                if (!TryGetReferencedProjectInfo(project, pr, out var referencedProjectInfo))
+                {
+                    continue;
+                }
+
+                if (!referencedProjectInfo.ShouldHarvestAsNuGetAssemblies())
+                {
+                    continue;
+                }
+
+                if (!harvestedReferencedProjects.Any(x => String.Equals(x.ProjectPath, referencedProjectInfo.ProjectPath, StringComparison.OrdinalIgnoreCase)))
+                {
+                    harvestedReferencedProjects.Add(referencedProjectInfo);
+                }
+
+                if (!visitedProjectPaths.Add(referencedProjectInfo.ProjectPath))
+                {
+                    continue;
+                }
+                try
+                {
+                    var referencedProject = Project.Load(referencedProjectInfo.ProjectPath);
+                    //recursively collect harvested referenced projects for the referenced project
+                    CollectHarvestedReferencedProjects(referencedProject, harvestedReferencedProjects, visitedProjectPaths);
+                }
+                catch (Exception ex)
+                {
+                    LogDebug($"CollectHarvestedReferencedProjects|Error loading referenced project: {referencedProjectInfo.ProjectPath}|Error: {ex.Message}");
+                }
+            }
+        }
+
+        private bool TryGetReferencedProjectInfo(Project project, ProjectReference pr, out ReferencedProjectInfo referencedProjectInfo)
+        {
+            referencedProjectInfo = null;
+
+            try
+            {
+                var projectReferencePath = pr.Path;
+                if (String.IsNullOrWhiteSpace(projectReferencePath))
+                {
+                    return false;
+                }
+
+                var baseDir = project.ProjectDirectory ?? Path.GetDirectoryName(project.Path) ?? ".";
+                var fullRefPath = Path.IsPathRooted(projectReferencePath)
+                    ? projectReferencePath
+                    : Path.GetFullPath(Path.Combine(baseDir, projectReferencePath));
+
+                if (!File.Exists(fullRefPath))
+                {
+                    LogDebug($"TryGetReferencedProjectInfo|Referenced project file does not exist: {fullRefPath}");
+                    return false;
+                }
+
+                referencedProjectInfo = MSBuildHelpers.EvaluateReferenceProject(fullRefPath);
+                if (referencedProjectInfo == null)
+                {
+                    LogDebug($"TryGetReferencedProjectInfo|Referenced project file is invalid: {fullRefPath}");
+                    return false;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogDebug($"TryGetReferencedProjectInfo|Error evaluating referenced project: {pr.Path}|Error: {ex.Message}");
+                return false;
+            }
+        }
 
         private void ProcessLibAssemblies(EditXml.XmlElement editExe, BuildResultItems buildResultItems, NuGetPackageAssemblyData nugetAssemblyData)
         {
