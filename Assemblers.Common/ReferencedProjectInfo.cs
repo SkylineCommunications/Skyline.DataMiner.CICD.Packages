@@ -96,7 +96,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common
             }
 
             var fileName = AssemblyName.EndsWith(".dll", StringComparison.OrdinalIgnoreCase) ? AssemblyName : AssemblyName + ".dll";
-            return $"Assemblies/ProtocolScripts/DllImport/{PackageId}/{PackageVersion}/lib/{TargetFramework}/{fileName}";
+            return $"{PackageId}/{PackageVersion}/lib/{TargetFramework}/{fileName}";
         }
         /// <summary>
         /// Gets the full path to the source assembly based on the target path.
