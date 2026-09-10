@@ -237,47 +237,8 @@
             NuGetPackageAssemblyData nugetAssemblyData = null;
 
             // PackageReferences (NuGet packages)
-            var harvestedReferencedProjects = new List<ReferencedProjectInfo>();
-            try
-            {
-                if (project.ProjectReferences != null)
-                {
-                    foreach (var pr in project.ProjectReferences)
-                    {
-                        try
-                        {
-                            var prPath = pr.Path;
-                            if (string.IsNullOrWhiteSpace(prPath)) continue;
-
-                            var baseDir = project.ProjectDirectory ?? Path.GetDirectoryName(project.Path) ?? ".";
-                            var fullRefPath = Path.IsPathRooted(prPath) ? prPath : Path.GetFullPath(Path.Combine(baseDir, prPath));
-                            if (!File.Exists(fullRefPath))
-                            {
-                                LogDebug($"BuildDllImportsAsync|Referenced project file does not exist: {fullRefPath}");
-                                continue;
-                            }
-                            var referencedProjectInfo = MSBuildHelpers.EvaluateReferenceProject(fullRefPath);
-                            if (referencedProjectInfo == null)
-                            {
-                                LogDebug($"BuildDllImportsAsync|Referenced project file is invalid: {fullRefPath}");
-                                continue;
-                            }
-                            if (referencedProjectInfo.ShouldHarvestAsNuGetAssemblies())
-                            {
-                                harvestedReferencedProjects.Add(referencedProjectInfo);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            LogDebug($"BuildDllImportsAsync|Error evaluating referenced project: {pr.Path}|Error: {ex.Message}");
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                LogDebug($"BuildDllImportsAsync|Unexpected error while evaluating project references for '{project?.AssemblyName}': {ex.Message}");
-            }
+            var harvestedReferencedProjects = GetHarvestedReferencedProjects(project);
+            
             var packageIdentities = project.PackageReferences != null ? GetPackageIdentities(project.PackageReferences) : new List<PackageIdentity>();
             foreach (var hrp in harvestedReferencedProjects)
             {
@@ -287,24 +248,7 @@
                         packageIdentities.Add(dpr);
                 }
             }
-            if (packageIdentities.Count > 0)
-            {
-                if (string.IsNullOrWhiteSpace(DataMinerSolutionId))
-                {
-                    nugetAssemblyData = await packageReferenceProcessor.ProcessAsync(packageIdentities, project.TargetFrameworkMoniker,
-                    DevPackHelper.AutomationDevPackNuGetDependenciesIncludingTransitive).ConfigureAwait(false);
-                }
-                else
-                {
-                    var solutionPackageIdentities = GetPackageIdentities(DataMinerSolutionProjects.Where(solProject => solProject.PackageReferences != null)
-                                                                                         .SelectMany(solProject => solProject.PackageReferences)
-                                                                                         .Distinct());
-                    nugetAssemblyData = await packageReferenceProcessor.ProcessAsync(packageIdentities, solutionPackageIdentities, project.TargetFrameworkMoniker,
-                        DevPackHelper.AutomationDevPackNuGetDependenciesIncludingTransitive).ConfigureAwait(false);
-                }
-
-            }
-           
+            nugetAssemblyData = await ProcessPackageReferences(editExe, project, packageReferenceProcessor, buildResultItems, packageIdentities).ConfigureAwait(false);
             if (nugetAssemblyData == null)
             {
                 nugetAssemblyData = new NuGetPackageAssemblyData();
@@ -314,7 +258,10 @@
                 try
                 {
                     var synthetic = MSBuildHelpers.CreateSyntheticPackageAssembyReference(hrp);
-                    if (synthetic != null)
+                    if (synthetic != null &&
+                !nugetAssemblyData.DllImportNugetAssemblyReferences.Any(x =>
+                    String.Equals(x.DllImport, synthetic.DllImport, StringComparison.OrdinalIgnoreCase) &&
+                    String.Equals(x.AssemblyPath, synthetic.AssemblyPath, StringComparison.OrdinalIgnoreCase)))
                     {
                         nugetAssemblyData.DllImportNugetAssemblyReferences.Add(synthetic);
                     }
@@ -344,7 +291,10 @@
 
             if (String.IsNullOrWhiteSpace(DataMinerSolutionId))
             {
-                nugetAssemblyData = await packageReferenceProcessor.ProcessAsync(packageIdentities, project.TargetFrameworkMoniker, DevPackHelper.AutomationDevPackNuGetDependenciesIncludingTransitive).ConfigureAwait(false);
+                nugetAssemblyData = await packageReferenceProcessor.ProcessAsync(packageIdentities,
+                    project.TargetFrameworkMoniker,
+                    DevPackHelper.AutomationDevPackNuGetDependenciesIncludingTransitive)
+                    .ConfigureAwait(false);
             }
             else
             {
@@ -352,7 +302,11 @@
                                                                                      .SelectMany(solProject => solProject.PackageReferences)
                                                                                      .Distinct());
 
-                nugetAssemblyData = await packageReferenceProcessor.ProcessAsync(packageIdentities, solutionPackageIdentities, project.TargetFrameworkMoniker, DevPackHelper.AutomationDevPackNuGetDependenciesIncludingTransitive).ConfigureAwait(false);
+                nugetAssemblyData = await packageReferenceProcessor.ProcessAsync(packageIdentities,
+                    solutionPackageIdentities,
+                    project.TargetFrameworkMoniker,
+                    DevPackHelper.AutomationDevPackNuGetDependenciesIncludingTransitive)
+                    .ConfigureAwait(false);
             }
 
             LogDebug($"NuGetPackageAssemblyData: {nugetAssemblyData}");
