@@ -143,6 +143,84 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects
         public ProjectStyle ProjectStyle { get; private set; }
 
         /// <summary>
+        /// Determines the DataMiner project type of the project file at the specified path.
+        /// </summary>
+        /// <param name="path">The path to the project file.</param>
+        /// <returns>The DataMiner project type.</returns>
+        /// <exception cref="FileNotFoundException">Thrown when the project file cannot be found.</exception>
+        public static DataMinerProjectType GetDataMinerProjectType(string path)
+        {
+            // Make sure to use the full path.
+            string fullPath = FileSystem.Path.GetFullPath(path);
+            if (!FileSystem.File.Exists(fullPath))
+            {
+                throw new FileNotFoundException("Could not find project file: " + fullPath);
+            }
+
+            // .shproj files import Visual Studio CodeSharing targets that may not be available
+            // outside of Visual Studio (e.g. when using the .NET SDK MSBuild). Redirect to the
+            // referenced .projitems file which contains the actual compile items.
+            if (FileSystem.Path.GetExtension(fullPath).Equals(".shproj", StringComparison.OrdinalIgnoreCase))
+            {
+                string projItemsPath = TryGetProjItemsPath(fullPath);
+                if (projItemsPath != null)
+                {
+                    return GetDataMinerProjectType(projItemsPath);
+                }
+            }
+
+            if (TryGetDataMinerTypeFromDataMinerSdkProject(fullPath, out DataMinerProjectType dataMinerProjectType))
+            {
+                return dataMinerProjectType;
+            }
+
+            using (var projectCollection = new ProjectCollection())
+            {
+                projectCollection.DisableMarkDirty = true;
+                var loadedProject = projectCollection.LoadProject(fullPath);
+                return DataMinerProjectTypeConverter.ToEnum(loadedProject.GetProperty("DataMinerType")?.EvaluatedValue) ?? Projects.DataMinerProjectType.Unknown;
+            }
+        }
+
+        private static bool TryGetDataMinerTypeFromDataMinerSdkProject(string projectPath, out DataMinerProjectType dataMinerProjectType)
+        {
+            dataMinerProjectType = Projects.DataMinerProjectType.Unknown;
+
+            try
+            {
+                XDocument document = XDocument.Load(projectPath);
+                XElement root = document.Root;
+
+                if (root == null || !String.Equals(root.Name.LocalName, "Project", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                string sdk = root.Attribute("Sdk")?.Value;
+                if (!String.Equals(sdk, "Skyline.DataMiner.Sdk", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+
+                XElement dataMinerTypeElement = root
+                    .Descendants()
+                    .FirstOrDefault(e => String.Equals(e.Name.LocalName, "DataMinerType", StringComparison.OrdinalIgnoreCase));
+
+                if (dataMinerTypeElement == null || String.IsNullOrWhiteSpace(dataMinerTypeElement.Value))
+                {
+                    return false;
+                }
+
+                dataMinerProjectType = DataMinerProjectTypeConverter.ToEnum(dataMinerTypeElement.Value) ?? Projects.DataMinerProjectType.Unknown;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Loads the projects with the specified path.
         /// </summary>
         /// <param name="path">The path of the project file to load.</param>
