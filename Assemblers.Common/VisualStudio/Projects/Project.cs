@@ -206,7 +206,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects
                     .Descendants()
                     .FirstOrDefault(e => String.Equals(e.Name.LocalName, "DataMinerType", StringComparison.OrdinalIgnoreCase));
 
-                if (dataMinerTypeElement == null || String.IsNullOrWhiteSpace(dataMinerTypeElement.Value))
+                if (dataMinerTypeElement == null)
                 {
                     return false;
                 }
