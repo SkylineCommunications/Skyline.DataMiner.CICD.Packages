@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NuGet.Packaging.Core;
 using Skyline.DataMiner.CICD.Assemblers.Common;
 
 namespace Assemblers.AutomationTests
@@ -13,62 +8,48 @@ namespace Assemblers.AutomationTests
     public class ReferencedProjectInfoTests
     {
         [TestMethod]
-        public void ShouldHarvestAsNuGetAssemblies_PackableNonDataminer_ReturnsTrue()
+        public void ShouldHarvestAssembly_NonDataMinerLibrary_ReturnsTrue()
         {
             var info = new ReferencedProjectInfo(
-                "@\"C:\\tmp\\Lib.csproj",
-                "My.Lib\"",
-                "1.2.3",
-                "netstandard2.0",
-                "@\"C:\\tmp\\bin\\Debug\\netstandard2.0\\My.Lib.dll",
-                "My.Lib",
-                isPackable: true,
-                generatePackageOnBuild: false,
-                dataMinerType: "",
-                outputType: "Library",
-                assemblyVersion: "2.0.0",
-                directPackageReferences: new List<NuGet.Packaging.Core.PackageIdentity>());
-            Assert.IsTrue(info.ShouldHarvestAsNuGetAssemblies());
-        }
-        [TestMethod]
-        public void ShouldHarvestAsNuGetAssemblies_DataMinerProject_ReturnsFalse()
-        {
-            var info = new ReferencedProjectInfo(
-                @"C:\tmp\Lib.csproj",
-                "My.Lib", "1.2.3",
-                "netstandard2.0",
-                @"C:\tmp\bin\Debug\netstandard2.0\My.Lib.dll",
-                "My.Lib",
-                isPackable: true,
-                generatePackageOnBuild: true,
-                dataMinerType: "AutomationScript",
-                outputType: "Library",
-                assemblyVersion: "2.0.0",
-                directPackageReferences: new List<PackageIdentity>());
+                @"C:\tmp\Lib.csproj")
+            {
+                DataMinerType = string.Empty,
+                OutputType = "Library",
+            };
 
-            Assert.IsFalse(info.ShouldHarvestAsNuGetAssemblies());
+            Assert.IsTrue(info.ShouldHarvestAssembly());
         }
+
+        [TestMethod]
+        public void ShouldHarvestAssembly_DataMinerProject_ReturnsFalse()
+        {
+            var info = new ReferencedProjectInfo(
+                @"C:\tmp\Lib.csproj")
+            {
+                DataMinerType = "AutomationScript",
+                OutputType = "Library",
+            };
+
+            Assert.IsFalse(info.ShouldHarvestAssembly());
+        }
+
         [TestMethod]
         public void GetDllImportRelativePath_FormatsExpectedPath()
         {
             var info = new ReferencedProjectInfo(
-                @"C:\tmp\Lib.csproj",
-                "Pkg.Id", "2.0.0",
-                "netstandard2.0",
-                @"C:\tmp\bin\Lib.dll",
-                "Lib",
-                isPackable: true,
-                generatePackageOnBuild: false,
-                dataMinerType: "",
-                outputType: "Library",
-                assemblyVersion: "2.0.0",
-                directPackageReferences: new List<PackageIdentity>());
+                @"C:\tmp\Lib.csproj")
+            {
+                PackageId = "Pkg.Id",
+                TargetFramework = "netstandard2.0",
+                AssemblyName = "Lib",
+                AssemblyVersion = "2.0.0",
+            };
 
             var path = info.GetDllImportRelativePath();
 
-            Assert.AreEqual("pkg.id/2.0.0/lib/netstandard2.0/Lib.dll", path);
+            Assert.AreEqual(
+                "pkg.id/2.0.0/lib/netstandard2.0/Lib.dll",
+                path);
         }
-
     }
-
 }

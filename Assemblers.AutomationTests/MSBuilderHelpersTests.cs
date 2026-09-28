@@ -37,7 +37,7 @@ namespace Assemblers.AutomationTests
             Assert.AreEqual("Pkg.LibA", info.PackageId);
             Assert.AreEqual("netstandard2.0", info.TargetFramework);
             Assert.AreEqual("1.0.5", info.PackageVersion);
-            Assert.IsTrue(info.ShouldHarvestAsNuGetAssemblies());
+            Assert.IsTrue(info.ShouldHarvestAssembly());
         }
        
         [TestMethod]
