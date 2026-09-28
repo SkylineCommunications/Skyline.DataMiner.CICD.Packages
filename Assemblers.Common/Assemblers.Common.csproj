@@ -5,6 +5,8 @@
     <AssemblyName>Skyline.DataMiner.CICD.Assemblers.Common</AssemblyName>
     <RootNamespace>Skyline.DataMiner.CICD.Assemblers.Common</RootNamespace>
     <Description>Library providing common methods for converting Visual Studio DIS Solutions to individual DataMiner artifacts (e.g. xml, dlls,...).</Description>
+    <!-- These versions are locally made for testing purposes -->
+    <Version>6.2.4.2-gama</Version>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net48'">

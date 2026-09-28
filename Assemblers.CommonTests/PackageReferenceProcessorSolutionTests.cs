@@ -126,6 +126,11 @@
                 },
                 DllImportNugetAssemblyReferences =
                 {
+
+
+
+
+
                     new PackageAssemblyReference(Path.Combine(pathJson, "Newtonsoft.Json.dll"), null, false),
                     new PackageAssemblyReference(Path.Combine(pathExportImport, "Skyline.DataMiner.Utils.ExportImport.dll"), null, false),
                 },
