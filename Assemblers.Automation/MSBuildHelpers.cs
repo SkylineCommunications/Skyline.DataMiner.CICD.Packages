@@ -4,11 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Build.Construction;
 using Microsoft.Build.Evaluation;
-using NuGet.Commands.Restore;
 using NuGet.Frameworks;
 using NuGet.Packaging.Core;
 using NuGet.Versioning;
@@ -44,7 +40,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Automation
                 null,
                 pc);
 
-            var selectedTargetFramework = ResolveTargetFramework(outerProject,singleTargetFramework);
+            var selectedTargetFramework = ResolveTargetFramework(outerProject, singleTargetFramework);
             pc.UnloadProject(outerProject);
             Microsoft.Build.Evaluation.Project msproj;
 
@@ -65,9 +61,15 @@ namespace Skyline.DataMiner.CICD.Assemblers.Automation
             string Get(string name) => msproj.GetPropertyValue(name) ?? string.Empty;
 
             var packageId = Get("PackageId");
+
             if (string.IsNullOrWhiteSpace(packageId))
             {
-                packageId = Get("AssemblyName") ?? Path.GetFileNameWithoutExtension(referencedProjectFullPath);
+                packageId = Get("AssemblyName");
+            }
+
+            if (string.IsNullOrWhiteSpace(packageId))
+            {
+                packageId = Path.GetFileNameWithoutExtension(referencedProjectFullPath);
             }
 
             var packageVersion = Get("PackageVersion");
@@ -101,7 +103,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Automation
                     .ToDictionary(i => i.EvaluatedInclude, i => i.GetMetadataValue("Version"), StringComparer.OrdinalIgnoreCase);
             }
             var directPackages = new List<PackageIdentity>();
-            
+
 
 
             foreach (var item in msproj.GetItems("PackageReference"))
@@ -136,31 +138,30 @@ namespace Skyline.DataMiner.CICD.Assemblers.Automation
                 directPackages.Add(new PackageIdentity(id, nugetVersion));
             }
 
-            bool isPackable = bool.TryParse(Get("IsPackable"), out var isPackableValue) && isPackableValue;
-            bool genPkgOnBuild = bool.TryParse(Get("GeneratePackageOnBuild"), out var gp) && gp;
-            string isDataMiner = Get("DataMinerType");
+
+            string dataMinerType = Get("DataMinerType");
             var outputType = Get("OutputType");
             return new ReferencedProjectInfo(
-                projectPath: Path.GetFullPath(referencedProjectFullPath),
-                packageId: packageId,
-                packageVersion: packageVersion,
-                targetFramework: targetFramework,
-                targetPath: targetPath,
-                assemblyName: Get("AssemblyName"),
-                dataMinerType: isDataMiner,
-                isPackable: isPackable,
-                outputType: outputType,
-                generatePackageOnBuild: genPkgOnBuild,
-                assemblyVersion: assemblyVersion,
-                directPackageReferences: directPackages);
+     Path.GetFullPath(referencedProjectFullPath))
+            {
+                PackageId = packageId,
+                TargetFramework = targetFramework,
+                PackageVersion = packageVersion,
+                TargetPath = targetPath,
+                AssemblyName = Get("AssemblyName"),
+                DataMinerType = dataMinerType,
+                OutputType = outputType,
+                AssemblyVersion = assemblyVersion,
+                DirectPackageReferences = directPackages,
+            };
         }
         /// <summary>
         /// creates a synthetic package assembly reference from the referenced project information.
         /// </summary>
         /// <returns>the synthetic package assembly reference, or null if the referenced project is invalid.</returns>
-        public static PackageAssemblyReference CreateSyntheticPackageAssembyReference(ReferencedProjectInfo referencedProjectInfo)
+        public static PackageAssemblyReference CreateSyntheticPackageAssemblyReference(ReferencedProjectInfo referencedProjectInfo)
         {
-            if (referencedProjectInfo == null || !referencedProjectInfo.ShouldHarvestAsNuGetAssemblies()) return null;
+            if (referencedProjectInfo == null || !referencedProjectInfo.ShouldHarvestAssembly()) return null;
             var dllImportInfo = referencedProjectInfo.GetDllImportRelativePath().Replace('\\', '/');
             var assemblyPath = referencedProjectInfo.GetSourceAssemblyPath();
             return new PackageAssemblyReference(dllImportInfo, Path.GetFullPath(assemblyPath));
