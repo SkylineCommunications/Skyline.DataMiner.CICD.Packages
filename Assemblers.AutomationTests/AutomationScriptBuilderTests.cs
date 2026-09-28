@@ -1214,7 +1214,7 @@ class Class1 {}]]>
             evaluatedLibrary.PackageId.Should().Be("Test.Library");
 
             evaluatedLibrary.IsDataMinerProject.Should().BeFalse();
-            evaluatedLibrary.ShouldHarvestAsNuGetAssemblies().Should().BeTrue();
+            evaluatedLibrary.ShouldHarvestAssembly().Should().BeTrue();
 
             evaluatedLibrary.TargetPath.Should().NotBeNullOrWhiteSpace();
 

@@ -262,7 +262,7 @@
                 try
                 {
 
-                    var synthetic = MSBuildHelpers.CreateSyntheticPackageAssembyReference(hrp);
+                    var synthetic = MSBuildHelpers.CreateSyntheticPackageAssemblyReference(hrp);
 
 
                     if (synthetic == null)
@@ -372,7 +372,7 @@
                     continue;
                 }
 
-                if (!referencedProjectInfo.ShouldHarvestAsNuGetAssemblies())
+                if (!referencedProjectInfo.ShouldHarvestAssembly())
                 {
                     continue;
                 }
@@ -422,7 +422,7 @@
                     return false;
                 }
 
-                referencedProjectInfo = MSBuildHelpers.EvaluateReferenceProject(fullRefPath, project.TargetFrameworkMoniker);
+                referencedProjectInfo = MSBuildHelpers.EvaluateReferenceProject(fullRefPath, requestedTargetFramework);
                 if (referencedProjectInfo == null)
                 {
                     LogDebug($"TryGetReferencedProjectInfo|Referenced project file is invalid: {fullRefPath}");

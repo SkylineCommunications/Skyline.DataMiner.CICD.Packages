@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NuGet.Packaging.Core;
 
 namespace Skyline.DataMiner.CICD.Assemblers.Common
@@ -22,7 +19,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common
         /// </summary>
         public string PackageId { get; set; }
         /// <summary>
-        /// Package version of the referenced project.
+        /// Gets or sets the NuGet package version of the referenced project.
         /// </summary>
         public string PackageVersion { get; set; } = string.Empty;
         /// <summary>
@@ -37,14 +34,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common
         /// Assembly name of the referenced project.
         /// </summary>
         public string AssemblyName { get; set; } = string.Empty;
-        /// <summary>
-        /// Indicates whether the referenced project is packable.
-        /// </summary>
-        public bool IsPackable { get; set; }
-        /// <summary>
-        /// Indicates whether to generate a package on build for the referenced project.
-        /// </summary>
-        public bool GeneratePackageOnBuild { get; set; }
+
         /// <summary>
         /// Indicates the type of DataMiner.
         /// </summary>
@@ -54,7 +44,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common
         /// </summary>
         public string OutputType { get; set; } = string.Empty;
         /// <summary>
-        /// Get the assembly version from CI build or from the project file.
+        /// Gets or sets the version read from the built assembly.
         /// </summary>
 
         public string AssemblyVersion { get; set; } = string.Empty;
@@ -62,26 +52,13 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common
         /// <summary>
         /// Tells the system which dependencies/references to include.
         /// </summary>
-        public IReadOnlyList<PackageIdentity> DirectPackageReferences { get; }
+        public IReadOnlyList<PackageIdentity> DirectPackageReferences { get; set; } = Array.Empty<PackageIdentity>();
         /// <summary>
         /// Constructor for the <see cref="ReferencedProjectInfo"/> class.
         /// </summary>
-        public ReferencedProjectInfo(string projectPath, string packageId, string packageVersion, string targetFramework, string targetPath,
-                                 string assemblyName, bool isPackable, bool generatePackageOnBuild, string dataMinerType, string outputType, string assemblyVersion,
-                                  IReadOnlyList<PackageIdentity> directPackageReferences)
-        {
+        public ReferencedProjectInfo(string projectPath)
+        {;
             ProjectPath = projectPath;
-            PackageId = packageId ?? string.Empty;
-            PackageVersion = packageVersion ?? string.Empty;
-            TargetFramework = targetFramework ?? string.Empty;
-            TargetPath = targetPath ?? string.Empty;
-            AssemblyName = assemblyName ?? string.Empty;
-            IsPackable = isPackable;
-            GeneratePackageOnBuild = generatePackageOnBuild;
-            DataMinerType = dataMinerType ?? string.Empty;
-            OutputType = outputType ?? string.Empty;
-            AssemblyVersion = assemblyVersion ?? string.Empty;
-            DirectPackageReferences = directPackageReferences ?? new List<PackageIdentity>();
         }
         /// <summary>
         /// Checks if the referenced project is a DataMiner project based on the DataMinerType property.
@@ -90,12 +67,12 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common
         /// <summary>
         /// Checks if the referenced project is a Library project based on the OutputType property.
         /// </summary>
-        public bool IsLibraryProject =>string.Equals(OutputType, "Library", StringComparison.OrdinalIgnoreCase);
+        public bool IsLibraryProject => string.Equals(OutputType, "Library", StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
-        /// Checks if the referenced project should be harvested as NuGet assemblies.
+        /// Determines whether the referenced project should be harvested as a DllImport assembly.
         /// </summary>
-        public bool ShouldHarvestAsNuGetAssemblies() => !IsDataMinerProject && IsLibraryProject;
+        public bool ShouldHarvestAssembly() => !IsDataMinerProject && IsLibraryProject;
 
         /// <summary>
         /// Gets the relative path for DllImport based on the package information.
