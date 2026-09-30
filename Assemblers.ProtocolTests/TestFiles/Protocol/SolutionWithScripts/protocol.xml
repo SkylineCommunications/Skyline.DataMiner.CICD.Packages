@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Protocol xmlns="http://www.skyline.be/protocol">
+	<Name>SolutionWithScripts</Name>
+	<Version>1.0.0.1</Version>
+	<Edge>
+		<Scripts>
+			<Script id="sample-scripted-connector" displayName="Sample Scripted Connector" guid="edc76df5-0d81-43a8-9b22-ffdd0b2fb2e2">
+				<Schedule>
+					<Default>
+						<Interval period="PT1M"/>
+					</Default>
+				</Schedule>
+			</Script>
+		</Scripts>
+	</Edge>
+</Protocol>

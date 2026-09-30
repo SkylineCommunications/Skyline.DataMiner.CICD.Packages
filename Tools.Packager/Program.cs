@@ -17,8 +17,11 @@
     using Skyline.DataMiner.CICD.DMApp.Dashboard;
     using Skyline.DataMiner.CICD.DMApp.Visio;
     using Skyline.DataMiner.CICD.DMProtocol;
+    using Skyline.DataMiner.CICD.DMProtocol.DependencyResolution.Exceptions;
+    using Skyline.DataMiner.CICD.Assemblers.Protocol.ScriptedConnectorManifest;
     using Skyline.DataMiner.CICD.FileSystem;
     using Skyline.DataMiner.CICD.Loggers;
+    using Skyline.DataMiner.CICD.Parsers.Common.Exceptions;
     using Skyline.DataMiner.CICD.Tools.Reporter;
 
     using Solution = Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Solution;
@@ -28,6 +31,16 @@
     /// </summary>
     public static class Program
     {
+        // Process exit codes returned by the 'dmprotocol' subcommand on failure, for scripted-connector dependency
+        // resolution errors. Loosely mirrors the EXIT_* constants of the reference Python implementation
+        // (https://github.com/SkylineCommunications/PythonScriptedConnectorWheelsResolver).
+        private const int ExitPipNotFound = 1;
+        private const int ExitConflictingDependencies = 2;
+        private const int ExitRequirementsNotFound = 3;
+        private const int ExitInvalidManifest = 4;
+        private const int ExitInvalidArguments = 5;
+        private const int ExitScriptDiscoveryFailed = 6;
+
         /// <summary>
         /// Code that will be called when running the tool.
         /// </summary>
@@ -108,12 +121,22 @@
                 }
             });
 
+            var pythonVersionOption = new Option<string>(
+                name: "--python-version",
+                description: "Target Python version to resolve scripted connector dependencies for (pip format, e.g. \"3.14\"). If not specified, it is derived per-script from its manifest.json's 'runtime.python.version' constraint. Ignored if the protocol does not declare any scripted connectors.")
+            {
+                IsRequired = false,
+                ArgumentHelpName = "PYTHON_VERSION"
+            };
+            pythonVersionOption.AddAlias("-py");
+
             var dmprotocolSubCommand = new Command("dmprotocol", "Creates a protocol package (.dmprotocol) based on a protocol solution.")
             {
                 workspaceArgument,
                 versionOverride,
+                pythonVersionOption,
             };
-            dmprotocolSubCommand.SetHandler(ProcessDmProtocolAsync, workspaceArgument, outputDirectory, packageName, versionOverride, debugOption);
+            dmprotocolSubCommand.SetHandler(ProcessDmProtocolAsync, workspaceArgument, outputDirectory, packageName, versionOverride, pythonVersionOption, debugOption);
 
             var dmappType = new Option<string>(
                 name: "--type",
@@ -325,17 +348,51 @@
             }
         }
 
-        private static async Task ProcessDmProtocolAsync(string workspace, string outputDirectory, string packageName, string versionOverride, bool debug)
+        private static async Task ProcessDmProtocolAsync(string workspace, string outputDirectory, string packageName, string versionOverride, string pythonVersion, bool debug)
         {
             IAppPackageProtocol package;
 
-            if (String.IsNullOrWhiteSpace(versionOverride))
+            try
             {
-                package = await ProtocolPackageCreator.Factory.FromRepositoryAsync(new Logging(debug), workspace);
+                package = await ProtocolPackageCreator.Factory.FromRepositoryAsync(new Logging(debug), workspace, versionOverride ?? String.Empty, pythonVersion);
             }
-            else
+            catch (PipNotFoundException ex)
             {
-                package = await ProtocolPackageCreator.Factory.FromRepositoryAsync(new Logging(debug), workspace, versionOverride);
+                await Console.Error.WriteLineAsync(ex.Message);
+                Environment.Exit(ExitPipNotFound);
+                return;
+            }
+            catch (ConflictingDependenciesException ex)
+            {
+                await Console.Error.WriteLineAsync(ex.Message);
+                Environment.Exit(ExitConflictingDependencies);
+                return;
+            }
+            catch (RequirementsNotFoundException ex)
+            {
+                await Console.Error.WriteLineAsync(ex.Message);
+                Environment.Exit(ExitRequirementsNotFound);
+                return;
+            }
+            catch (InvalidManifestException ex)
+            {
+                await Console.Error.WriteLineAsync(ex.Message);
+                Environment.Exit(ExitInvalidManifest);
+                return;
+            }
+            catch (System.IO.DirectoryNotFoundException ex)
+            {
+                await Console.Error.WriteLineAsync(ex.Message);
+                Environment.Exit(ExitInvalidArguments);
+                return;
+            }
+            catch (ParserException ex)
+            {
+                // Raised by ProtocolSolution for protocol.xml parsing issues, including a <Edge><Scripts><Script
+                // guid="..."> entry with no matching (or more than one matching) 'ScriptedConnector_*' project folder.
+                await Console.Error.WriteLineAsync(ex.Message);
+                Environment.Exit(ExitScriptDiscoveryFailed);
+                return;
             }
 
             if (String.IsNullOrWhiteSpace(packageName))

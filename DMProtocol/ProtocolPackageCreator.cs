@@ -1,11 +1,12 @@
 ﻿namespace Skyline.DataMiner.CICD.DMProtocol
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
+    using System.IO.Compression;
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
-    using Microsoft.Extensions.FileSystemGlobbing.Internal.PatternContexts;
     using Skyline.AppInstaller;
     using Skyline.DataMiner.CICD.Assemblers.Common;
     using Skyline.DataMiner.CICD.Assemblers.Protocol;
@@ -55,6 +56,35 @@
             /// -or-
             /// The protocol does not have a version specified in the Version tag.</exception>
             public static async Task<IAppPackageProtocol> FromRepositoryAsync(ILogCollector logCollector, string repositoryPath, string versionOverride)
+            {
+                return await FromRepositoryAsync(logCollector, repositoryPath, versionOverride, null);
+            }
+
+            /// <summary>
+            /// Creates an <see cref="IAppPackageProtocol"/> instance from the specified repository with the specified name and version.
+            /// If the protocol solution declares any scripted connectors (see <see cref="ProtocolSolution.Scripts"/>), their Python
+            /// dependencies are resolved and embedded into the resulting package under <c>Scripts/{guid}/</c>.
+            /// </summary>
+            /// <param name="logCollector">The log collector.</param>
+            /// <param name="repositoryPath">The path of the repository that contains the Protocol solution.</param>
+            /// <param name="versionOverride">Override the version in the protocol.</param>
+            /// <param name="pythonVersion">
+            /// Target Python version to resolve scripted connector dependencies for (pip format, e.g. "3.14"). If not
+            /// specified, it is derived per-script from its manifest's <c>runtime.python.version</c> constraint. Ignored
+            /// if the protocol does not declare any scripted connectors.
+            /// </param>
+            /// <returns>The <see cref="IAppPackageProtocol"/> instance.</returns>
+            /// <exception cref="ArgumentNullException"><paramref name="logCollector"/>, <paramref name="repositoryPath"/> is <see langword="null"/>.</exception>
+            /// <exception cref="DirectoryNotFoundException">The directory specified in <paramref name="repositoryPath"/> does not exist.</exception>
+            /// <exception cref="AssemblerException">Project with name could not be found.</exception>
+            /// <exception cref="InvalidOperationException">The protocol does not have a name specified in the Name tag.
+            /// -or-
+            /// The protocol does not have a version specified in the Version tag.</exception>
+            /// <exception cref="Assemblers.Protocol.ScriptedConnectorManifest.InvalidManifestException">A declared script's <c>manifest.json</c> file is missing, malformed, or fails validation.</exception>
+            /// <exception cref="DependencyResolution.Exceptions.RequirementsNotFoundException">A declared script's <c>requirements.txt</c> file does not exist.</exception>
+            /// <exception cref="DependencyResolution.Exceptions.ConflictingDependenciesException">Pip detected conflicting dependencies for a declared script.</exception>
+            /// <exception cref="DependencyResolution.Exceptions.PipNotFoundException">No valid pip executable could be found on the current system.</exception>
+            public static async Task<IAppPackageProtocol> FromRepositoryAsync(ILogCollector logCollector, string repositoryPath, string versionOverride, string pythonVersion)
             {
                 if (repositoryPath == null) throw new ArgumentNullException(nameof(repositoryPath));
 
@@ -107,7 +137,78 @@
 
                 IAppPackageProtocol protocolPackage = packageBuilder.Build();
 
+                if (solution.Scripts.Count > 0)
+                {
+                    protocolPackage = await EmbedScriptsAsync(logCollector, solution, protocolPackage, pythonVersion).ConfigureAwait(false);
+                }
+
                 return protocolPackage;
+            }
+
+            /// <summary>
+            /// Resolves the Python dependencies of each script declared in <paramref name="solution"/> and embeds the
+            /// resulting scripted connector content into <paramref name="basePackage"/>'s package bytes, under
+            /// <c>Scripts/{guid}/</c>.
+            /// </summary>
+            private static async Task<IAppPackageProtocol> EmbedScriptsAsync(ILogCollector logCollector, ProtocolSolution solution, IAppPackageProtocol basePackage, string pythonVersion)
+            {
+                byte[] baseBytes = basePackage.CreatePackage();
+
+                var stagingDirectories = new List<string>();
+
+                try
+                {
+                    byte[] mergedBytes;
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        memoryStream.Write(baseBytes, 0, baseBytes.Length);
+
+                        using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Update, leaveOpen: true))
+                        {
+                            foreach (var script in solution.Scripts)
+                            {
+                                string stagingDirectory = await ScriptedConnectorStager.Factory.StageAsync(logCollector, script.SourceDirectory, script.RequirementsFilePath, pythonVersion).ConfigureAwait(false);
+                                stagingDirectories.Add(stagingDirectory);
+
+                                AddDirectoryToArchive(archive, stagingDirectory, $"Scripts/{script.Guid}");
+                            }
+                        }
+
+                        mergedBytes = memoryStream.ToArray();
+                    }
+
+                    return new ScriptEmbeddingAppPackageProtocol(basePackage, mergedBytes);
+                }
+                finally
+                {
+                    foreach (var stagingDirectory in stagingDirectories)
+                    {
+                        FileSystem.Instance.Directory.DeleteDirectory(stagingDirectory);
+                    }
+                }
+            }
+
+            /// <summary>
+            /// Recursively adds the content of <paramref name="sourceDirectory"/> to <paramref name="archive"/>, with each
+            /// entry prefixed by <paramref name="entryPrefix"/>.
+            /// </summary>
+            private static void AddDirectoryToArchive(ZipArchive archive, string sourceDirectory, string entryPrefix)
+            {
+                string normalizedRoot = FileSystem.Instance.Path.GetFullPath(sourceDirectory).TrimEnd('\\', '/');
+
+                foreach (var filePath in FileSystem.Instance.Directory.GetFiles(sourceDirectory, "*", SearchOption.AllDirectories))
+                {
+                    string relativePath = filePath.Substring(normalizedRoot.Length).TrimStart('\\', '/').Replace('\\', '/');
+                    string entryName = $"{entryPrefix}/{relativePath}";
+
+                    var entry = archive.CreateEntry(entryName, CompressionLevel.Optimal);
+                    byte[] fileBytes = FileSystem.Instance.File.ReadAllBytes(filePath);
+
+                    using (var entryStream = entry.Open())
+                    {
+                        entryStream.Write(fileBytes, 0, fileBytes.Length);
+                    }
+                }
             }
 
             private static void AddTemplates(ProtocolSolution solution, IAppPackageProtocolBuilder packageBuilder)
