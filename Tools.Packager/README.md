@@ -100,8 +100,51 @@ Arguments:
   <directory>  Directory containing the package items
 
 Options:
-  -vo, --version-override <VERSION_OVERRIDE>   Override the version in the protocol.
+  -vo, --version-override <VERSION_OVERRIDE>  Override the version in the protocol.
+  -py, --python-version <PYTHON_VERSION>      Target Python version to resolve script dependencies for (pip format,
+                                               e.g. "3.14"). Only used if the solution declares scripted connector
+                                               projects; if not specified, it is derived per script from that
+                                               script's manifest.json 'runtime.python.version' constraint.
   -o, --output <OUTPUT_DIRECTORY> (REQUIRED)  Directory where the package will be stored.
   -n, --name <OUTPUT_NAME>                    Name of the package.
   -?, -h, --help                              Show help and usage information
 ```
+
+### Scripted connector projects
+
+A protocol solution can declare one or more scripted connector ("script") projects. Each script project lives in a `ScriptedConnector_{n}/` folder at the
+root of the solution (a sibling of the existing `Dlls/` and `QAction_{n}/` folders). The `{n}` suffix here is just a
+sequential counter assigned when the script project was created — it does not correspond to the script's declared
+`id`/`guid`:
+
+```text
+MyProtocolSolution/
+├── protocol.xml
+├── Dlls/
+├── QAction_1/
+└── ScriptedConnector_1/
+    ├── ScriptedConnector_1.pyproj   (Visual Studio Python Tools project file, not packaged)
+    ├── requirements.txt              (direct dependencies only, no transitive dependencies; not packaged)
+    ├── manifest.json
+    ├── README.md                     (optional, copied as-is into the package)
+    ├── run/
+    │   └── main.py                   (or whichever file 'runtime.python.entry_point' declares)
+    └── Tests/                        (not packaged)
+```
+
+Packaging is opt-in: only `manifest.json`, an optional `README.md`, and the full contents of `run/` are copied into
+the built package's `Scripts/{guid}/` folder; everything else (`requirements.txt`, the `.pyproj` file, `Tests/`, ...)
+is left out.
+
+The script project is only picked up if `protocol.xml` declares a matching `<Protocol><Edge><Scripts><Script id="..."
+guid="edc76df5-0d81-43a8-9b22-ffdd0b2fb2e2">` entry whose `guid` matches the `project.id` in the `manifest.json`
+of one of the `ScriptedConnector_*` folders at the solution root (see the [root README](../README.md#scripted-connectors-skylinedataminercicddmprotocol)
+for the manifest schema). A declared script with no matching folder (or more than one matching folder) fails the
+build.
+
+When building the `.dmprotocol` package, each declared script's dependencies are resolved via `pip` and embedded
+alongside the rest of the script's content under `Scripts/{guid}/dependencies/` in the resulting package — no manual
+wheel collection is required. Dependency resolution requires a working `pip` installation (`python -m pip`, `python3
+-m pip`, `pip3` or `pip` on `PATH`) on the machine running the tool. Unresolved/unsupported dependencies (e.g.
+conflicting requirements, an invalid manifest, or a missing `requirements.txt`) cause the tool to fail with a
+non-zero exit code and a descriptive error message instead of producing an incomplete package.
