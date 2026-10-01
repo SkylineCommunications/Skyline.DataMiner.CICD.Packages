@@ -123,22 +123,21 @@ MyProtocolSolution/
 ├── Dlls/
 ├── QAction_1/
 └── ScriptedConnector_1/
-    ├── ScriptedConnector_1.pyproj   (Visual Studio Python Tools project file)
-    ├── requirements.txt              (direct dependencies only, no transitive dependencies)
-    ├── README.md                     (optional, developer setup notes — not packaged)
-    ├── src/
-    │   ├── manifest.json
-    │   ├── README.md                 (optional, copied as-is into the package)
-    │   └── run/
-    │       └── main.py               (or whichever file 'runtime.python.entry_point' declares)
-    └── tests/
+    ├── ScriptedConnector_1.pyproj   (Visual Studio Python Tools project file, not packaged)
+    ├── requirements.txt              (direct dependencies only, no transitive dependencies; not packaged)
+    ├── manifest.json
+    ├── README.md                     (optional, copied as-is into the package)
+    ├── run/
+    │   └── main.py                   (or whichever file 'runtime.python.entry_point' declares)
+    └── Tests/                        (not packaged)
 ```
 
-Only the contents of `src/` are copied into the built package's `Scripts/{guid}/` folder; `requirements.txt` itself
-is a sibling of `src/`, not inside it.
+Packaging is opt-in: only `manifest.json`, an optional `README.md`, and the full contents of `run/` are copied into
+the built package's `Scripts/{guid}/` folder; everything else (`requirements.txt`, the `.pyproj` file, `Tests/`, ...)
+is left out.
 
 The script project is only picked up if `protocol.xml` declares a matching `<Protocol><Edge><Scripts><Script id="..."
-guid="edc76df5-0d81-43a8-9b22-ffdd0b2fb2e2">` entry whose `guid` matches the `project.id` in the `src/manifest.json`
+guid="edc76df5-0d81-43a8-9b22-ffdd0b2fb2e2">` entry whose `guid` matches the `project.id` in the `manifest.json`
 of one of the `ScriptedConnector_*` folders at the solution root (see the [root README](../README.md#scripted-connectors-skylinedataminercicddmprotocol)
 for the manifest schema). A declared script with no matching folder (or more than one matching folder) fails the
 build.

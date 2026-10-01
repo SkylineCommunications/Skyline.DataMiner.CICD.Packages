@@ -43,7 +43,6 @@ namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
         private readonly IFileSystem _fileSystem;
         private readonly PipCommand _pipCommand;
 
-        private readonly string _dependenciesDirectory;
         private readonly string _windowsDirectory;
         private readonly string _linuxDirectory;
         private readonly string _universalDirectory;
@@ -109,19 +108,19 @@ namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
 
             _pipCommand = pipCommand ?? throw new ArgumentNullException(nameof(pipCommand));
 
-            _dependenciesDirectory = _fileSystem.Path.Combine(outputDirectory, "dependencies");
-            _windowsDirectory = _fileSystem.Path.Combine(_dependenciesDirectory, SupportedPlatform.Windows.ToTargetTriple());
-            _linuxDirectory = _fileSystem.Path.Combine(_dependenciesDirectory, SupportedPlatform.Linux.ToTargetTriple());
-            _universalDirectory = _fileSystem.Path.Combine(_dependenciesDirectory, "universal");
+            string dependenciesDirectory = _fileSystem.Path.Combine(outputDirectory, "dependencies");
+            _windowsDirectory = _fileSystem.Path.Combine(dependenciesDirectory, SupportedPlatform.Windows.ToTargetTriple());
+            _linuxDirectory = _fileSystem.Path.Combine(dependenciesDirectory, SupportedPlatform.Linux.ToTargetTriple());
+            _universalDirectory = _fileSystem.Path.Combine(dependenciesDirectory, "universal");
 
             // If it already exists, delete it to be sure that it is empty.
-            if (_fileSystem.Directory.Exists(_dependenciesDirectory))
+            if (_fileSystem.Directory.Exists(dependenciesDirectory))
             {
-                _fileSystem.Directory.DeleteDirectory(_dependenciesDirectory);
+                _fileSystem.Directory.DeleteDirectory(dependenciesDirectory);
             }
 
             _fileSystem.Directory.CreateDirectory(outputDirectory);
-            _fileSystem.Directory.CreateDirectory(_dependenciesDirectory);
+            _fileSystem.Directory.CreateDirectory(dependenciesDirectory);
             _fileSystem.Directory.CreateDirectory(_windowsDirectory);
             _fileSystem.Directory.CreateDirectory(_linuxDirectory);
             _fileSystem.Directory.CreateDirectory(_universalDirectory);
@@ -246,19 +245,20 @@ namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
         /// <summary>
         /// Detects the latest available glibc 2.X version from the GNU mirror listing.
         /// </summary>
+        /// <remarks>
+        /// Certificate validation is kept enabled (the default). The GNU mirror-redirect service occasionally
+        /// redirects to a mirror with an invalid/mismatched TLS certificate, or to a plain HTTP mirror (which
+        /// <see cref="HttpClient"/> won't auto-follow from HTTPS); both cases are treated as a lookup failure here,
+        /// so the caller simply falls back to <see cref="FallbackLatestGlibc2Version"/> instead of weakening TLS
+        /// validation for this call.
+        /// </remarks>
         private async Task<int?> ResolveLatestGlibc2VersionAsync(CancellationToken cancellationToken)
         {
             try
             {
                 using var handler = new HttpClientHandler
                 {
-                    // The mirror redirect service can redirect to a plain HTTP mirror (and HttpClient refuses to
-                    // auto-follow an HTTPS -> HTTP downgrade redirect), and some HTTPS mirrors don't have a fully
-                    // valid certificate. Redirects are therefore followed manually below, and certificate validation
-                    // is disabled, mirroring the reference Python implementation's use of an unverified SSL context
-                    // for this specific lookup.
                     AllowAutoRedirect = false,
-                    ServerCertificateCustomValidationCallback = (_, _, _, _) => true,
                 };
 
                 using var httpClient = new HttpClient(handler);

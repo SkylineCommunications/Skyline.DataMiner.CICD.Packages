@@ -84,7 +84,7 @@
             /// <exception cref="DependencyResolution.Exceptions.RequirementsNotFoundException">A declared script's <c>requirements.txt</c> file does not exist.</exception>
             /// <exception cref="DependencyResolution.Exceptions.ConflictingDependenciesException">Pip detected conflicting dependencies for a declared script.</exception>
             /// <exception cref="DependencyResolution.Exceptions.PipNotFoundException">No valid pip executable could be found on the current system.</exception>
-            public static async Task<IAppPackageProtocol> FromRepositoryAsync(ILogCollector logCollector, string repositoryPath, string versionOverride, string pythonVersion)
+            public static Task<IAppPackageProtocol> FromRepositoryAsync(ILogCollector logCollector, string repositoryPath, string versionOverride, string pythonVersion)
             {
                 if (repositoryPath == null) throw new ArgumentNullException(nameof(repositoryPath));
 
@@ -93,6 +93,15 @@
                 if (String.IsNullOrWhiteSpace(repositoryPath)) throw new ArgumentException("Invalid repository path", nameof(repositoryPath));
                 if (!FileSystem.Instance.Directory.Exists(repositoryPath)) throw new System.IO.DirectoryNotFoundException($"Directory '{repositoryPath}' not found.");
 
+                return FromValidatedRepositoryAsync(logCollector, repositoryPath, versionOverride, pythonVersion);
+            }
+
+            /// <summary>
+            /// Builds the package from a <paramref name="repositoryPath"/> that has already been validated (non-null,
+            /// full path, existing directory) by <see cref="FromRepositoryAsync(ILogCollector, string, string, string)"/>.
+            /// </summary>
+            private static async Task<IAppPackageProtocol> FromValidatedRepositoryAsync(ILogCollector logCollector, string repositoryPath, string versionOverride, string pythonVersion)
+            {
                 string solutionFilePath = FileSystem.Instance.Directory.GetFiles(repositoryPath, "*.sln", System.IO.SearchOption.TopDirectoryOnly)
                                                     .Concat(FileSystem.Instance.Directory.GetFiles(repositoryPath, "*.slnx",
                                                         SearchOption.TopDirectoryOnly))
@@ -167,7 +176,7 @@
                         {
                             foreach (var script in solution.Scripts)
                             {
-                                string stagingDirectory = await ScriptedConnectorStager.Factory.StageAsync(logCollector, script.SourceDirectory, script.RequirementsFilePath, pythonVersion).ConfigureAwait(false);
+                                string stagingDirectory = await ScriptedConnectorStager.Factory.StageAsync(logCollector, script.ProjectDirectory, script.RequirementsFilePath, pythonVersion).ConfigureAwait(false);
                                 stagingDirectories.Add(stagingDirectory);
 
                                 AddDirectoryToArchive(archive, stagingDirectory, $"Scripts/{script.Guid}");

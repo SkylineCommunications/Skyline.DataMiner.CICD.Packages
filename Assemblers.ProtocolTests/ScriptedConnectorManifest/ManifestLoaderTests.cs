@@ -1,4 +1,4 @@
-﻿namespace Assemblers.ProtocolTests.ScriptedConnectorManifest
+namespace Assemblers.ProtocolTests.ScriptedConnectorManifest
 {
     using System;
 
@@ -208,7 +208,7 @@
             act.Should().Throw<InvalidManifestException>().WithMessage("*runtime.python.version*");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("../secrets.txt")]
         [DataRow("run/../../secrets.txt")]
         [DataRow("run/./main.py")]
@@ -226,7 +226,7 @@
             act.Should().Throw<InvalidManifestException>().WithMessage("*entry_point*");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("C:\\secrets.txt")]
         [DataRow("/etc/passwd")]
         public void Validate_RootedEntryPoint_Throws(string entryPoint)
@@ -242,7 +242,7 @@
             act.Should().Throw<InvalidManifestException>().WithMessage("*entry_point*");
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("run/main.py")]
         [DataRow("main.py")]
         [DataRow("nested/deeper/main.py")]

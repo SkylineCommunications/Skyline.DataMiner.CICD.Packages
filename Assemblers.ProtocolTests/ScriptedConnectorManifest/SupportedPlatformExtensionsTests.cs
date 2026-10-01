@@ -1,4 +1,4 @@
-﻿namespace Assemblers.ProtocolTests.ScriptedConnectorManifest
+namespace Assemblers.ProtocolTests.ScriptedConnectorManifest
 {
     using System;
 
@@ -11,7 +11,7 @@
     [TestClass]
     public class SupportedPlatformExtensionsTests
     {
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(SupportedPlatform.Windows, "x86_64-windows-msvc")]
         [DataRow(SupportedPlatform.Linux, "x86_64-linux-gnu")]
         public void ToTargetTriple_KnownPlatform_ReturnsExpectedTriple(SupportedPlatform platform, string expectedTriple)
@@ -23,7 +23,7 @@
             triple.Should().Be(expectedTriple);
         }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow("x86_64-windows-msvc", SupportedPlatform.Windows)]
         [DataRow("x86_64-linux-gnu", SupportedPlatform.Linux)]
         public void FromTargetTriple_KnownTriple_ReturnsExpectedPlatform(string triple, SupportedPlatform expectedPlatform)

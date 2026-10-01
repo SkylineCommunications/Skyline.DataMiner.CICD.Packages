@@ -123,7 +123,7 @@
                 throw new InvalidManifestException($"The 'runtime.python.entry_point' value '{entryPoint}' must be a relative path.");
             }
 
-            string[] segments = entryPoint.Split('/', '\\');
+            string[] segments = entryPoint.Split(new[] { '/', '\\' });
 
             if (segments.Any(segment => segment is "." or ".."))
             {

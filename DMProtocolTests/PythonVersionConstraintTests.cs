@@ -1,4 +1,4 @@
-﻿namespace DMProtocolTests
+namespace DMProtocolTests
 {
     using System;
 
@@ -12,7 +12,7 @@
     [TestClass]
     public class PythonVersionConstraintTests
     {
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(">=3.14;<3.15", "3.14")]
         [DataRow(">=3.10", "3.10")]
         [DataRow(">=3.9.2;<3.10", "3.9.2")]

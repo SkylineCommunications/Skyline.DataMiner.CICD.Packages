@@ -148,7 +148,7 @@ The dependency-resolution logic is a C# port of the reference implementation ava
 A script project lives in a `ScriptedConnector_{n}/` folder at the root of the protocol solution (a sibling of the
 existing `Dlls/` and `QAction_{n}/` folders). The `{n}` suffix is just a sequential counter assigned when the
 script project was created — it does **not** correspond to the script's `id`/`guid` declared in `protocol.xml`. The
-matching folder is instead found by its `src/manifest.json`'s `project.id`, which must match the `guid` attribute of
+matching folder is instead found by its `manifest.json`'s `project.id`, which must match the `guid` attribute of
 a `<Script id="..." guid="...">` declared under `<Protocol><Edge><Scripts>` in `protocol.xml`:
 
 ```text
@@ -157,19 +157,19 @@ MyProtocolSolution/
 ├── Dlls/
 ├── QAction_1/
 └── ScriptedConnector_1/
-    ├── ScriptedConnector_1.pyproj   (Visual Studio Python Tools project file)
-    ├── requirements.txt              (direct dependencies only, no transitive dependencies)
-    ├── README.md                     (optional, developer setup notes — not packaged)
-    ├── src/
-    │   ├── manifest.json
-    │   ├── README.md                 (optional, copied as-is into the package)
-    │   └── run/
-    │       └── main.py               (or whichever file 'runtime.python.entry_point' declares)
-    └── tests/
+    ├── ScriptedConnector_1.pyproj   (Visual Studio Python Tools project file, not packaged)
+    ├── requirements.txt              (direct dependencies only, no transitive dependencies; not packaged)
+    ├── manifest.json
+    ├── README.md                     (optional, copied as-is into the package)
+    ├── run/
+    │   └── main.py                   (or whichever file 'runtime.python.entry_point' declares)
+    └── Tests/                        (not packaged)
 ```
 
-Only the contents of `src/` are copied into the built package's `Scripts/{guid}/` folder, alongside the resolved
-`dependencies/`. `requirements.txt` itself is a sibling of `src/`, not inside it.
+Packaging is **opt-in**: only `manifest.json`, an optional `README.md`, and the full contents of `run/` are copied
+into the built package's `Scripts/{guid}/` folder, alongside the resolved `dependencies/`. Everything else in the
+project folder (`requirements.txt`, the `.pyproj` file, `Tests/`, and any other development-only content) is left
+out of the package.
 
 `manifest.json` schema (see [Edge Node "Scripted Connector Packaging" documentation](https://aka.dataminer.services)
 for the authoritative description):
@@ -185,7 +185,7 @@ for the authoritative description):
 | `runtime.language`                  | Currently only `"python"` is supported.                                      |
 | `runtime.supported_platforms`       | Subset of `"x86_64-windows-msvc"`, `"x86_64-linux-gnu"`.                      |
 | `runtime.python.version`            | Python version constraint (e.g. `">=3.14;<3.15"`). Currently only Python 3.14 is supported by the Edge Node runtime. |
-| `runtime.python.entry_point`        | Path to the entry point script, relative to `src/` (e.g. `"run/main.py"`). Must be a relative path without `.`/`..` segments. |
+| `runtime.python.entry_point`        | Path to the entry point script, relative to the project folder (e.g. `"run/main.py"`). Must be a relative path without `.`/`..` segments, and must resolve to a file under `run/` since only `run/` is packaged. |
 
 #### Dependency resolution and platform-specific wheel selection
 
@@ -221,11 +221,12 @@ implementation.
 - `ConflictingDependenciesException` — `pip` detected conflicting dependencies during a dry-run install; the pip
   standard output/error are available on the exception for diagnostics.
 - `PipNotFoundException` — no working `pip` invocation could be found on the current system.
-- `InvalidManifestException` — a declared script's `src/manifest.json` is missing, malformed, fails schema
+- `InvalidManifestException` — a declared script's `manifest.json` is missing, malformed, fails schema
   validation (missing required fields, an empty `runtime.supported_platforms` list, or an `entry_point` that is
-  rooted/absolute or contains `.`/`..` path segments), or its declared entry point file does not exist. A
-  `ParserException` is raised instead (from `Assemblers.Protocol`) if no `ScriptedConnector_*` folder at the solution
-  root has a `src/manifest.json` whose `project.id` matches the `guid` declared for a
+  rooted/absolute or contains `.`/`..` path segments), its declared entry point is not located under `run/` (only
+  `run/` is included when the package is built), or its declared entry point file does not exist, or no `run/`
+  folder exists at all. A `ParserException` is raised instead (from `Assemblers.Protocol`) if no `ScriptedConnector_*`
+  folder at the solution root has a `manifest.json` whose `project.id` matches the `guid` declared for a
   `<Script id="..." guid="...">` in `protocol.xml`, or if more than one folder's manifest matches the same `guid`.
 
 A warning (not an exception) is reported through the supplied `ILogCollector` if a platform declared in

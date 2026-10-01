@@ -211,8 +211,7 @@
                     continue;
                 }
 
-                string candidateSourceDirectory = FileSystem.Instance.Path.Combine(candidateFolder, "src");
-                string manifestPath = FileSystem.Instance.Path.Combine(candidateSourceDirectory, "manifest.json");
+                string manifestPath = FileSystem.Instance.Path.Combine(candidateFolder, "manifest.json");
                 if (!FileSystem.Instance.File.Exists(manifestPath))
                 {
                     continue;
@@ -237,21 +236,20 @@
 
             if (matchingProjectFolders.Count == 0)
             {
-                throw new ParserException($"Could not find a 'ScriptedConnector_*' folder in '{SolutionDirectory}' with a 'src/manifest.json' 'project.id' matching guid '{edgeScript.Guid}' declared for script '{edgeScript.Id}'.");
+                throw new ParserException($"Could not find a 'ScriptedConnector_*' folder in '{SolutionDirectory}' with a 'manifest.json' 'project.id' matching guid '{edgeScript.Guid}' declared for script '{edgeScript.Id}'.");
             }
 
             if (matchingProjectFolders.Count > 1)
             {
-                throw new ParserException($"Multiple 'ScriptedConnector_*' folders in '{SolutionDirectory}' have a 'src/manifest.json' 'project.id' matching guid '{edgeScript.Guid}' declared for script '{edgeScript.Id}': {String.Join(", ", matchingProjectFolders)}.");
+                throw new ParserException($"Multiple 'ScriptedConnector_*' folders in '{SolutionDirectory}' have a 'manifest.json' 'project.id' matching guid '{edgeScript.Guid}' declared for script '{edgeScript.Id}': {String.Join(", ", matchingProjectFolders)}.");
             }
 
             string projectDirectory = matchingProjectFolders[0];
-            string sourceDirectory = FileSystem.Instance.Path.Combine(projectDirectory, "src");
             string requirementsFilePath = FileSystem.Instance.Path.Combine(projectDirectory, "requirements.txt");
 
             // Fully load and validate the manifest now that the single matching folder has been found.
-            Manifest validatedManifest = ManifestLoader.LoadAndValidate(sourceDirectory);
-            return new ProtocolScript(edgeScript, projectDirectory, sourceDirectory, requirementsFilePath, validatedManifest);
+            Manifest validatedManifest = ManifestLoader.LoadAndValidate(projectDirectory);
+            return new ProtocolScript(edgeScript, projectDirectory, requirementsFilePath, validatedManifest);
         }
     }
 }
