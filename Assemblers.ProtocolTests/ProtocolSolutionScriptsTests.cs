@@ -67,5 +67,20 @@
             // Assert
             act.Should().Throw<ParserException>();
         }
+
+        [TestMethod]
+        public void ProtocolSolution_Scripts_DuplicateGuidDeclared_Throws()
+        {
+            // Arrange
+            var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Protocol", "SolutionWithDuplicateScriptGuid"));
+            var path = FileSystem.Instance.Path.Combine(dir, "Protocol.sln");
+
+            // Act
+            Action act = () => ProtocolSolution.Load(path);
+
+            // Assert
+            act.Should().Throw<ParserException>();
+        }
     }
 }

@@ -92,6 +92,29 @@
             File.Exists(Path.Combine(resolver.LinuxDirectory, linuxWheel)).Should().BeTrue();
         }
 
+        [TestMethod]
+        public void ProcessDownloadedWheels_BothPlatformsHaveOwnUniversalWheelForSamePackage_DoesNotThrow()
+        {
+            // Arrange: Windows and Linux each independently resolved their own universal ("-none-any") wheel for the
+            // same package/version, but under different filenames (e.g. a 'py2.py3' tag vs. a 'py3' tag). This used to
+            // crash with an IOException because the second PreferUniversalWheels pass re-processed a file already
+            // moved/deleted by the first pass.
+            var resolver = new WheelsResolver(new LogCollector(), FileSystem.Instance, _outputDirectory, NoOpPipCommand);
+            const string windowsUniversalWheel = "six-1.17.0-py2.py3-none-any.whl";
+            const string linuxUniversalWheel = "six-1.17.0-py3-none-any.whl";
+            CreateWheel(resolver.WindowsDirectory, windowsUniversalWheel);
+            CreateWheel(resolver.LinuxDirectory, linuxUniversalWheel);
+
+            // Act
+            Action act = () => resolver.ProcessDownloadedWheels();
+
+            // Assert: no exception, and exactly one of the two universal wheels ends up in the universal directory.
+            act.Should().NotThrow();
+            File.Exists(Path.Combine(resolver.WindowsDirectory, windowsUniversalWheel)).Should().BeFalse();
+            File.Exists(Path.Combine(resolver.LinuxDirectory, linuxUniversalWheel)).Should().BeFalse();
+            Directory.GetFiles(resolver.UniversalDirectory, "*.whl").Should().HaveCount(1);
+        }
+
         private static void CreateWheel(string directory, string fileName)
         {
             FileSystem.Instance.File.WriteAllText(FileSystem.Instance.Path.Combine(directory, fileName), String.Empty);

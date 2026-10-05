@@ -358,31 +358,31 @@
             }
             catch (PipNotFoundException ex)
             {
-                await Console.Error.WriteLineAsync(ex.Message);
+                await Console.Error.WriteLineAsync(debug ? ex.ToString() : ex.Message);
                 Environment.Exit(ExitPipNotFound);
                 return;
             }
             catch (ConflictingDependenciesException ex)
             {
-                await Console.Error.WriteLineAsync(ex.Message);
+                await Console.Error.WriteLineAsync(debug ? ex.ToString() : ex.Message);
                 Environment.Exit(ExitConflictingDependencies);
                 return;
             }
             catch (RequirementsNotFoundException ex)
             {
-                await Console.Error.WriteLineAsync(ex.Message);
+                await Console.Error.WriteLineAsync(debug ? ex.ToString() : ex.Message);
                 Environment.Exit(ExitRequirementsNotFound);
                 return;
             }
             catch (InvalidManifestException ex)
             {
-                await Console.Error.WriteLineAsync(ex.Message);
+                await Console.Error.WriteLineAsync(debug ? ex.ToString() : ex.Message);
                 Environment.Exit(ExitInvalidManifest);
                 return;
             }
             catch (System.IO.DirectoryNotFoundException ex)
             {
-                await Console.Error.WriteLineAsync(ex.Message);
+                await Console.Error.WriteLineAsync(debug ? ex.ToString() : ex.Message);
                 Environment.Exit(ExitInvalidArguments);
                 return;
             }
@@ -390,7 +390,7 @@
             {
                 // Raised by ProtocolSolution for protocol.xml parsing issues, including a <Edge><Scripts><Script
                 // guid="..."> entry with no matching (or more than one matching) 'ScriptedConnector_*' project folder.
-                await Console.Error.WriteLineAsync(ex.Message);
+                await Console.Error.WriteLineAsync(debug ? ex.ToString() : ex.Message);
                 Environment.Exit(ExitScriptDiscoveryFailed);
                 return;
             }

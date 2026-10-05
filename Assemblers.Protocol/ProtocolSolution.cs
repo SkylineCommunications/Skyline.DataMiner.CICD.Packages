@@ -189,9 +189,17 @@
             var xmlScripts = ProtocolDocument?.Element["Protocol"]?.Element["Edge"]?.Element["Scripts"]?.Elements["Script"];
             if (xmlScripts != null)
             {
+                var seenGuids = new HashSet<Guid>();
+
                 foreach (var xmlScript in xmlScripts)
                 {
                     var edgeScript = new EdgeScript(xmlScript);
+
+                    if (!seenGuids.Add(edgeScript.Guid))
+                    {
+                        throw new ParserException($"Duplicate guid '{edgeScript.Guid}' found on script '{edgeScript.Id}' in 'Edge/Scripts'. Each declared script must have a unique guid.");
+                    }
+
                     scripts.Add(LoadScript(edgeScript));
                 }
             }

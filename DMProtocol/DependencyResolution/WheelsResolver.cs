@@ -3,6 +3,7 @@ namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.IO;
     using System.Linq;
     using System.Net.Http;
     using System.Text.RegularExpressions;
@@ -185,9 +186,14 @@ namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
 
             var result = await RunPipAsync(arguments, cancellationToken).ConfigureAwait(false);
 
-            if (result.ExitCode != 0 && result.StandardError.IndexOf("conflicting dependencies", StringComparison.OrdinalIgnoreCase) >= 0)
+            if (result.ExitCode != 0)
             {
-                throw new ConflictingDependenciesException(result.StandardOutput, result.StandardError);
+                if (result.StandardError.IndexOf("conflicting dependencies", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    throw new ConflictingDependenciesException(result.StandardOutput, result.StandardError);
+                }
+
+                _logCollector.ReportWarning($"pip dry-run install exited with a non-zero exit code ({result.ExitCode}) that was not recognized as a conflicting dependencies error{Environment.NewLine}stdout: {result.StandardOutput}{Environment.NewLine}stderr: {result.StandardError}");
             }
         }
 
@@ -261,7 +267,10 @@ namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
                     AllowAutoRedirect = false,
                 };
 
-                using var httpClient = new HttpClient(handler);
+                using var httpClient = new HttpClient(handler)
+                {
+                    Timeout = TimeSpan.FromSeconds(15),
+                };
 
                 string html = await GetFollowingRedirectsAsync(httpClient, new Uri(GlibcMirrorUrl), cancellationToken).ConfigureAwait(false);
                 if (html == null)
@@ -482,23 +491,31 @@ namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
             var windowsUniversalMap = BuildUniversalWheelMap(windowsWheels);
             var linuxUniversalMap = BuildUniversalWheelMap(linuxWheels);
 
-            ReplaceWithUniversal(linuxWheels, windowsUniversalMap, _linuxDirectory, _windowsDirectory);
-            ReplaceWithUniversal(windowsWheels, linuxUniversalMap, _windowsDirectory, _linuxDirectory);
+            var consumedPrefixes = new HashSet<string>(StringComparer.Ordinal);
+
+            ReplaceWithUniversal(linuxWheels, windowsUniversalMap, _linuxDirectory, _windowsDirectory, consumedPrefixes);
+            ReplaceWithUniversal(windowsWheels, linuxUniversalMap, _windowsDirectory, _linuxDirectory, consumedPrefixes);
         }
 
         /// <summary>
         /// Replaces platform-specific wheels with universal wheels when available on the other platform.
         /// </summary>
-        private void ReplaceWithUniversal(HashSet<string> wheels, IReadOnlyDictionary<string, string> universalMap, string wheelsSourceDirectory, string universalSourceDirectory)
+        private void ReplaceWithUniversal(HashSet<string> wheels, IReadOnlyDictionary<string, string> universalMap, string wheelsSourceDirectory, string universalSourceDirectory, HashSet<string> consumedPrefixes)
         {
             foreach (string wheel in wheels.ToList())
             {
                 string prefix = GetPackagePrefix(wheel);
 
+                if (consumedPrefixes.Contains(prefix))
+                {
+                    continue;
+                }
+
                 if (universalMap.TryGetValue(prefix, out string universalWheel))
                 {
                     MoveFile(universalSourceDirectory, universalWheel, _universalDirectory, universalWheel);
                     DeleteFile(wheelsSourceDirectory, wheel);
+                    consumedPrefixes.Add(prefix);
                 }
             }
         }
@@ -544,12 +561,27 @@ namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
         {
             string sourcePath = _fileSystem.Path.Combine(sourceDirectory, sourceFileName);
             string destinationPath = _fileSystem.Path.Combine(destinationDirectory, destinationFileName);
-            _fileSystem.File.Move(sourcePath, destinationPath);
+
+            try
+            {
+                _fileSystem.File.Move(sourcePath, destinationPath);
+            }
+            catch (Exception e) when (e is IOException || e is UnauthorizedAccessException)
+            {
+                throw new WheelOrganizationException(sourceFileName, $"Failed to move wheel '{sourceFileName}' from '{sourceDirectory}' to '{destinationDirectory}'.", e);
+            }
         }
 
         private void DeleteFile(string directory, string fileName)
         {
-            _fileSystem.File.Delete(_fileSystem.Path.Combine(directory, fileName));
+            try
+            {
+                _fileSystem.File.Delete(_fileSystem.Path.Combine(directory, fileName));
+            }
+            catch (Exception e) when (e is IOException || e is UnauthorizedAccessException)
+            {
+                throw new WheelOrganizationException(fileName, $"Failed to delete wheel '{fileName}' from '{directory}'.", e);
+            }
         }
 
         /// <summary>
