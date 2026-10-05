@@ -10,6 +10,7 @@
     using NuGet.Packaging.Core;
     using NuGet.Versioning;
 
+
     using Skyline.DataMiner.CICD.Assemblers.Common;
     using Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects;
     using Skyline.DataMiner.CICD.Common.NuGet;
@@ -19,6 +20,9 @@
     using Skyline.DataMiner.CICD.Parsers.Common.Xml;
 
     using EditXml = Skyline.DataMiner.CICD.Parsers.Common.XmlEdit;
+    using System.IO;
+    using System.Linq.Expressions;
+    using NuGet.Commands;
 
     /// <summary>
     /// Automation script builder.
@@ -32,6 +36,7 @@
         private readonly IFileSystem _fileSystem = FileSystem.Instance;
         private readonly ILogCollector logCollector;
         private readonly string directoryForNuGetConfig;
+        private const int MaxReferenceRecursionDepth = 100;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AutomationScriptBuilder"/> class.
@@ -131,8 +136,8 @@
         {
             this.logCollector = logCollector ?? throw new ArgumentNullException(nameof(logCollector));
         }
-        
-        private string DataMinerSolutionId { get; } 
+
+        private string DataMinerSolutionId { get; }
 
         private XmlDocument Document { get; }
 
@@ -215,6 +220,8 @@
                    && (content.Contains("void Run(Engine") || content.Contains("void Run(IEngine"));
         }
 
+
+
         private async Task BuildDllImportsAsync(EditXml.XmlElement editExe, Project project, PackageReferenceProcessor packageReferenceProcessor, BuildResultItems buildResultItems)
         {
             // remove existing references
@@ -231,22 +238,69 @@
             NuGetPackageAssemblyData nugetAssemblyData = null;
 
             // PackageReferences (NuGet packages)
-            if (project.PackageReferences != null)
-            {
-                List<PackageIdentity> packageIdentities = GetPackageIdentities(project.PackageReferences);
+            var harvestedReferencedProjects = GetHarvestedReferencedProjects(project);
 
-                nugetAssemblyData = await ProcessPackageReferences(editExe, project, packageReferenceProcessor, buildResultItems, packageIdentities);
+            var packageIdentities = project.PackageReferences != null ? GetPackageIdentities(project.PackageReferences) : new List<PackageIdentity>();
+            foreach (var hrp in harvestedReferencedProjects)
+            {
+                foreach (var dpr in hrp.DirectPackageReferences)
+                {
+                    if (!packageIdentities.Contains(dpr))
+                        packageIdentities.Add(dpr);
+                }
             }
 
-            // Add references from C# project.
+
+            nugetAssemblyData = await ProcessPackageReferences(project, packageReferenceProcessor, packageIdentities).ConfigureAwait(false);
+            if (nugetAssemblyData == null)
+            {
+                nugetAssemblyData = new NuGetPackageAssemblyData();
+            }
+    
+            foreach (var hrp in harvestedReferencedProjects)
+            {
+                try
+                {
+
+                    var synthetic = MSBuildHelpers.CreateSyntheticPackageAssemblyReference(hrp);
+
+
+                    if (synthetic == null)
+                    {
+                        continue;
+                    }
+
+                    if (!nugetAssemblyData.DllImportNugetAssemblyReferences.Any(x =>
+                    String.Equals(x.DllImport, synthetic.DllImport, StringComparison.OrdinalIgnoreCase) &&
+                    String.Equals(x.AssemblyPath, synthetic.AssemblyPath, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        nugetAssemblyData.DllImportNugetAssemblyReferences.Add(synthetic);
+                    }
+                    if (!nugetAssemblyData.NugetAssemblies.Any(x =>
+                   String.Equals(x.DllImport, synthetic.DllImport, StringComparison.OrdinalIgnoreCase) &&
+                   String.Equals(x.AssemblyPath, synthetic.AssemblyPath, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        nugetAssemblyData.NugetAssemblies.Add(synthetic);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    LogDebug($"BuildDllImportsAsync|Error creating synthetic package assembly reference for referenced project: {hrp.ProjectPath}|Error: {ex.Message}");
+                }
+            }
+
+
             if (project.References != null)
             {
                 ProcessReferences(editExe, project, nugetAssemblyData, packageReferenceProcessor, buildResultItems);
             }
+            ProcessFrameworkAssemblies(editExe, nugetAssemblyData);
+            ProcessLibAssemblies(editExe, buildResultItems, nugetAssemblyData);
         }
 
-        private async Task<NuGetPackageAssemblyData> ProcessPackageReferences(EditXml.XmlElement editExe, Project project, PackageReferenceProcessor packageReferenceProcessor,
-            BuildResultItems buildResultItems, IList<PackageIdentity> packageIdentities)
+        private async Task<NuGetPackageAssemblyData> ProcessPackageReferences(Project project, PackageReferenceProcessor packageReferenceProcessor,
+            IList<PackageIdentity> packageIdentities)
         {
             if (packageIdentities.Count == 0)
             {
@@ -257,7 +311,10 @@
 
             if (String.IsNullOrWhiteSpace(DataMinerSolutionId))
             {
-                nugetAssemblyData = await packageReferenceProcessor.ProcessAsync(packageIdentities, project.TargetFrameworkMoniker, DevPackHelper.AutomationDevPackNuGetDependenciesIncludingTransitive).ConfigureAwait(false);
+                nugetAssemblyData = await packageReferenceProcessor.ProcessAsync(packageIdentities,
+                    project.TargetFrameworkMoniker,
+                    DevPackHelper.AutomationDevPackNuGetDependenciesIncludingTransitive)
+                    .ConfigureAwait(false);
             }
             else
             {
@@ -265,15 +322,120 @@
                                                                                      .SelectMany(solProject => solProject.PackageReferences)
                                                                                      .Distinct());
 
-                nugetAssemblyData = await packageReferenceProcessor.ProcessAsync(packageIdentities, solutionPackageIdentities, project.TargetFrameworkMoniker, DevPackHelper.AutomationDevPackNuGetDependenciesIncludingTransitive).ConfigureAwait(false);
+                nugetAssemblyData = await packageReferenceProcessor.ProcessAsync(packageIdentities,
+                    solutionPackageIdentities,
+                    project.TargetFrameworkMoniker,
+                    DevPackHelper.AutomationDevPackNuGetDependenciesIncludingTransitive)
+                    .ConfigureAwait(false);
             }
 
             LogDebug($"NuGetPackageAssemblyData: {nugetAssemblyData}");
 
-            ProcessFrameworkAssemblies(editExe, nugetAssemblyData);
-            ProcessLibAssemblies(editExe, buildResultItems, nugetAssemblyData);
 
             return nugetAssemblyData;
+        }
+
+        private List<ReferencedProjectInfo> GetHarvestedReferencedProjects(Project project)
+        {
+
+            var harvestedReferencedProjects = new List<ReferencedProjectInfo>();
+            var visitedProjectPaths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            CollectHarvestedReferencedProjects(project, harvestedReferencedProjects, visitedProjectPaths, project.TargetFrameworkMoniker, 0);
+
+            return harvestedReferencedProjects;
+        }
+
+        private void CollectHarvestedReferencedProjects(Project project, List<ReferencedProjectInfo> harvestedReferencedProjects, HashSet<string> visitedProjectPaths, string requestedTargetFramework, int depth)
+        {
+            if (depth >= MaxReferenceRecursionDepth)
+            {
+                return;
+            }
+
+            if (project?.ProjectReferences == null)
+            {
+                return;
+            }
+
+            foreach (var pr in project.ProjectReferences)
+            {
+                if (IsAutomationScriptLibraryReference(project, pr))
+                {
+                    LogDebug(
+                        $"Skipping DLL harvesting for Automation script library reference: {pr.Name}");
+
+                    continue;
+                }
+                if (!TryGetReferencedProjectInfo(project, pr, requestedTargetFramework, out var referencedProjectInfo))
+                {
+                    continue;
+                }
+
+                if (!referencedProjectInfo.ShouldHarvestAssembly())
+                {
+                    continue;
+                }
+
+                if (!harvestedReferencedProjects.Any(x => String.Equals(x.ProjectPath, referencedProjectInfo.ProjectPath, StringComparison.OrdinalIgnoreCase)))
+                {
+                    harvestedReferencedProjects.Add(referencedProjectInfo);
+                }
+
+                if (!visitedProjectPaths.Add(referencedProjectInfo.ProjectPath))
+                {
+                    continue;
+                }
+                try
+                {
+                    var referencedProject = Project.Load(referencedProjectInfo.ProjectPath);
+                    //recursively collect harvested referenced projects for the referenced project
+                    CollectHarvestedReferencedProjects(referencedProject, harvestedReferencedProjects, visitedProjectPaths, referencedProjectInfo.TargetFramework, depth + 1);
+                }
+                catch (Exception ex)
+                {
+                    LogDebug($"CollectHarvestedReferencedProjects|Error loading referenced project: {referencedProjectInfo.ProjectPath}|Error: {ex.Message}");
+                }
+            }
+        }
+
+        private bool TryGetReferencedProjectInfo(Project project, ProjectReference pr, string requestedTargetFramework, out ReferencedProjectInfo referencedProjectInfo)
+        {
+            referencedProjectInfo = null;
+
+            try
+            {
+                var projectReferencePath = pr.Path;
+                if (String.IsNullOrWhiteSpace(projectReferencePath))
+                {
+                    return false;
+                }
+
+                var baseDir = project.ProjectDirectory ?? Path.GetDirectoryName(project.Path) ?? ".";
+                var fullRefPath = Path.IsPathRooted(projectReferencePath)
+                    ? projectReferencePath
+                    : Path.GetFullPath(Path.Combine(baseDir, projectReferencePath));
+
+                if (!File.Exists(fullRefPath))
+                {
+                    LogDebug($"TryGetReferencedProjectInfo|Referenced project file does not exist: {fullRefPath}");
+                    return false;
+                }
+
+                referencedProjectInfo = MSBuildHelpers.EvaluateReferenceProject(fullRefPath, requestedTargetFramework);
+                if (referencedProjectInfo == null)
+                {
+                    LogDebug($"TryGetReferencedProjectInfo|Referenced project file is invalid: {fullRefPath}");
+                    return false;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogDebug($"TryGetReferencedProjectInfo|Error evaluating referenced project: {pr.Path}|Error: {ex.Message}");
+                return false;
+            }
         }
 
         private void ProcessLibAssemblies(EditXml.XmlElement editExe, BuildResultItems buildResultItems, NuGetPackageAssemblyData nugetAssemblyData)
@@ -626,7 +788,12 @@
         private static IList<ProjectFile> GetRelevantCodeFilesSorted(Project project)
         {
             var files = project.Files
-                               .Where(x => x.Name.EndsWith(".cs") && !x.Name.EndsWith("AssemblyInfo.cs") && !x.Name.Contains("TestPackageContent\\TestHarvesting\\") && !x.Name.Contains("TestPackageContent/TestHarvesting/") && !x.Name.Contains("TestPackageContent\\Tests\\") && !x.Name.Contains("TestPackageContent/Tests/"))
+                               .Where(x => x.Name.EndsWith(".cs") &&
+                               !x.Name.EndsWith("AssemblyInfo.cs") &&
+                               !x.Name.Contains("TestPackageContent\\TestHarvesting\\") &&
+                               !x.Name.Contains("TestPackageContent/TestHarvesting/") &&
+                               !x.Name.Contains("TestPackageContent\\Tests\\") &&
+                               !x.Name.Contains("TestPackageContent/Tests/"))
                                .OrderByDescending(IsMainCodeFile)
                                .ThenByDescending(x => x.Name.StartsWith("script", StringComparison.OrdinalIgnoreCase))
                                .ThenBy(x => x.Name)
@@ -634,7 +801,23 @@
 
             return files;
         }
+        private bool IsAutomationScriptLibraryReference(Project project, ProjectReference projectReference)
+        {
+            if (projectReference.Name == "AutomationScript_ClassLibrary")
+            {
+                return Model.ScriptExes.Any(x => String.Equals(x.LibraryName, "DIS Class Library", StringComparison.OrdinalIgnoreCase));
+            }
 
+            if (FindExeBlockReferenceInScript(project, projectReference) != null)
+            {
+                return true;
+            }
+
+            var (_, scriptExe) =
+                FindExeFromOtherScript(project, projectReference.Name);
+
+            return scriptExe != null;
+        }
         private void BuildScriptReferences(EditXml.XmlElement editExe, Project project)
         {
             if (project.ProjectReferences == null)
@@ -644,6 +827,8 @@
 
             foreach (var r in project.ProjectReferences)
             {
+
+            
                 ScriptExe refExe;
 
                 if (r.Name == "AutomationScript_ClassLibrary")

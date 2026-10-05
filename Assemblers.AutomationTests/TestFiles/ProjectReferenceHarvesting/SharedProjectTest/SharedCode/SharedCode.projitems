@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>7B5B9811-A07A-46CC-B54B-6828527C713D</SharedGUID>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)SharedMarker.cs" />
+  </ItemGroup>
+</Project>

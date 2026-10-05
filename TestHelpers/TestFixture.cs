@@ -34,10 +34,10 @@ namespace Skyline.DataMiner.CICD.Packages.TestHelpers
         /// <summary>
         /// Initializes a new test directory under <see cref="TestFixtureRoot"/> with a global.json for the DataMiner SDK.
         /// </summary>
-        /// <param name="sdkVersion">The Skyline.DataMiner.Sdk version to pin in global.json. Default is "2.5.2".</param>
+        /// <param name="sdkVersion">The Skyline.DataMiner.Sdk version to pin in global.json. Default is "2.5.6-gama".</param>
         /// <param name="methodName">The test method name (auto-captured via CallerMemberName).</param>
         /// <returns>The full path to the created test directory.</returns>
-        public static string InitializeDirectoryForTest(string sdkVersion = "2.5.2", [CallerMemberName] string? methodName = null)
+        public static string InitializeDirectoryForTest(string sdkVersion = "2.5.6-gama", [CallerMemberName] string? methodName = null)
         {
             if (String.IsNullOrWhiteSpace(methodName))
             {
