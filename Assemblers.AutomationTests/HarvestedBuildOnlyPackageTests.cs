@@ -310,6 +310,7 @@ namespace Assemblers.AutomationTests
             Directory.CreateDirectory(directory);
             var properties = new XElement("PropertyGroup",
                 new XElement(frameworks.Contains(";") ? "TargetFrameworks" : "TargetFramework", frameworks),
+                new XElement("Configuration", "Debug"),
                 new XElement("AssemblyName", name), new XElement("PackageId", "Fixture.Library." + name),
                 new XElement("OutputType", "Library"), new XElement("IsPackable", "false"));
             var project = new XDocument(new XElement("Project", new XAttribute("Sdk", "Microsoft.NET.Sdk"), properties,
