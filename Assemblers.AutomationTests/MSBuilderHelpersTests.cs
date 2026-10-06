@@ -158,7 +158,7 @@ namespace Assemblers.AutomationTests
             </Project>
             """);
 
-                var projectCollection = new ProjectCollection();
+                using var projectCollection = new ProjectCollection();
 
                 var rootProject = projectCollection.LoadProject(
                     rootPath,
@@ -172,7 +172,8 @@ namespace Assemblers.AutomationTests
 
                 var libraryA = MSBuildHelpers.EvaluateReferenceProject(
                     libraryAPath,
-                    rootTfm);
+                    rootTfm,
+                    "Debug");
 
                 Assert.IsNotNull(libraryA);
                 Assert.AreEqual("net48", libraryA.TargetFramework);

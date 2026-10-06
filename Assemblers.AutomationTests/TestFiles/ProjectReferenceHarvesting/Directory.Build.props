@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup>
+    <Configuration>Debug</Configuration>
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+  </PropertyGroup>
+</Project>
