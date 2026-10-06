@@ -379,12 +379,13 @@
             }
 
             HashSet<string> processedPackages = new HashSet<string>();
+            var selectedPackagesWithoutAssemblies = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             // Resolved Packages are top level NuGet Packages
-            await ProcessResolvedPackagesAsync(resolvedPackages, nugetPackageAssemblies, processedPackages, nugetFramework, defaultIncludedFilesNuGetPackages);
+            await ProcessResolvedPackagesAsync(resolvedPackages, nugetPackageAssemblies, processedPackages, selectedPackagesWithoutAssemblies, nugetFramework, defaultIncludedFilesNuGetPackages);
 
             // Remaining Packages are Dependencies
-            await ProcessRemainingPackagesAsync(filteredAllPackages, nugetPackageAssemblies, processedPackages, nugetFramework, defaultIncludedFilesNuGetPackages);
+            await ProcessRemainingPackagesAsync(filteredAllPackages, nugetPackageAssemblies, processedPackages, selectedPackagesWithoutAssemblies, nugetFramework, defaultIncludedFilesNuGetPackages);
 
             return nugetPackageAssemblies;
         }
@@ -408,7 +409,7 @@
             HashSet<string> processedPackages = new HashSet<string>();
 
             // Resolved Packages are top level NuGet Packages
-            await ProcessResolvedPackagesAsync(resolvedPackages, nugetPackageAssemblies, processedPackages, nugetFramework, defaultIncludedFilesNuGetPackages);
+            await ProcessResolvedPackagesAsync(resolvedPackages, nugetPackageAssemblies, processedPackages, null, nugetFramework, defaultIncludedFilesNuGetPackages);
 
             return nugetPackageAssemblies;
         }
@@ -419,9 +420,10 @@
         /// <param name="resolvedPackages">The resolved packages.</param>
         /// <param name="nugetPackageAssemblies">The NuGet package assemblies.</param>
         /// <param name="processedPackages">The processed packages.</param>
+        /// <param name="selectedPackagesWithoutAssemblies">The selected package IDs confirmed to have no applicable managed assemblies, or null when discarded versions are not processed.</param>
         /// <param name="nugetFramework">The NuGet framework.</param>
         /// <param name="defaultIncludedFilesNuGetPackages">The default NuGet "Skyline.DataMiner.Files." NuGet packages that are already referenced by default.</param>
-        private async Task ProcessResolvedPackagesAsync(IEnumerable<PackageIdentity> resolvedPackages, NuGetPackageAssemblyData nugetPackageAssemblies, ISet<string> processedPackages, NuGetFramework nugetFramework, IReadOnlyCollection<string> defaultIncludedFilesNuGetPackages)
+        private async Task ProcessResolvedPackagesAsync(IEnumerable<PackageIdentity> resolvedPackages, NuGetPackageAssemblyData nugetPackageAssemblies, ISet<string> processedPackages, ISet<string> selectedPackagesWithoutAssemblies, NuGetFramework nugetFramework, IReadOnlyCollection<string> defaultIncludedFilesNuGetPackages)
         {
             // For all assemblies in the resolved package list we provide the reference to the assembly.
             foreach (var resolvedPackage in resolvedPackages)
@@ -496,8 +498,51 @@
 
                     nugetPackageAssemblies.ProcessedAssemblies.AddRange(filteredFrameworkItems);
                     nugetPackageAssemblies.DllImportFrameworkAssemblyReferences.AddRange(filteredFrameworkItems);
+
+                    if (selectedPackagesWithoutAssemblies != null && !HasApplicableManagedAssemblies(packageReader, libItems, nugetFramework))
+                    {
+                        selectedPackagesWithoutAssemblies.Add(resolvedPackage.Id);
+                    }
                 }
             }
+        }
+
+        private bool HasApplicableManagedAssemblies(PackageReaderBase packageReader, IEnumerable<FrameworkSpecificGroup> libItems, NuGetFramework nugetFramework)
+        {
+            if (HasApplicableAssemblies(libItems, nugetFramework) || HasApplicableAssemblies(packageReader.GetItems("ref"), nugetFramework))
+            {
+                return true;
+            }
+
+            var runtimeFiles = packageReader.GetFiles("runtimes")
+                .Select(file => file.Split('/'))
+                .Where(parts => parts.Length >= 5 && String.Equals(parts[2], "lib", StringComparison.OrdinalIgnoreCase));
+
+            // No RID is supplied to this processor, so retain legacy behavior for any compatible managed runtime group.
+            foreach (var runtime in runtimeFiles.GroupBy(parts => parts[1], StringComparer.OrdinalIgnoreCase))
+            {
+                var frameworkGroups = runtime.GroupBy(parts => parts[3], StringComparer.OrdinalIgnoreCase)
+                    .Select(group => new FrameworkSpecificGroup(
+                        NuGetFramework.ParseFolder(group.Key),
+                        group.Select(parts => parts[parts.Length - 1])));
+
+                if (HasApplicableAssemblies(frameworkGroups, nugetFramework))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool HasApplicableAssemblies(IEnumerable<FrameworkSpecificGroup> items, NuGetFramework nugetFramework)
+        {
+            var groups = items.ToList();
+            var nearestFramework = frameworkReducer.GetNearest(nugetFramework, groups.Select(group => group.TargetFramework));
+
+            return groups.Where(group => group.TargetFramework.Equals(nearestFramework))
+                .SelectMany(group => group.Items)
+                .Any(item => item.EndsWith(".dll", StringComparison.OrdinalIgnoreCase));
         }
 
         private (bool dontAddToPackageToInstall, PackageAssemblyReference packageAssemblyReference) CreatePackageAssemblyReference(
@@ -619,14 +664,16 @@
         /// <param name="allPackages">All packages.</param>
         /// <param name="nugetPackageAssemblies">The NuGet package assemblies.</param>
         /// <param name="processedPackages">The processed packages.</param>
+        /// <param name="selectedPackagesWithoutAssemblies">The selected package IDs confirmed to have no applicable managed assemblies.</param>
         /// <param name="nugetFramework">The NuGet framework.</param>
-        private async Task ProcessRemainingPackagesAsync(HashSet<SourcePackageDependencyInfo> allPackages, NuGetPackageAssemblyData nugetPackageAssemblies, ICollection<string> processedPackages, NuGetFramework nugetFramework, IReadOnlyCollection<string> defaultIncludedFilesNuGetPackages)
+        /// <param name="defaultIncludedFilesNuGetPackages">The default NuGet packages already provided by DataMiner.</param>
+        private async Task ProcessRemainingPackagesAsync(HashSet<SourcePackageDependencyInfo> allPackages, NuGetPackageAssemblyData nugetPackageAssemblies, ICollection<string> processedPackages, ISet<string> selectedPackagesWithoutAssemblies, NuGetFramework nugetFramework, IReadOnlyCollection<string> defaultIncludedFilesNuGetPackages)
         {
             // For all assemblies that are not in the resolved package list, we provide the folder where the assembly can be found.
             foreach (var packageToInstall in allPackages)
             {
                 string packageKey = packageToInstall.Id.ToLower() + "\\" + packageToInstall.Version.ToString().ToLower();
-                if (processedPackages.Contains(packageKey))
+                if (processedPackages.Contains(packageKey) || selectedPackagesWithoutAssemblies.Contains(packageToInstall.Id))
                 {
                     continue;
                 }
