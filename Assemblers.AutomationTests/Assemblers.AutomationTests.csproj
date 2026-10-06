@@ -39,7 +39,13 @@
 
   <ItemGroup>
     <!-- Ensures the SDK NuGet package is in the cache for test project evaluation -->
-    <PackageDownload Include="Skyline.DataMiner.Sdk" Version="[2.5.6-gama]" />
+    <PackageDownload Include="Skyline.DataMiner.Sdk" Version="[2.5.9-sdmfix20261005.1]" />
+    <PackageDownload Include="Microsoft.NETFramework.ReferenceAssemblies.net48" Version="[1.0.3]" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="$(NuGetPackageRoot)\microsoft.netframework.referenceassemblies.net48\1.0.3\build\.NETFramework\v4.8\mscorlib.dll"
+             Link="ReferenceAssemblies\net48\mscorlib.dll" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

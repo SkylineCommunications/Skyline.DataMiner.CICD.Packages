@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Reflection;
@@ -31,6 +30,16 @@
     [TestClass]
     public class AutomationScriptBuilderTests
     {
+        [ClassInitialize]
+        public static async Task BuildHarvestingFixtureOutputs(TestContext context)
+        {
+            string directory = Path.Combine(AppContext.BaseDirectory, "TestFiles", "ProjectReferenceHarvesting");
+            foreach (string project in Directory.EnumerateFiles(directory, "*.csproj", SearchOption.AllDirectories).OrderBy(path => path, StringComparer.Ordinal))
+            {
+                await TestFixture.BuildProjectAsync(project).ConfigureAwait(false);
+            }
+        }
+
         [TestMethod]
         [DataRow("[Project:SVD-1_2]", "SVD-1_2")]
         [DataRow("[Project:TV2D-SRM-LSO.Satellite Downlink [DVB-S2.S2X]_63000]", "TV2D-SRM-LSO.Satellite Downlink [DVB-S2.S2X]_63000")]
@@ -1652,7 +1661,7 @@ class Class1 {}]]>
 
         }
         [TestMethod]
-        public void SharedProject_ConsumerBuildsWithoutProducingSharedAssembly()
+        public async Task SharedProject_ConsumerBuildsWithoutProducingSharedAssembly()
         {
             // Arrange
             string rootDirectory = Path.Combine(
@@ -1670,26 +1679,7 @@ class Class1 {}]]>
                 "Consumer.csproj");
 
             // Act
-            using Process process = Process.Start(new ProcessStartInfo
-            {
-                FileName = "dotnet",
-                Arguments = $"build \"{consumerProjectPath}\" -c Debug --nologo",
-                WorkingDirectory = consumerDirectory,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-            })!;
-
-            string output = process.StandardOutput.ReadToEnd();
-            string errors = process.StandardError.ReadToEnd();
-
-            process.WaitForExit();
-
-            // Assert
-            process.ExitCode.Should().Be(
-                0,
-                $"consumer should build successfully.\nOutput:\n{output}\nErrors:\n{errors}");
+            await TestFixture.BuildProjectAsync(consumerProjectPath).ConfigureAwait(false);
 
             string consumerDll = Path.Combine(
                 consumerDirectory,
@@ -1759,7 +1749,7 @@ class Class1 {}]]>
                 "Debug",
                 "netstandard2.0",
                 "LibraryD.dll");
-            BuildProject(libraryAProjectPath);
+            await TestFixture.BuildProjectAsync(libraryAProjectPath).ConfigureAwait(false);
             File.Exists(libraryAAssemblyPath).Should().BeTrue();
             File.Exists(libraryBAssemblyPath).Should().BeTrue();
             File.Exists(libraryCAssemblyPath).Should().BeTrue();
@@ -1922,7 +1912,7 @@ public class Script
                 AppContext.BaseDirectory,
                 "TestFiles",
                 "ProjectReferenceHarvesting",
-                "LibraryWithPackageReference");
+                "LibraryWIthPackageReference");
 
             string libraryProjectPath = Path.Combine(
                 fixtureDirectory,
@@ -2265,9 +2255,9 @@ public class Script
             File.Exists(libraryAProjectPath).Should().BeTrue();
             File.Exists(libraryBProjectPath).Should().BeTrue();
             File.Exists(libraryCProjectPath).Should().BeTrue();
-            BuildProject(libraryCProjectPath);
-            BuildProject(libraryBProjectPath);
-            BuildProject(libraryAProjectPath);
+            await TestFixture.BuildProjectAsync(libraryCProjectPath).ConfigureAwait(false);
+            await TestFixture.BuildProjectAsync(libraryBProjectPath).ConfigureAwait(false);
+            await TestFixture.BuildProjectAsync(libraryAProjectPath).ConfigureAwait(false);
             File.Exists(libraryAAssemblyPath).Should().BeTrue();
 
             // Important: both B outputs exist.
@@ -2378,47 +2368,6 @@ public class Script
                 a.DllImport.Replace('\\', '/').Contains(
                     "recursivemultitarget.libraryc/3.0.0.0/lib/netstandard2.1/"));
         }
-        private static void BuildProject(string projectPath)
-        {
-            using var process = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = "dotnet",
-                    Arguments = $"build \"{projectPath}\"",
-                    WorkingDirectory = Path.GetDirectoryName(projectPath),
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                },
-            };
-
-            process.Start();
-
-            string output = process.StandardOutput.ReadToEnd();
-            string error = process.StandardError.ReadToEnd();
-
-            process.WaitForExit();
-
-            Console.WriteLine(output);
-
-            if (!String.IsNullOrWhiteSpace(error))
-            {
-                Console.WriteLine(error);
-            }
-
-            if (process.ExitCode != 0)
-            {
-                Assert.Fail(
-                    $"Failed to build fixture project '{projectPath}'." +
-                    Environment.NewLine +
-                    output +
-                    Environment.NewLine +
-                    error);
-            }
-
-        }
         [TestMethod]
         public async Task AutomationScriptBuilder_ProjectReferenceHarvesting_RecursiveLibraryWithSharedProject_HarvestsLibrariesWithoutSharedAssemblyAsync()
         {
@@ -2458,7 +2407,7 @@ public class Script
 
             // Build A. This builds B as its ProjectReference.
             // SharedProject source is compiled into B.
-            BuildProject(libraryAProjectPath);
+            await TestFixture.BuildProjectAsync(libraryAProjectPath).ConfigureAwait(false);
 
             string libraryAAssemblyPath = Path.Combine(
                 fixtureDirectory,
@@ -2603,5 +2552,3 @@ public class Script
 
 
 }
-
-

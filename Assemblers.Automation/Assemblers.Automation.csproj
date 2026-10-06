@@ -5,8 +5,6 @@
     <AssemblyName>Skyline.DataMiner.CICD.Assemblers.Automation</AssemblyName>
     <RootNamespace>Skyline.DataMiner.CICD.Assemblers.Automation</RootNamespace>
     <Description>Library providing methods for converting Visual Studio DIS Automation Solutions to individual DataMiner AutomationScript artifacts (e.g. XML, DLLs,...).</Description>
-    <!-- These versions are locally made for testing purposes -->
-    <Version>6.2.4.2-gama</Version>
   </PropertyGroup>
 
   <ItemGroup>
