@@ -112,18 +112,37 @@ namespace Skyline.DataMiner.CICD.Assemblers.Automation
                     .Version?
                     .ToString() ?? string.Empty;
             }
-            bool isCpm = string.Equals(Get("ManagePackageVersionsCentrally"), "true", StringComparison.OrdinalIgnoreCase);
+            string dataMinerType = Get("DataMinerType");
+            var outputType = Get("OutputType");
+            return new ReferencedProjectInfo(
+     Path.GetFullPath(referencedProjectFullPath))
+            {
+                PackageId = packageId,
+                TargetFramework = targetFramework,
+                Configuration = Get("Configuration"),
+                PackageVersion = packageVersion,
+                TargetPath = targetPath,
+                AssemblyName = Get("AssemblyName"),
+                DataMinerType = dataMinerType,
+                OutputType = outputType,
+                AssemblyVersion = assemblyVersion,
+                DirectPackageReferences = GetDirectPackageReferences(msproj),
+            };
+            }
+        }
+
+        private static List<PackageIdentity> GetDirectPackageReferences(Microsoft.Build.Evaluation.Project project)
+        {
+            bool isCpm = string.Equals(project.GetPropertyValue("ManagePackageVersionsCentrally"), "true", StringComparison.OrdinalIgnoreCase);
             Dictionary<string, string> centralVersions = null;
             if (isCpm)
             {
-                centralVersions = msproj.GetItems("PackageVersion")
+                centralVersions = project.GetItems("PackageVersion")
                     .ToDictionary(i => i.EvaluatedInclude, i => i.GetMetadataValue("Version"), StringComparer.OrdinalIgnoreCase);
             }
             var directPackages = new List<PackageIdentity>();
 
-
-
-            foreach (var item in msproj.GetItems("PackageReference"))
+            foreach (var item in project.GetItems("PackageReference"))
             {
                 var id = item.EvaluatedInclude;
 
@@ -156,23 +175,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Automation
             }
 
 
-            string dataMinerType = Get("DataMinerType");
-            var outputType = Get("OutputType");
-            return new ReferencedProjectInfo(
-     Path.GetFullPath(referencedProjectFullPath))
-            {
-                PackageId = packageId,
-                TargetFramework = targetFramework,
-                Configuration = Get("Configuration"),
-                PackageVersion = packageVersion,
-                TargetPath = targetPath,
-                AssemblyName = Get("AssemblyName"),
-                DataMinerType = dataMinerType,
-                OutputType = outputType,
-                AssemblyVersion = assemblyVersion,
-                DirectPackageReferences = directPackages,
-            };
-            }
+            return directPackages;
         }
         /// <summary>
         /// creates a synthetic package assembly reference from the referenced project information.
