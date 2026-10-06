@@ -27,6 +27,10 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common
         /// </summary>
         public string TargetFramework { get; set; } = string.Empty;
         /// <summary>
+        /// Gets or sets the evaluated build configuration.
+        /// </summary>
+        public string Configuration { get; set; } = string.Empty;
+        /// <summary>
         /// Target path of the referenced project.
         /// </summary>
         public string TargetPath { get; set; } = string.Empty;

@@ -41,6 +41,14 @@ This correction preserves the existing version-selection policy and legacy direc
 
 Regenerate previously created application packages with corrected tooling; updating the tooling alone does not repair existing script XML.
 
+#### Referenced C# libraries
+
+Automation scripts and GQI ad hoc data sources can reference ordinary C# library projects, including legacy .NET Framework projects. Their built DLLs are included in the generated script imports and application package, and their NuGet dependencies participate in resolution, including solution-runner dependency grouping. Automation script-library references continue to use `scriptRef`.
+
+Build referenced libraries before packaging. Harvesting uses the active build configuration and the nearest compatible target framework, including conditional and transitive project references. Missing outputs or incompatible frameworks fail packaging explicitly. Cyclic references are visited once, and excessive reference depth produces an error rather than incomplete output.
+
+Harvested DLL import identities use the library's package ID, built assembly version, target framework, and assembly filename. Build-only package filtering does not discard these project DLLs.
+
 The code is loosely based on the *Builder* design pattern. You can create a builder object using one of the provided static Factory classes:
 
 ```csharp

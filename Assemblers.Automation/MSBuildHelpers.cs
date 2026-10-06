@@ -25,10 +25,29 @@ namespace Skyline.DataMiner.CICD.Assemblers.Automation
         /// <returns>The evaluated project information, or null if the project is invalid.</returns>
         public static ReferencedProjectInfo EvaluateReferenceProject(string referencedProjectFullPath, string singleTargetFramework)
         {
+            return EvaluateReferenceProject(referencedProjectFullPath, singleTargetFramework, null);
+        }
+
+        /// <summary>
+        /// Evaluates a referenced project for the active parent framework and build configuration.
+        /// </summary>
+        /// <param name="referencedProjectFullPath">The referenced project file path.</param>
+        /// <param name="singleTargetFramework">The parent target framework.</param>
+        /// <param name="configuration">The parent build configuration.</param>
+        /// <returns>The evaluated project information.</returns>
+        public static ReferencedProjectInfo EvaluateReferenceProject(string referencedProjectFullPath, string singleTargetFramework, string configuration)
+        {
             if (string.IsNullOrWhiteSpace(referencedProjectFullPath))
                 return null;
 
-            var pc = new ProjectCollection();
+            var buildProperties = new Dictionary<string, string>();
+            if (!string.IsNullOrWhiteSpace(configuration))
+            {
+                buildProperties["Configuration"] = configuration;
+            }
+
+            using (var pc = new ProjectCollection(buildProperties))
+            {
             pc.DisableMarkDirty = true;
 
             // First evaluate without forcing a TFM.
@@ -36,7 +55,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Automation
             // from the referenced project itself.
             var outerProject = new Microsoft.Build.Evaluation.Project(
                 referencedProjectFullPath,
-                new Dictionary<string, string>(),
+                buildProperties,
                 null,
                 pc);
 
@@ -46,16 +65,14 @@ namespace Skyline.DataMiner.CICD.Assemblers.Automation
 
             if (!string.IsNullOrWhiteSpace(selectedTargetFramework))
             {
-                var globalProperties = new Dictionary<string, string>
-                {
-                    ["TargetFramework"] = selectedTargetFramework,
-                };
+                var globalProperties = new Dictionary<string, string>(buildProperties);
+                globalProperties["TargetFramework"] = selectedTargetFramework;
 
                 msproj = new Microsoft.Build.Evaluation.Project(referencedProjectFullPath, globalProperties, null, pc);
             }
             else
             {
-                msproj = new Microsoft.Build.Evaluation.Project(referencedProjectFullPath, new Dictionary<string, string>(), null, pc);
+                msproj = new Microsoft.Build.Evaluation.Project(referencedProjectFullPath, buildProperties, null, pc);
             }
 
             string Get(string name) => msproj.GetPropertyValue(name) ?? string.Empty;
@@ -146,6 +163,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Automation
             {
                 PackageId = packageId,
                 TargetFramework = targetFramework,
+                Configuration = Get("Configuration"),
                 PackageVersion = packageVersion,
                 TargetPath = targetPath,
                 AssemblyName = Get("AssemblyName"),
@@ -154,6 +172,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Automation
                 AssemblyVersion = assemblyVersion,
                 DirectPackageReferences = directPackages,
             };
+            }
         }
         /// <summary>
         /// creates a synthetic package assembly reference from the referenced project information.
@@ -162,8 +181,13 @@ namespace Skyline.DataMiner.CICD.Assemblers.Automation
         public static PackageAssemblyReference CreateSyntheticPackageAssemblyReference(ReferencedProjectInfo referencedProjectInfo)
         {
             if (referencedProjectInfo == null || !referencedProjectInfo.ShouldHarvestAssembly()) return null;
-            var dllImportInfo = referencedProjectInfo.GetDllImportRelativePath().Replace('\\', '/');
             var assemblyPath = referencedProjectInfo.GetSourceAssemblyPath();
+            if (!File.Exists(assemblyPath))
+            {
+                throw new FileNotFoundException($"Build the referenced library before packaging: {assemblyPath}", assemblyPath);
+            }
+
+            var dllImportInfo = referencedProjectInfo.GetDllImportRelativePath().Replace('\\', '/');
             return new PackageAssemblyReference(dllImportInfo, Path.GetFullPath(assemblyPath));
         }
         private static string ResolveTargetFramework(Microsoft.Build.Evaluation.Project project, string requestedTargetFramework)
@@ -189,13 +213,25 @@ namespace Skyline.DataMiner.CICD.Assemblers.Automation
 
             if (declaredFrameworks.Count == 0)
             {
-                return string.Empty;
+                var moniker = project.GetPropertyValue("TargetFrameworkMoniker");
+                if (!string.IsNullOrWhiteSpace(moniker))
+                {
+                    var framework = NuGetFramework.Parse(moniker);
+                    if (!framework.IsUnsupported)
+                    {
+                        declaredFrameworks.Add(framework.GetShortFolderName());
+                    }
+                }
             }
 
-            // Single-target project.
-            if (declaredFrameworks.Count == 1)
+            if (declaredFrameworks.Count == 0)
             {
-                return declaredFrameworks[0];
+                if (string.Equals(project.GetPropertyValue("OutputType"), "Library", StringComparison.OrdinalIgnoreCase) &&
+                    string.IsNullOrWhiteSpace(project.GetPropertyValue("DataMinerType")))
+                {
+                    throw new InvalidOperationException($"Cannot determine a compatible target framework for referenced library '{project.FullPath}'.");
+                }
+                return string.Empty;
             }
 
             // Multi-target project without a requested parent TFM.
@@ -239,7 +275,8 @@ namespace Skyline.DataMiner.CICD.Assemblers.Automation
 
             if (nearestFramework == null)
             {
-                return string.Empty;
+                throw new InvalidOperationException(
+                    $"Referenced project '{project.FullPath}' has no target framework compatible with '{requestedTargetFramework}'.");
             }
 
             return candidates
@@ -262,4 +299,3 @@ namespace Skyline.DataMiner.CICD.Assemblers.Automation
 
 
 }
-
