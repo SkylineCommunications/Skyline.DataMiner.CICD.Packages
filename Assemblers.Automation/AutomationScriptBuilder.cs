@@ -257,6 +257,18 @@
                 nugetAssemblyData = new NuGetPackageAssemblyData();
             }
     
+            AddHarvestedAssemblies(nugetAssemblyData, harvestedReferencedProjects);
+
+            if (project.References != null)
+            {
+                ProcessReferences(editExe, project, nugetAssemblyData, packageReferenceProcessor, buildResultItems);
+            }
+            ProcessFrameworkAssemblies(editExe, nugetAssemblyData);
+            ProcessLibAssemblies(editExe, buildResultItems, nugetAssemblyData);
+        }
+
+        private static void AddHarvestedAssemblies(NuGetPackageAssemblyData nugetAssemblyData, IEnumerable<ReferencedProjectInfo> harvestedReferencedProjects)
+        {
             foreach (var hrp in harvestedReferencedProjects)
             {
                 var synthetic = MSBuildHelpers.CreateSyntheticPackageAssemblyReference(hrp);
@@ -278,14 +290,6 @@
                     nugetAssemblyData.NugetAssemblies.Add(synthetic);
                 }
             }
-
-
-            if (project.References != null)
-            {
-                ProcessReferences(editExe, project, nugetAssemblyData, packageReferenceProcessor, buildResultItems);
-            }
-            ProcessFrameworkAssemblies(editExe, nugetAssemblyData);
-            ProcessLibAssemblies(editExe, buildResultItems, nugetAssemblyData);
         }
 
         private async Task<NuGetPackageAssemblyData> ProcessPackageReferences(Project project, PackageReferenceProcessor packageReferenceProcessor,
@@ -383,18 +387,23 @@
                 {
                     continue;
                 }
-                var buildProperties = new Dictionary<string, string>();
-                if (!String.IsNullOrWhiteSpace(referencedProjectInfo.TargetFramework))
-                {
-                    buildProperties["TargetFramework"] = referencedProjectInfo.TargetFramework;
-                }
-                if (!String.IsNullOrWhiteSpace(referencedProjectInfo.Configuration))
-                {
-                    buildProperties["Configuration"] = referencedProjectInfo.Configuration;
-                }
-                var referencedProject = Project.Load(referencedProjectInfo.ProjectPath, buildProperties);
+                var referencedProject = LoadReferencedProject(referencedProjectInfo);
                 CollectHarvestedReferencedProjects(referencedProject, harvestedReferencedProjects, visitedProjectPaths, referencedProjectInfo.TargetFramework, depth + 1);
             }
+        }
+
+        private static Project LoadReferencedProject(ReferencedProjectInfo referencedProjectInfo)
+        {
+            var buildProperties = new Dictionary<string, string>();
+            if (!String.IsNullOrWhiteSpace(referencedProjectInfo.TargetFramework))
+            {
+                buildProperties["TargetFramework"] = referencedProjectInfo.TargetFramework;
+            }
+            if (!String.IsNullOrWhiteSpace(referencedProjectInfo.Configuration))
+            {
+                buildProperties["Configuration"] = referencedProjectInfo.Configuration;
+            }
+            return Project.Load(referencedProjectInfo.ProjectPath, buildProperties);
         }
 
         private bool TryGetReferencedProjectInfo(Project project, ProjectReference pr, string requestedTargetFramework, out ReferencedProjectInfo referencedProjectInfo)

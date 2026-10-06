@@ -308,25 +308,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects
                     }
 
                     project._packageReferences.AddRange(loadedProject.GetItems("PackageReference")
-                                                                     .Select(r =>
-                                                                     {
-                                                                         string version = r.GetMetadataValue("Version");
-
-                                                                         if (isCpm && String.IsNullOrEmpty(version))
-                                                                         {
-                                                                             string versionOverride = r.GetMetadataValue("VersionOverride");
-                                                                             if (!String.IsNullOrEmpty(versionOverride))
-                                                                             {
-                                                                                 version = versionOverride;
-                                                                             }
-                                                                             else if (packageVersions.TryGetValue(r.EvaluatedInclude, out string centralVersion))
-                                                                             {
-                                                                                 version = centralVersion;
-                                                                             }
-                                                                         }
-
-                                                                         return new PackageReference(r.EvaluatedInclude, version);
-                                                                     }));
+                                                                     .Select(r => CreatePackageReference(r, packageVersions)));
 
                     project._files.AddRange(loadedProject.GetItems("Compile")
                                                         .Select(i => new ProjectFile(i.EvaluatedInclude, FileSystem.File.ReadAllText(i.GetMetadataValue("FullPath")))));
@@ -337,6 +319,24 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects
                     throw new AssemblerException($"Failed to load project '{projectName}' ({path}).", e);
                 }
             }
+        }
+
+        private static PackageReference CreatePackageReference(ProjectItem item, IDictionary<string, string> packageVersions)
+        {
+            string version = item.GetMetadataValue("Version");
+            if (packageVersions != null && String.IsNullOrEmpty(version))
+            {
+                string versionOverride = item.GetMetadataValue("VersionOverride");
+                if (!String.IsNullOrEmpty(versionOverride))
+                {
+                    version = versionOverride;
+                }
+                else if (packageVersions.TryGetValue(item.EvaluatedInclude, out string centralVersion))
+                {
+                    version = centralVersion;
+                }
+            }
+            return new PackageReference(item.EvaluatedInclude, version);
         }
 
         private static string TryGetProjItemsPath(string shprojPath)
