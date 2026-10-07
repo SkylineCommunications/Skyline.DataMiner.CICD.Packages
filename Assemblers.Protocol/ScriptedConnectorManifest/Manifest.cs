@@ -4,7 +4,7 @@
     using System.Text.Json.Serialization;
 
     /// <summary>
-    /// Represents the <c>manifest.json</c> file located at the root of a scripted connector project (a subfolder of a
+    /// Represents the <c>manifest.json</c> file located at the root of a connector script project (a subfolder of a
     /// protocol solution's <c>Scripts</c> folder).
     /// </summary>
     /// <remarks>

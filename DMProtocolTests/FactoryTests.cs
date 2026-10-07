@@ -103,9 +103,9 @@
             {
                 var entryNames = archive.Entries.Select(e => e.FullName).ToList();
 
-                Assert.IsTrue(entryNames.Any(n => n == "Scripts/edc76df5-0d81-43a8-9b22-ffdd0b2fb2e2/manifest.json"));
-                Assert.IsTrue(entryNames.Any(n => n == "Scripts/edc76df5-0d81-43a8-9b22-ffdd0b2fb2e2/run/main.py"));
-                Assert.IsTrue(entryNames.Any(n => n.StartsWith("Scripts/edc76df5-0d81-43a8-9b22-ffdd0b2fb2e2/dependencies/") && n.EndsWith(".whl")));
+                Assert.IsTrue(entryNames.Any(n => n == @"Scripts\edc76df5-0d81-43a8-9b22-ffdd0b2fb2e2\manifest.json"));
+                Assert.IsTrue(entryNames.Any(n => n == @"Scripts\edc76df5-0d81-43a8-9b22-ffdd0b2fb2e2\run\main.py"));
+                Assert.IsTrue(entryNames.Any(n => n.StartsWith(@"Scripts\edc76df5-0d81-43a8-9b22-ffdd0b2fb2e2\dependencies\") && n.EndsWith(".whl")));
             }
 
             // Verify the base protocol content is still present alongside the embedded scripts.

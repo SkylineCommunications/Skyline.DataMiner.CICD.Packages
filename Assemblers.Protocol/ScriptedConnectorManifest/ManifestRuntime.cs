@@ -3,7 +3,7 @@
     using System.Text.Json.Serialization;
 
     /// <summary>
-    /// Represents the <c>runtime</c> section of a scripted connector's <c>manifest.json</c> file.
+    /// Represents the <c>runtime</c> section of a connector script's <c>manifest.json</c> file.
     /// </summary>
     public class ManifestRuntime
     {
@@ -14,7 +14,7 @@
         public RuntimeLanguage Language { get; set; }
 
         /// <summary>
-        /// Gets or sets the platforms supported by this scripted connector.
+        /// Gets or sets the platforms supported by this connector script.
         /// </summary>
         [JsonPropertyName("supported_platforms")]
         public SupportedPlatform[] SupportedPlatforms { get; set; }

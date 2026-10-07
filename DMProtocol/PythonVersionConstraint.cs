@@ -6,8 +6,8 @@
     using Skyline.DataMiner.CICD.Assemblers.Protocol.ScriptedConnectorManifest;
 
     /// <summary>
-    /// Helper to derive a concrete pip-compatible Python version (e.g. <c>"3.14"</c>) from the version constraint string
-    /// declared in a scripted connector's <c>manifest.json</c> (e.g. <c>"&gt;=3.14;&lt;3.15"</c>).
+    /// Helper to derive a concrete pip-compatible Python version (e.g. <c>"3.14"</c>) from a manifest.json version
+    /// constraint (e.g. <c>"&gt;=3.14;&lt;3.15"</c>).
     /// </summary>
     internal static class PythonVersionConstraint
     {

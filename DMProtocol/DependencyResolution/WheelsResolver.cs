@@ -16,8 +16,8 @@ namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
     using Skyline.DataMiner.CICD.Loggers;
 
     /// <summary>
-    /// Resolves and downloads Python wheels for Windows and Linux and organizes them into platform-specific and universal
-    /// directories, ready to be embedded in the <c>Scripts/{guid}/dependencies</c> folder of a <c>.dmprotocol</c> package.
+    /// Resolves and downloads Python wheels for Windows and Linux, organized into the <c>Scripts/{guid}/dependencies</c>
+    /// folder of a <c>.dmprotocol</c> package.
     /// </summary>
     /// <remarks>
     /// This is a C# port of the reference implementation available at
@@ -93,9 +93,9 @@ namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="WheelsResolver"/> class with an explicit pip command, bypassing
-        /// pip resolution. Intended for unit testing the file-system-only logic (e.g. <see cref="ProcessDownloadedWheels"/>)
-        /// without requiring pip to be installed on the machine running the tests.
+        /// Initializes a new instance of the <see cref="WheelsResolver"/> class with an explicit pip command,
+        /// bypassing pip resolution. Intended for unit testing <see cref="ProcessDownloadedWheels"/> without
+        /// requiring pip to be installed.
         /// </summary>
         internal WheelsResolver(ILogCollector logCollector, IFileSystem fileSystem, string outputDirectory, PipCommand pipCommand)
         {
@@ -128,8 +128,8 @@ namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
         }
 
         /// <summary>
-        /// Resolves the dependencies declared in <paramref name="requirementsFilePath"/> and downloads the necessary wheels
-        /// for Windows and Linux. The downloaded wheels are organized into platform-specific and universal directories.
+        /// Resolves the dependencies declared in <paramref name="requirementsFilePath"/> and downloads the necessary
+        /// wheels for Windows and Linux.
         /// </summary>
         /// <param name="requirementsFilePath">Path to the requirements file (containing only direct dependencies).</param>
         /// <param name="pythonVersion">Target Python version for which dependencies should be resolved (pip format, e.g. "3.14").</param>
@@ -146,7 +146,7 @@ namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
 
             await CheckConflictingDependenciesAsync(requirementsFilePath, pythonVersion, cancellationToken).ConfigureAwait(false);
 
-            var supportedPlatforms = new List<SupportedPlatform>();
+            List<SupportedPlatform> supportedPlatforms = new List<SupportedPlatform>();
 
             if (await DownloadWindowsWheelsAsync(requirementsFilePath, pythonVersion, cancellationToken).ConfigureAwait(false))
             {
@@ -170,7 +170,7 @@ namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
         {
             _logCollector.ReportStatus("Checking for possible conflicting dependencies...");
 
-            var arguments = new List<string>
+            List<string> arguments = new List<string>
             {
                 "install",
                 "--break-system-packages", // Necessary in case the Python running pip is externally managed (e.g. installed through uv). Safe here since this is a dry-run.
@@ -184,7 +184,7 @@ namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
                 pythonVersion,
             };
 
-            var result = await RunPipAsync(arguments, cancellationToken).ConfigureAwait(false);
+            PipProcessResult result = await RunPipAsync(arguments, cancellationToken).ConfigureAwait(false);
 
             if (result.ExitCode != 0)
             {
@@ -204,7 +204,7 @@ namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
         {
             _logCollector.ReportStatus("Downloading Windows wheels...");
 
-            var result = await RunPipDownloadAsync(requirementsFilePath, pythonVersion, new[] { "win_amd64" }, _windowsDirectory, cancellationToken).ConfigureAwait(false);
+            PipProcessResult result = await RunPipDownloadAsync(requirementsFilePath, pythonVersion, new[] { "win_amd64" }, _windowsDirectory, cancellationToken).ConfigureAwait(false);
             if (result.ExitCode != 0)
             {
                 _logCollector.ReportError($"Could not download the dependencies for Windows{Environment.NewLine}stdout: {result.StandardOutput}{Environment.NewLine}stderr: {result.StandardError}");
@@ -232,13 +232,13 @@ namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
             // Try to download the dependencies, preferring the platform with the lowest glibc version.
             // When providing multiple "valid" platform tags, pip automatically takes the first one in the list that works for each package.
             // Since this list contains all platforms in order old -> new, this maximizes compatibility for the packages.
-            var platformTags = new List<string> { "manylinux2014_x86_64" }; // Old name for manylinux_2_17_x86_64, so also valid for our use case.
+            List<string> platformTags = new List<string> { "manylinux2014_x86_64" }; // Old name for manylinux_2_17_x86_64, so also valid for our use case.
             for (int version = MinimumCompatibleGlibc2Version; version < latestGlibc2.Value; version++)
             {
                 platformTags.Add($"manylinux_2_{version}_x86_64");
             }
 
-            var result = await RunPipDownloadAsync(requirementsFilePath, pythonVersion, platformTags, _linuxDirectory, cancellationToken).ConfigureAwait(false);
+            PipProcessResult result = await RunPipDownloadAsync(requirementsFilePath, pythonVersion, platformTags, _linuxDirectory, cancellationToken).ConfigureAwait(false);
             if (result.ExitCode != 0)
             {
                 _logCollector.ReportError($"Could not download the dependencies for Linux{Environment.NewLine}stdout: {result.StandardOutput}{Environment.NewLine}stderr: {result.StandardError}");
@@ -262,12 +262,12 @@ namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
         {
             try
             {
-                using var handler = new HttpClientHandler
+                using HttpClientHandler handler = new HttpClientHandler
                 {
                     AllowAutoRedirect = false,
                 };
 
-                using var httpClient = new HttpClient(handler)
+                using HttpClient httpClient = new HttpClient(handler)
                 {
                     Timeout = TimeSpan.FromSeconds(15),
                 };
@@ -278,7 +278,7 @@ namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
                     return null;
                 }
 
-                var matches = Regex.Matches(html, @"glibc-2\.([0-9]+)(\.[0-9]+)?\.tar\.xz");
+                MatchCollection matches = Regex.Matches(html, @"glibc-2\.([0-9]+)(\.[0-9]+)?\.tar\.xz");
                 if (matches.Count == 0)
                 {
                     return null;
@@ -309,7 +309,7 @@ namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
         {
             for (int redirectCount = 0; redirectCount <= MaxRedirects; redirectCount++)
             {
-                using var response = await httpClient.GetAsync(uri, cancellationToken).ConfigureAwait(false);
+                using HttpResponseMessage response = await httpClient.GetAsync(uri, cancellationToken).ConfigureAwait(false);
 
                 if (IsRedirect(response.StatusCode))
                 {
@@ -348,7 +348,7 @@ namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
         /// </summary>
         private Task<PipProcessResult> RunPipDownloadAsync(string requirementsFilePath, string pythonVersion, IEnumerable<string> platformTags, string destinationDirectory, CancellationToken cancellationToken)
         {
-            var arguments = new List<string>
+            List<string> arguments = new List<string>
             {
                 "download",
                 "-r",
@@ -376,11 +376,11 @@ namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
         /// </summary>
         private async Task<PipProcessResult> RunPipAsync(IReadOnlyList<string> arguments, CancellationToken cancellationToken)
         {
-            var startInfo = _pipCommand.CreateProcessStartInfo(arguments);
+            ProcessStartInfo startInfo = _pipCommand.CreateProcessStartInfo(arguments);
 
-            using var process = new Process { StartInfo = startInfo, EnableRaisingEvents = true };
+            using Process process = new Process { StartInfo = startInfo, EnableRaisingEvents = true };
 
-            var processExited = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            TaskCompletionSource<bool> processExited = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             process.Exited += (_, _) => processExited.TrySetResult(true);
 
             process.Start();
@@ -456,8 +456,8 @@ namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
         /// </summary>
         internal void ProcessDownloadedWheels()
         {
-            var windowsWheels = ExtractWheelsFromFolder(_windowsDirectory);
-            var linuxWheels = ExtractWheelsFromFolder(_linuxDirectory);
+            HashSet<string> windowsWheels = ExtractWheelsFromFolder(_windowsDirectory);
+            HashSet<string> linuxWheels = ExtractWheelsFromFolder(_linuxDirectory);
 
             MoveSharedWheels(windowsWheels, linuxWheels);
             PreferUniversalWheels(windowsWheels, linuxWheels);
@@ -468,7 +468,7 @@ namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
         /// </summary>
         private void MoveSharedWheels(HashSet<string> windowsWheels, HashSet<string> linuxWheels)
         {
-            var shared = new HashSet<string>(windowsWheels, StringComparer.Ordinal);
+            HashSet<string> shared = new HashSet<string>(windowsWheels, StringComparer.Ordinal);
             shared.IntersectWith(linuxWheels);
 
             foreach (string wheel in shared)
@@ -482,16 +482,15 @@ namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
         }
 
         /// <summary>
-        /// Prefers universal wheels when one platform has a platform-specific wheel but the other has a universal wheel
-        /// for the same package/version. Even though universal wheels can be slower than their platform-specific
-        /// counterparts, this reduces the overall package size, which is more important for scripted connector packages.
+        /// Prefers universal wheels when one platform has a platform-specific wheel but the other has a universal
+        /// wheel for the same package/version, to reduce overall package size.
         /// </summary>
         private void PreferUniversalWheels(HashSet<string> windowsWheels, HashSet<string> linuxWheels)
         {
-            var windowsUniversalMap = BuildUniversalWheelMap(windowsWheels);
-            var linuxUniversalMap = BuildUniversalWheelMap(linuxWheels);
+            Dictionary<string, string> windowsUniversalMap = BuildUniversalWheelMap(windowsWheels);
+            Dictionary<string, string> linuxUniversalMap = BuildUniversalWheelMap(linuxWheels);
 
-            var consumedPrefixes = new HashSet<string>(StringComparer.Ordinal);
+            HashSet<string> consumedPrefixes = new HashSet<string>(StringComparer.Ordinal);
 
             ReplaceWithUniversal(linuxWheels, windowsUniversalMap, _linuxDirectory, _windowsDirectory, consumedPrefixes);
             ReplaceWithUniversal(windowsWheels, linuxUniversalMap, _windowsDirectory, _linuxDirectory, consumedPrefixes);

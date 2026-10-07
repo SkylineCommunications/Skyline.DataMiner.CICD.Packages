@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.IO.Compression;
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
@@ -61,17 +60,16 @@
             }
 
             /// <summary>
-            /// Creates an <see cref="IAppPackageProtocol"/> instance from the specified repository with the specified name and version.
-            /// If the protocol solution declares any scripted connectors (see <see cref="ProtocolSolution.Scripts"/>), their Python
-            /// dependencies are resolved and embedded into the resulting package under <c>Scripts/{guid}/</c>.
+            /// Creates an <see cref="IAppPackageProtocol"/> instance, resolving and embedding any connector
+            /// script Python dependencies.
             /// </summary>
             /// <param name="logCollector">The log collector.</param>
             /// <param name="repositoryPath">The path of the repository that contains the Protocol solution.</param>
             /// <param name="versionOverride">Override the version in the protocol.</param>
             /// <param name="pythonVersion">
-            /// Target Python version to resolve scripted connector dependencies for (pip format, e.g. "3.14"). If not
+            /// Target Python version to resolve connector script dependencies for (pip format, e.g. "3.14"). If not
             /// specified, it is derived per-script from its manifest's <c>runtime.python.version</c> constraint. Ignored
-            /// if the protocol does not declare any scripted connectors.
+            /// if the protocol does not declare any connector scripts.
             /// </param>
             /// <returns>The <see cref="IAppPackageProtocol"/> instance.</returns>
             /// <exception cref="ArgumentNullException"><paramref name="logCollector"/>, <paramref name="repositoryPath"/> is <see langword="null"/>.</exception>
@@ -97,8 +95,7 @@
             }
 
             /// <summary>
-            /// Builds the package from a <paramref name="repositoryPath"/> that has already been validated (non-null,
-            /// full path, existing directory) by <see cref="FromRepositoryAsync(ILogCollector, string, string, string)"/>.
+            /// Builds the package from an already-validated <paramref name="repositoryPath"/>.
             /// </summary>
             private static async Task<IAppPackageProtocol> FromValidatedRepositoryAsync(ILogCollector logCollector, string repositoryPath, string versionOverride, string pythonVersion)
             {
@@ -144,78 +141,43 @@
 
                 AddTemplates(solution, packageBuilder);
 
-                IAppPackageProtocol protocolPackage = packageBuilder.Build();
-
                 if (solution.Scripts.Count > 0)
                 {
-                    protocolPackage = await EmbedScriptsAsync(logCollector, solution, protocolPackage, pythonVersion).ConfigureAwait(false);
+                    return await BuildWithScriptsAsync(logCollector, solution, packageBuilder, pythonVersion).ConfigureAwait(false);
                 }
 
-                return protocolPackage;
+                return packageBuilder.Build();
             }
 
             /// <summary>
-            /// Resolves the Python dependencies of each script declared in <paramref name="solution"/> and embeds the
-            /// resulting scripted connector content into <paramref name="basePackage"/>'s package bytes, under
-            /// <c>Scripts/{guid}/</c>.
+            /// Stages each declared script's content (resolving its Python dependencies in the process), adds it to
+            /// <paramref name="packageBuilder"/>, and materializes the resulting package before cleaning up the
+            /// temporary staging directories.
             /// </summary>
-            private static async Task<IAppPackageProtocol> EmbedScriptsAsync(ILogCollector logCollector, ProtocolSolution solution, IAppPackageProtocol basePackage, string pythonVersion)
+            private static async Task<IAppPackageProtocol> BuildWithScriptsAsync(ILogCollector logCollector, ProtocolSolution solution, IAppPackageProtocolBuilder packageBuilder, string pythonVersion)
             {
-                byte[] baseBytes = basePackage.CreatePackage();
-
-                var stagingDirectories = new List<string>();
+                List<string> stagingDirectories = new List<string>();
 
                 try
                 {
-                    byte[] mergedBytes;
-                    using (var memoryStream = new MemoryStream())
+                    foreach (ProtocolScript script in solution.Scripts)
                     {
-                        memoryStream.Write(baseBytes, 0, baseBytes.Length);
+                        string stagingDirectory = await ScriptedConnectorStager.Factory.StageAsync(logCollector, script.ProjectDirectory, script.RequirementsFilePath, pythonVersion).ConfigureAwait(false);
+                        stagingDirectories.Add(stagingDirectory);
 
-                        using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Update, leaveOpen: true))
-                        {
-                            foreach (var script in solution.Scripts)
-                            {
-                                string stagingDirectory = await ScriptedConnectorStager.Factory.StageAsync(logCollector, script.ProjectDirectory, script.RequirementsFilePath, pythonVersion).ConfigureAwait(false);
-                                stagingDirectories.Add(stagingDirectory);
-
-                                AddDirectoryToArchive(archive, stagingDirectory, $"Scripts/{script.Guid}");
-                            }
-                        }
-
-                        mergedBytes = memoryStream.ToArray();
+                        packageBuilder.WithConnectorScript(stagingDirectory, script.Guid);
                     }
 
-                    return new ScriptEmbeddingAppPackageProtocol(basePackage, mergedBytes);
+                    IAppPackageProtocol protocolPackage = packageBuilder.Build();
+                    byte[] mergedBytes = protocolPackage.CreatePackage();
+
+                    return new PrecomputedAppPackageProtocol(protocolPackage, mergedBytes);
                 }
                 finally
                 {
-                    foreach (var stagingDirectory in stagingDirectories)
+                    foreach (string stagingDirectory in stagingDirectories)
                     {
                         FileSystem.Instance.Directory.DeleteDirectory(stagingDirectory);
-                    }
-                }
-            }
-
-            /// <summary>
-            /// Recursively adds the content of <paramref name="sourceDirectory"/> to <paramref name="archive"/>, with each
-            /// entry prefixed by <paramref name="entryPrefix"/>.
-            /// </summary>
-            private static void AddDirectoryToArchive(ZipArchive archive, string sourceDirectory, string entryPrefix)
-            {
-                string normalizedRoot = FileSystem.Instance.Path.GetFullPath(sourceDirectory).TrimEnd('\\', '/');
-
-                foreach (var filePath in FileSystem.Instance.Directory.GetFiles(sourceDirectory, "*", SearchOption.AllDirectories))
-                {
-                    string relativePath = filePath.Substring(normalizedRoot.Length).TrimStart('\\', '/').Replace('\\', '/');
-                    string entryName = $"{entryPrefix}/{relativePath}";
-
-                    var entry = archive.CreateEntry(entryName, CompressionLevel.Optimal);
-                    byte[] fileBytes = FileSystem.Instance.File.ReadAllBytes(filePath);
-
-                    using (var entryStream = entry.Open())
-                    {
-                        entryStream.Write(fileBytes, 0, fileBytes.Length);
                     }
                 }
             }

@@ -10,6 +10,27 @@
     public class EdgeScript
     {
         /// <summary>
+        /// Gets the identifier of the script, as declared in the <c>id</c> attribute.
+        /// </summary>
+        public string Id { get; }
+
+        /// <summary>
+        /// Gets the display name of the script, as declared in the <c>displayName</c> attribute.
+        /// </summary>
+        public string DisplayName { get; }
+
+        /// <summary>
+        /// Gets the globally unique identifier of the script, as declared in the <c>guid</c> attribute. Must match the
+        /// <c>project.id</c> field of the corresponding <c>manifest.json</c>.
+        /// </summary>
+        public Guid Guid { get; }
+
+        /// <summary>
+        /// Gets the underlying XML node.
+        /// </summary>
+        public XmlElement Node { get; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="EdgeScript"/> class based on the specified XML node.
         /// </summary>
         /// <param name="node">The <c>&lt;Script&gt;</c> XML node.</param>
@@ -29,26 +50,5 @@
 
             Guid = guid;
         }
-
-        /// <summary>
-        /// Gets the identifier of the script, as declared in the <c>id</c> attribute.
-        /// </summary>
-        public string Id { get; }
-
-        /// <summary>
-        /// Gets the display name of the script, as declared in the <c>displayName</c> attribute.
-        /// </summary>
-        public string DisplayName { get; }
-
-        /// <summary>
-        /// Gets the globally unique identifier of the script, as declared in the <c>guid</c> attribute. This must match
-        /// the <c>project.id</c> field of the corresponding scripted connector's <c>manifest.json</c> file.
-        /// </summary>
-        public Guid Guid { get; }
-
-        /// <summary>
-        /// Gets the underlying XML node.
-        /// </summary>
-        public XmlElement Node { get; }
     }
 }

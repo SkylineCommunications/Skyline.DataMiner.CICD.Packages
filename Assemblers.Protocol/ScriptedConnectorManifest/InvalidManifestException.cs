@@ -4,7 +4,7 @@
     using System.Runtime.Serialization;
 
     /// <summary>
-    /// Exception raised when a scripted connector's <c>manifest.json</c> is missing, malformed, or fails validation.
+    /// Exception raised when a connector script's <c>manifest.json</c> is missing, malformed, or fails validation.
     /// </summary>
     [Serializable]
     public class InvalidManifestException : Exception

@@ -11,6 +11,11 @@
     public class WheelOrganizationException : Exception
     {
         /// <summary>
+        /// Gets the file name of the wheel that could not be moved or deleted.
+        /// </summary>
+        public string WheelFileName { get; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="WheelOrganizationException"/> class.
         /// </summary>
         /// <param name="wheelFileName">The file name of the wheel that could not be moved or deleted.</param>
@@ -32,11 +37,6 @@
         {
             WheelFileName = info.GetString(nameof(WheelFileName));
         }
-
-        /// <summary>
-        /// Gets the file name of the wheel that could not be moved or deleted.
-        /// </summary>
-        public string WheelFileName { get; }
 
         /// <inheritdoc />
         public override void GetObjectData(SerializationInfo info, StreamingContext context)

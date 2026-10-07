@@ -1,4 +1,4 @@
-﻿namespace Skyline.DataMiner.CICD.Assemblers.Protocol.ScriptedConnectorManifest
+namespace Skyline.DataMiner.CICD.Assemblers.Protocol.ScriptedConnectorManifest
 {
     using System;
     using System.IO;
@@ -7,14 +7,14 @@
     using Skyline.DataMiner.CICD.FileSystem;
 
     /// <summary>
-    /// Loads and validates the <c>manifest.json</c> file of a scripted connector project.
+    /// Loads and validates the <c>manifest.json</c> file of a connector script project.
     /// </summary>
     public static class ManifestLoader
     {
         /// <summary>
         /// Loads and validates the <c>manifest.json</c> file located in <paramref name="sourceDirectory"/>.
         /// </summary>
-        /// <param name="sourceDirectory">Path to the scripted connector source directory.</param>
+        /// <param name="sourceDirectory">Path to the connector script source directory.</param>
         /// <returns>The parsed and validated <see cref="Manifest"/>.</returns>
         /// <exception cref="InvalidManifestException">The <c>manifest.json</c> file is missing, malformed, or fails validation.</exception>
         public static Manifest LoadAndValidate(string sourceDirectory)
@@ -26,7 +26,7 @@
         /// Loads and validates the <c>manifest.json</c> file located in <paramref name="sourceDirectory"/>.
         /// </summary>
         /// <param name="fileSystem">The file system abstraction to use.</param>
-        /// <param name="sourceDirectory">Path to the scripted connector source directory.</param>
+        /// <param name="sourceDirectory">Path to the connector script source directory.</param>
         /// <returns>The parsed and validated <see cref="Manifest"/>.</returns>
         /// <exception cref="InvalidManifestException">The <c>manifest.json</c> file is missing, malformed, or fails validation.</exception>
         public static Manifest LoadAndValidate(IFileSystem fileSystem, string sourceDirectory)
@@ -111,7 +111,7 @@
         }
 
         /// <summary>
-        /// Validates that the declared entry point is a relative path that stays within the scripted connector's
+        /// Validates that the declared entry point is a relative path that stays within the connector script's
         /// source directory (no path traversal, no rooted/absolute paths).
         /// </summary>
         /// <param name="entryPoint">The <c>runtime.python.entry_point</c> value to validate.</param>

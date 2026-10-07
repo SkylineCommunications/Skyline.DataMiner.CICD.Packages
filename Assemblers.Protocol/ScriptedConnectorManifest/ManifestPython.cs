@@ -3,7 +3,7 @@
     using System.Text.Json.Serialization;
 
     /// <summary>
-    /// Represents the <c>runtime.python</c> section of a scripted connector's <c>manifest.json</c> file.
+    /// Represents the <c>runtime.python</c> section of a connector script's <c>manifest.json</c> file.
     /// </summary>
     public class ManifestPython
     {

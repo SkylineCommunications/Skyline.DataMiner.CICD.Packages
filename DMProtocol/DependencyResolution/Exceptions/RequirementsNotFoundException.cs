@@ -10,6 +10,11 @@
     public class RequirementsNotFoundException : Exception
     {
         /// <summary>
+        /// Gets the path of the requirements file that could not be found.
+        /// </summary>
+        public string RequirementsFilePath { get; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="RequirementsNotFoundException"/> class.
         /// </summary>
         /// <param name="requirementsFilePath">The path of the requirements file that could not be found.</param>
@@ -29,11 +34,6 @@
         {
             RequirementsFilePath = info.GetString(nameof(RequirementsFilePath));
         }
-
-        /// <summary>
-        /// Gets the path of the requirements file that could not be found.
-        /// </summary>
-        public string RequirementsFilePath { get; }
 
         /// <inheritdoc />
         public override void GetObjectData(SerializationInfo info, StreamingContext context)

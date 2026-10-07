@@ -1,7 +1,7 @@
 ﻿namespace Skyline.DataMiner.CICD.Assemblers.Protocol.ScriptedConnectorManifest
 {
     /// <summary>
-    /// Represents a platform for which the Edge Node scripted connector runtime can resolve and install Python wheel dependencies.
+    /// Represents a platform for which the Edge Node connector script runtime can resolve and install Python wheel dependencies.
     /// </summary>
     public enum SupportedPlatform
     {
@@ -22,7 +22,7 @@
     public static class SupportedPlatformExtensions
     {
         /// <summary>
-        /// Gets the target triple used as the folder name inside the <c>dependencies</c> folder of a scripted connector package (e.g. <c>x86_64-windows-msvc</c>).
+        /// Gets the target triple used as the folder name inside the <c>dependencies</c> folder of a connector script package (e.g. <c>x86_64-windows-msvc</c>).
         /// </summary>
         /// <param name="platform">The platform.</param>
         /// <returns>The target triple.</returns>

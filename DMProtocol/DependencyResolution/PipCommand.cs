@@ -12,6 +12,16 @@
     internal sealed class PipCommand
     {
         /// <summary>
+        /// Gets the executable to start.
+        /// </summary>
+        public string FileName { get; }
+
+        /// <summary>
+        /// Gets the arguments that must be prepended to every pip invocation.
+        /// </summary>
+        public IReadOnlyList<string> LeadingArguments { get; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="PipCommand"/> class.
         /// </summary>
         /// <param name="fileName">The executable to start (e.g. <c>python</c> or <c>pip</c>).</param>
@@ -21,16 +31,6 @@
             FileName = fileName;
             LeadingArguments = leadingArguments;
         }
-
-        /// <summary>
-        /// Gets the executable to start.
-        /// </summary>
-        public string FileName { get; }
-
-        /// <summary>
-        /// Gets the arguments that must be prepended to every pip invocation.
-        /// </summary>
-        public IReadOnlyList<string> LeadingArguments { get; }
 
         /// <summary>
         /// Creates a <see cref="ProcessStartInfo"/> for invoking pip with the specified arguments.

@@ -43,7 +43,7 @@
         public ICollection<QAction> QActions { get; private set; }
 
         /// <summary>
-        /// Gets the scripted connector (Python Edge Node script) projects declared under
+        /// Gets the connector script projects declared under
         /// <c>&lt;Protocol&gt;&lt;Edge&gt;&lt;Scripts&gt;</c> in protocol.xml.
         /// </summary>
         /// <value>The script projects.</value>
@@ -187,21 +187,24 @@
             var scripts = new List<ProtocolScript>();
 
             var xmlScripts = ProtocolDocument?.Element["Protocol"]?.Element["Edge"]?.Element["Scripts"]?.Elements["Script"];
-            if (xmlScripts != null)
+            if (xmlScripts == null)
             {
-                var seenGuids = new HashSet<Guid>();
+                Scripts = scripts;
+                return;
+            }
 
-                foreach (var xmlScript in xmlScripts)
+            var seenGuids = new HashSet<Guid>();
+
+            foreach (var xmlScript in xmlScripts)
+            {
+                var edgeScript = new EdgeScript(xmlScript);
+
+                if (!seenGuids.Add(edgeScript.Guid))
                 {
-                    var edgeScript = new EdgeScript(xmlScript);
-
-                    if (!seenGuids.Add(edgeScript.Guid))
-                    {
-                        throw new ParserException($"Duplicate guid '{edgeScript.Guid}' found on script '{edgeScript.Id}' in 'Edge/Scripts'. Each declared script must have a unique guid.");
-                    }
-
-                    scripts.Add(LoadScript(edgeScript));
+                    throw new ParserException($"Duplicate guid '{edgeScript.Guid}' found on script '{edgeScript.Id}' in 'Edge/Scripts'. Each declared script must have a unique guid.");
                 }
+
+                scripts.Add(LoadScript(edgeScript));
             }
 
             Scripts = scripts;

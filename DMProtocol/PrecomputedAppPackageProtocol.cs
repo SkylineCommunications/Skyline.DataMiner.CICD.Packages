@@ -1,4 +1,4 @@
-﻿namespace Skyline.DataMiner.CICD.DMProtocol
+namespace Skyline.DataMiner.CICD.DMProtocol
 {
     using System.Collections.Generic;
 
@@ -6,19 +6,19 @@
     using Skyline.DataMiner.CICD.FileSystem;
 
     /// <summary>
-    /// Decorates an <see cref="IAppPackageProtocol"/> so that its resulting package bytes include the additional
-    /// <c>Scripts/{guid}/...</c> content of a protocol's scripted connectors, on top of the base package produced by
-    /// the external <c>Skyline.DataMiner.Core.AppPackageCreator</c> package builder.
+    /// Wraps an already-built <see cref="IAppPackageProtocol"/> together with its eagerly materialized package
+    /// bytes, so that <see cref="CreatePackage()"/>/<see cref="CreatePackage(string)"/> can be called after the
+    /// connector scripts' temporary staging directories have been cleaned up.
     /// </summary>
-    internal sealed class ScriptEmbeddingAppPackageProtocol : IAppPackageProtocol
+    internal sealed class PrecomputedAppPackageProtocol : IAppPackageProtocol
     {
         private readonly IAppPackageProtocol _inner;
-        private readonly byte[] _mergedPackageBytes;
+        private readonly byte[] _packageBytes;
 
-        public ScriptEmbeddingAppPackageProtocol(IAppPackageProtocol inner, byte[] mergedPackageBytes)
+        public PrecomputedAppPackageProtocol(IAppPackageProtocol inner, byte[] packageBytes)
         {
             _inner = inner;
-            _mergedPackageBytes = mergedPackageBytes;
+            _packageBytes = packageBytes;
         }
 
         public string Name => _inner.Name;
@@ -37,14 +37,16 @@
 
         public IReadOnlyCollection<IAppPackageAssembly> Assemblies => _inner.Assemblies;
 
+        public IReadOnlyCollection<IAppPackageConnectorScript> Scripts => _inner.Scripts;
+
         public byte[] CreatePackage()
         {
-            return _mergedPackageBytes;
+            return _packageBytes;
         }
 
         public void CreatePackage(string destinationFilePath)
         {
-            FileSystem.Instance.File.WriteAllBytes(destinationFilePath, _mergedPackageBytes);
+            FileSystem.Instance.File.WriteAllBytes(destinationFilePath, _packageBytes);
         }
     }
 }

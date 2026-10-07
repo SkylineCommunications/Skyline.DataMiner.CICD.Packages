@@ -10,6 +10,16 @@
     public class ConflictingDependenciesException : Exception
     {
         /// <summary>
+        /// Gets the standard output produced by pip during the dry-run install that detected the conflict.
+        /// </summary>
+        public string PipStandardOutput { get; }
+
+        /// <summary>
+        /// Gets the standard error produced by pip during the dry-run install that detected the conflict.
+        /// </summary>
+        public string PipStandardError { get; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ConflictingDependenciesException"/> class.
         /// </summary>
         /// <param name="pipStandardOutput">The standard output produced by pip.</param>
@@ -32,16 +42,6 @@
             PipStandardOutput = info.GetString(nameof(PipStandardOutput));
             PipStandardError = info.GetString(nameof(PipStandardError));
         }
-
-        /// <summary>
-        /// Gets the standard output produced by pip during the dry-run install that detected the conflict.
-        /// </summary>
-        public string PipStandardOutput { get; }
-
-        /// <summary>
-        /// Gets the standard error produced by pip during the dry-run install that detected the conflict.
-        /// </summary>
-        public string PipStandardError { get; }
 
         /// <inheritdoc />
         public override void GetObjectData(SerializationInfo info, StreamingContext context)

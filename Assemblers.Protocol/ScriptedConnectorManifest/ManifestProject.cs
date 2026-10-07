@@ -4,24 +4,24 @@
     using System.Text.Json.Serialization;
 
     /// <summary>
-    /// Represents the <c>project</c> section of a scripted connector's <c>manifest.json</c> file.
+    /// Represents the <c>project</c> section of a connector script's <c>manifest.json</c> file.
     /// </summary>
     public class ManifestProject
     {
         /// <summary>
-        /// Gets or sets the globally unique identifier of the scripted connector.
+        /// Gets or sets the globally unique identifier of the connector script.
         /// </summary>
         [JsonPropertyName("id")]
         public Guid Id { get; set; }
 
         /// <summary>
-        /// Gets or sets the display name of the scripted connector.
+        /// Gets or sets the display name of the connector script.
         /// </summary>
         [JsonPropertyName("name")]
         public string Name { get; set; }
 
         /// <summary>
-        /// Gets or sets the semantic version of the scripted connector.
+        /// Gets or sets the semantic version of the connector script.
         /// </summary>
         [JsonPropertyName("version")]
         public string Version { get; set; }

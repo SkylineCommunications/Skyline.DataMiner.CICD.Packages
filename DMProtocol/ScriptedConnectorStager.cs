@@ -11,41 +11,30 @@
     using Skyline.DataMiner.CICD.Loggers;
 
     /// <summary>
-    /// Stages the content of a scripted connector (Python Edge Node) project directory into a temporary folder shaped
-    /// as a scripted connector package (<c>manifest.json</c>, an optional <c>README.md</c>, the <c>run/</c> folder,
-    /// plus a resolved <c>dependencies/</c> folder), ready to be embedded into a <c>.dmprotocol</c> package under
-    /// <c>Scripts/{guid}/</c>. Only these opted-in items are copied; development-only content such as
-    /// <c>Tests/</c>, <c>requirements.txt</c> and the <c>.pyproj</c> file is intentionally left out of the package.
+    /// Stages a connector script project directory into a temporary folder, ready to be embedded into a
+    /// <c>.dmprotocol</c> package.
     /// </summary>
+    /// <remarks>
+    /// Only the opted-in items are copied: <c>manifest.json</c>, an optional <c>README.md</c>, the <c>run/</c>
+    /// folder, and a resolved <c>dependencies/</c> folder. Development-only content such as <c>Tests/</c>,
+    /// <c>requirements.txt</c> and the <c>.pyproj</c> file is intentionally left out of the package.
+    /// </remarks>
     internal class ScriptedConnectorStager
     {
         /// <summary>
-        /// Factory class for staging scripted connector content.
+        /// Factory class for staging connector script content.
         /// </summary>
         internal static class Factory
         {
             /// <summary>
-            /// Stages the scripted connector content found in the specified project directory into a new temporary
-            /// directory, resolving its Python dependencies in the process.
+            /// Stages a connector script project, resolving its Python dependencies in the process.
             /// </summary>
             /// <param name="logCollector">The log collector.</param>
-            /// <param name="sourceDirectory">
-            /// Path to the scripted connector project directory (typically a <c>ScriptedConnector_{n}</c> folder at
-            /// the solution root). It must contain a <c>manifest.json</c> file and a <c>run/</c> folder with the
-            /// entry point script referenced by the manifest.
-            /// </param>
-            /// <param name="requirementsFilePath">
-            /// Path to the <c>requirements.txt</c> file listing the connector's direct Python dependencies.
-            /// </param>
-            /// <param name="pythonVersion">
-            /// Target Python version to resolve dependencies for (pip format, e.g. "3.14"). If not specified, it is
-            /// derived from the manifest's <c>runtime.python.version</c> constraint when possible.
-            /// </param>
+            /// <param name="sourceDirectory"> Path to the connector script project directory. </param>
+            /// <param name="requirementsFilePath"> Path to the <c>requirements.txt</c> file listing the connector's direct Python dependencies. </param>
+            /// <param name="pythonVersion"> Target Python version to resolve dependencies for. </param>
             /// <param name="cancellationToken">A token to cancel the operation.</param>
-            /// <returns>
-            /// The full path of the temporary staging directory. The caller is responsible for deleting it once it is no
-            /// longer needed.
-            /// </returns>
+            /// <returns> The full path of the temporary staging directory. </returns>
             /// <exception cref="ArgumentNullException"><paramref name="logCollector"/> or <paramref name="sourceDirectory"/> is <see langword="null"/>.</exception>
             /// <exception cref="System.IO.DirectoryNotFoundException">The directory specified in <paramref name="sourceDirectory"/> does not exist.</exception>
             /// <exception cref="InvalidManifestException">The <c>manifest.json</c> file is missing, malformed, or fails validation, or no <c>run/</c> folder is found.</exception>
@@ -57,29 +46,8 @@
                 return StageAsync(logCollector, FileSystem.Instance, sourceDirectory, requirementsFilePath, pythonVersion, cancellationToken);
             }
 
-            /// <summary>
-            /// Stages the scripted connector content found in the specified project directory into a new temporary
-            /// directory, resolving its Python dependencies in the process.
-            /// </summary>
-            /// <param name="logCollector">The log collector.</param>
+            /// <inheritdoc cref="StageAsync(ILogCollector, string, string, string, CancellationToken)"/>
             /// <param name="fileSystem">The file system abstraction to use.</param>
-            /// <param name="sourceDirectory">
-            /// Path to the scripted connector project directory (typically a <c>ScriptedConnector_{n}</c> folder at
-            /// the solution root). It must contain a <c>manifest.json</c> file and a <c>run/</c> folder with the
-            /// entry point script referenced by the manifest.
-            /// </param>
-            /// <param name="requirementsFilePath">
-            /// Path to the <c>requirements.txt</c> file listing the connector's direct Python dependencies.
-            /// </param>
-            /// <param name="pythonVersion">
-            /// Target Python version to resolve dependencies for (pip format, e.g. "3.14"). If not specified, it is
-            /// derived from the manifest's <c>runtime.python.version</c> constraint when possible.
-            /// </param>
-            /// <param name="cancellationToken">A token to cancel the operation.</param>
-            /// <returns>
-            /// The full path of the temporary staging directory. The caller is responsible for deleting it once it is no
-            /// longer needed.
-            /// </returns>
             internal static Task<string> StageAsync(ILogCollector logCollector, IFileSystem fileSystem, string sourceDirectory, string requirementsFilePath, string pythonVersion, CancellationToken cancellationToken)
             {
                 if (logCollector == null) throw new ArgumentNullException(nameof(logCollector));
@@ -124,8 +92,7 @@
             }
 
             /// <summary>
-            /// Performs the actual (asynchronous) staging work, once all parameters and the manifest have already
-            /// been validated by <see cref="StageAsync(ILogCollector, IFileSystem, string, string, string, CancellationToken)"/>.
+            /// Performs the actual staging work, once all parameters and the manifest have already been validated.
             /// </summary>
             private static async Task<string> StageValidatedAsync(ILogCollector logCollector, IFileSystem fileSystem, string sourceDirectory, string requirementsFilePath, string runSourceDirectory, Manifest manifest, string pythonVersion, CancellationToken cancellationToken)
             {
