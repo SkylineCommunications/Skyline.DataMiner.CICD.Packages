@@ -145,7 +145,7 @@ The dependency-resolution logic is a C# port of the reference implementation ava
 
 #### Source directory layout
 
-A script project lives in a `ScriptedConnector_{n}/` folder at the root of the protocol solution (a sibling of the
+A script project lives in a `ConnectorScript_{n}/` folder at the root of the protocol solution (a sibling of the
 existing `Dlls/` and `QAction_{n}/` folders). The `{n}` suffix is just a sequential counter assigned when the
 script project was created — it does **not** correspond to the script's `id`/`guid` declared in `protocol.xml`. The
 matching folder is instead found by its `manifest.json`'s `project.id`, which must match the `guid` attribute of
@@ -156,8 +156,8 @@ MyProtocolSolution/
 ├── protocol.xml
 ├── Dlls/
 ├── QAction_1/
-└── ScriptedConnector_1/
-    ├── ScriptedConnector_1.pyproj   (Visual Studio Python Tools project file, not packaged)
+└── ConnectorScript_1/
+    ├── ConnectorScript_1.pyproj   (Visual Studio Python Tools project file, not packaged)
     ├── requirements.txt              (direct dependencies only, no transitive dependencies; not packaged)
     ├── manifest.json
     ├── README.md                     (optional, copied as-is into the package)
@@ -225,7 +225,7 @@ implementation.
   validation (missing required fields, an empty `runtime.supported_platforms` list, or an `entry_point` that is
   rooted/absolute or contains `.`/`..` path segments), its declared entry point is not located under `run/` (only
   `run/` is included when the package is built), or its declared entry point file does not exist, or no `run/`
-  folder exists at all. A `ParserException` is raised instead (from `Assemblers.Protocol`) if no `ScriptedConnector_*`
+  folder exists at all. A `ParserException` is raised instead (from `Assemblers.Protocol`) if no `ConnectorScript_*`
   folder at the solution root has a `manifest.json` whose `project.id` matches the `guid` declared for a
   `<Script id="..." guid="...">` in `protocol.xml`, or if more than one folder's manifest matches the same `guid`.
 

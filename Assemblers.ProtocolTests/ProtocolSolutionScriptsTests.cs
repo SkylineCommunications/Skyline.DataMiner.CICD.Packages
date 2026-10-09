@@ -33,7 +33,7 @@
             script.Id.Should().Be("sample-scripted-connector");
             script.DisplayName.Should().Be("Sample Scripted Connector");
             script.Guid.Should().Be(Guid.Parse("edc76df5-0d81-43a8-9b22-ffdd0b2fb2e2"));
-            script.ProjectDirectory.Should().Be(FileSystem.Instance.Path.Combine(dir, "ScriptedConnector_1"));
+            script.ProjectDirectory.Should().Be(FileSystem.Instance.Path.Combine(dir, "ConnectorScript_1"));
             script.Manifest.Should().NotBeNull();
             script.Manifest.Project.Name.Should().Be("Sample Scripted Connector");
         }

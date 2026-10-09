@@ -389,7 +389,7 @@
             catch (ParserException ex)
             {
                 // Raised by ProtocolSolution for protocol.xml parsing issues, including a <Edge><Scripts><Script
-                // guid="..."> entry with no matching (or more than one matching) 'ScriptedConnector_*' project folder.
+                // guid="..."> entry with no matching (or more than one matching) 'ConnectorScript_*' project folder.
                 await Console.Error.WriteLineAsync(debug ? ex.ToString() : ex.Message);
                 Environment.Exit(ExitScriptDiscoveryFailed);
                 return;

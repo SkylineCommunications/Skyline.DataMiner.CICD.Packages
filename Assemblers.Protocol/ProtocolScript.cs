@@ -27,7 +27,7 @@
         public Guid Guid => EdgeScript.Guid;
 
         /// <summary>
-        /// Gets the full path of the script's project directory (a <c>ScriptedConnector_{n}</c> folder at the
+        /// Gets the full path of the script's project directory (a <c>ConnectorScript_{n}</c> folder at the
         /// solution root). This is the Visual Studio Python project folder.
         /// </summary>
         public string ProjectDirectory { get; }

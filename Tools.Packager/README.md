@@ -112,7 +112,7 @@ Options:
 
 ### Scripted connector projects
 
-A protocol solution can declare one or more scripted connector ("script") projects. Each script project lives in a `ScriptedConnector_{n}/` folder at the
+A protocol solution can declare one or more scripted connector ("script") projects. Each script project lives in a `ConnectorScript_{n}/` folder at the
 root of the solution (a sibling of the existing `Dlls/` and `QAction_{n}/` folders). The `{n}` suffix here is just a
 sequential counter assigned when the script project was created — it does not correspond to the script's declared
 `id`/`guid`:
@@ -122,8 +122,8 @@ MyProtocolSolution/
 ├── protocol.xml
 ├── Dlls/
 ├── QAction_1/
-└── ScriptedConnector_1/
-    ├── ScriptedConnector_1.pyproj   (Visual Studio Python Tools project file, not packaged)
+└── ConnectorScript_1/
+    ├── ConnectorScript_1.pyproj   (Visual Studio Python Tools project file, not packaged)
     ├── requirements.txt              (direct dependencies only, no transitive dependencies; not packaged)
     ├── manifest.json
     ├── README.md                     (optional, copied as-is into the package)
@@ -138,7 +138,7 @@ is left out.
 
 The script project is only picked up if `protocol.xml` declares a matching `<Protocol><Edge><Scripts><Script id="..."
 guid="edc76df5-0d81-43a8-9b22-ffdd0b2fb2e2">` entry whose `guid` matches the `project.id` in the `manifest.json`
-of one of the `ScriptedConnector_*` folders at the solution root (see the [root README](../README.md#scripted-connectors-skylinedataminercicddmprotocol)
+of one of the `ConnectorScript_*` folders at the solution root (see the [root README](../README.md#scripted-connectors-skylinedataminercicddmprotocol)
 for the manifest schema). A declared script with no matching folder (or more than one matching folder) fails the
 build.
 

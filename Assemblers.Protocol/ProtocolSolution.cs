@@ -64,7 +64,7 @@
         /// <exception cref="ParserException">Could not find folder 'Solution Items' in solution. -or-
         /// Could not find project -or-
         /// Main code file could not be found in QAction. -or-
-        /// Could not find a 'ScriptedConnector_*' folder whose 'manifest.json' 'project.id' matches a declared script's guid.</exception>
+        /// Could not find a 'ConnectorScript_*' folder whose 'manifest.json' 'project.id' matches a declared script's guid.</exception>
         /// <exception cref="Skyline.DataMiner.CICD.Assemblers.Protocol.ScriptedConnectorManifest.InvalidManifestException">
         /// A declared script's 'manifest.json' is missing, malformed, or fails validation.</exception>
         /// <exception cref="DirectoryNotFoundException">Could not find folder for QAction.</exception>
@@ -217,7 +217,7 @@
             foreach (var candidateFolder in FileSystem.Instance.Directory.EnumerateDirectories(SolutionDirectory))
             {
                 string folderName = FileSystem.Instance.Path.GetFileName(candidateFolder);
-                if (!folderName.StartsWith("ScriptedConnector_", StringComparison.OrdinalIgnoreCase))
+                if (!folderName.StartsWith("ConnectorScript_", StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
@@ -247,12 +247,12 @@
 
             if (matchingProjectFolders.Count == 0)
             {
-                throw new ParserException($"Could not find a 'ScriptedConnector_*' folder in '{SolutionDirectory}' with a 'manifest.json' 'project.id' matching guid '{edgeScript.Guid}' declared for script '{edgeScript.Id}'.");
+                throw new ParserException($"Could not find a 'ConnectorScript_*' folder in '{SolutionDirectory}' with a 'manifest.json' 'project.id' matching guid '{edgeScript.Guid}' declared for script '{edgeScript.Id}'.");
             }
 
             if (matchingProjectFolders.Count > 1)
             {
-                throw new ParserException($"Multiple 'ScriptedConnector_*' folders in '{SolutionDirectory}' have a 'manifest.json' 'project.id' matching guid '{edgeScript.Guid}' declared for script '{edgeScript.Id}': {String.Join(", ", matchingProjectFolders)}.");
+                throw new ParserException($"Multiple 'ConnectorScript_*' folders in '{SolutionDirectory}' have a 'manifest.json' 'project.id' matching guid '{edgeScript.Guid}' declared for script '{edgeScript.Id}': {String.Join(", ", matchingProjectFolders)}.");
             }
 
             string projectDirectory = matchingProjectFolders[0];
