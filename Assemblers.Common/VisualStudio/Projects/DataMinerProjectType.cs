@@ -45,7 +45,7 @@
         /// <summary>
         /// Represents a DataMiner Intelligence Context project.
         /// </summary>
-        IntelligenceContext,
+        Intelligence,
     }
 
     /// <summary>
@@ -61,7 +61,7 @@
             ["AdHocDataSource"] = DataMinerProjectType.AdHocDataSource,
             ["UserDefinedApi"] = DataMinerProjectType.UserDefinedApi,
             ["TestPackage"] = DataMinerProjectType.TestPackage,
-            ["IntelligenceContext"] = DataMinerProjectType.IntelligenceContext
+            ["Intelligence"] = DataMinerProjectType.Intelligence
         };
 
         private static readonly Dictionary<DataMinerProjectType, string> EnumToString = new Dictionary<DataMinerProjectType, string>
@@ -72,7 +72,7 @@
             [DataMinerProjectType.AdHocDataSource] = "AdHocDataSource",
             [DataMinerProjectType.UserDefinedApi] = "UserDefinedApi",
             [DataMinerProjectType.TestPackage] = "TestPackage",
-            [DataMinerProjectType.IntelligenceContext] = "IntelligenceContext",
+            [DataMinerProjectType.Intelligence] = "Intelligence",
         };
 
         /// <summary>
