@@ -33,6 +33,14 @@ At Skyline Communications, we deal in world-class solutions that are deployed by
 
 ### Getting Started
 
+#### Build-only dependencies
+
+When a selected NuGet package has no compatible managed library, reference, or runtime assemblies, discarded versions of that package do not contribute directory hints, script references, or assembly payload. This includes build/analyzer-only packages and placeholder-only asset groups. Selected transitive runtime dependencies are still processed normally.
+
+This correction preserves the existing version-selection policy and legacy directory hints for assembly-bearing packages, including packages with compatible `ref` or RID-specific managed runtime assets. It does not unify assemblies across an entire application package. Unreadable package metadata remains an error, not an empty-asset result.
+
+Regenerate previously created application packages with corrected tooling; updating the tooling alone does not repair existing script XML.
+
 The code is loosely based on the *Builder* design pattern. You can create a builder object using one of the provided static Factory classes:
 
 ```csharp
