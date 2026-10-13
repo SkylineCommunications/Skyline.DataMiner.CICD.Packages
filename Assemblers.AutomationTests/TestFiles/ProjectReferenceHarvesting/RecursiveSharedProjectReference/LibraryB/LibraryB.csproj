@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <OutputType>Library</OutputType>
+
+    <AssemblyName>RecursiveShared.LibraryB</AssemblyName>
+    <PackageId>RecursiveShared.LibraryB</PackageId>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+
+    <IsPackable>false</IsPackable>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <Import Project="..\SharedProject\SharedProject.projitems"
+          Label="Shared" />
+
+</Project>

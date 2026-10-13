@@ -109,6 +109,11 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects
         public string TargetFrameworkMoniker { get; private set; }
 
         /// <summary>
+        /// Gets the evaluated build configuration.
+        /// </summary>
+        public string Configuration { get; private set; }
+
+        /// <summary>
         /// Gets the DataMiner project type.
         /// </summary>
         public DataMinerProjectType? DataMinerProjectType { get; private set; }
@@ -228,6 +233,17 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects
         /// <exception cref="FileNotFoundException">The file specified in <paramref name="path"/> does not exist.</exception>
         public static Project Load(string path)
         {
+            return Load(path, null);
+        }
+
+        /// <summary>
+        /// Loads a project using the supplied MSBuild global properties.
+        /// </summary>
+        /// <param name="path">The project file path.</param>
+        /// <param name="globalProperties">Properties for the active build configuration and target framework.</param>
+        /// <returns>The evaluated project.</returns>
+        public static Project Load(string path, IDictionary<string, string> globalProperties)
+        {
             // Make sure to use the full path
             path = FileSystem.Path.GetFullPath(path);
 
@@ -244,11 +260,11 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects
                 string projItemsPath = TryGetProjItemsPath(path);
                 if (projItemsPath != null)
                 {
-                    return Load(projItemsPath);
+                    return Load(projItemsPath, globalProperties);
                 }
             }
 
-            using (var projectCollection = new ProjectCollection())
+            using (var projectCollection = new ProjectCollection(globalProperties))
             {
                 projectCollection.DisableMarkDirty = true;
 
@@ -266,6 +282,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects
                         ProjectDirectory = loadedProject.DirectoryPath,
                         ProjectName = projectName,
                         TargetFrameworkMoniker = loadedProject.GetPropertyValue("TargetFrameworkMoniker"),
+                        Configuration = loadedProject.GetPropertyValue("Configuration"),
                         DataMinerProjectType = DataMinerProjectTypeConverter.ToEnum(loadedProject.GetProperty("DataMinerType")?.EvaluatedValue)
                     };
 
@@ -291,25 +308,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects
                     }
 
                     project._packageReferences.AddRange(loadedProject.GetItems("PackageReference")
-                                                                     .Select(r =>
-                                                                     {
-                                                                         string version = r.GetMetadataValue("Version");
-
-                                                                         if (isCpm && String.IsNullOrEmpty(version))
-                                                                         {
-                                                                             string versionOverride = r.GetMetadataValue("VersionOverride");
-                                                                             if (!String.IsNullOrEmpty(versionOverride))
-                                                                             {
-                                                                                 version = versionOverride;
-                                                                             }
-                                                                             else if (packageVersions.TryGetValue(r.EvaluatedInclude, out string centralVersion))
-                                                                             {
-                                                                                 version = centralVersion;
-                                                                             }
-                                                                         }
-
-                                                                         return new PackageReference(r.EvaluatedInclude, version);
-                                                                     }));
+                                                                     .Select(r => CreatePackageReference(r, packageVersions)));
 
                     project._files.AddRange(loadedProject.GetItems("Compile")
                                                         .Select(i => new ProjectFile(i.EvaluatedInclude, FileSystem.File.ReadAllText(i.GetMetadataValue("FullPath")))));
@@ -320,6 +319,24 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects
                     throw new AssemblerException($"Failed to load project '{projectName}' ({path}).", e);
                 }
             }
+        }
+
+        private static PackageReference CreatePackageReference(ProjectItem item, IDictionary<string, string> packageVersions)
+        {
+            string version = item.GetMetadataValue("Version");
+            if (packageVersions != null && String.IsNullOrEmpty(version))
+            {
+                string versionOverride = item.GetMetadataValue("VersionOverride");
+                if (!String.IsNullOrEmpty(versionOverride))
+                {
+                    version = versionOverride;
+                }
+                else if (packageVersions.TryGetValue(item.EvaluatedInclude, out string centralVersion))
+                {
+                    version = centralVersion;
+                }
+            }
+            return new PackageReference(item.EvaluatedInclude, version);
         }
 
         private static string TryGetProjItemsPath(string shprojPath)

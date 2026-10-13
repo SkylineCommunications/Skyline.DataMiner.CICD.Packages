@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net48</TargetFrameworks>
+    <OutputType>Library</OutputType>
+
+    <AssemblyName>RecursiveMultiTarget.LibraryB</AssemblyName>
+    <PackageId>RecursiveMultiTarget.LibraryB</PackageId>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+
+    <IsPackable>false</IsPackable>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LibraryC\LibraryC.csproj" />
+  </ItemGroup>
+
+</Project>
