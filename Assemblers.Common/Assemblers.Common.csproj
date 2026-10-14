@@ -19,6 +19,7 @@
     <PackageReference Include="Microsoft.Build" ExcludeAssets="runtime" PrivateAssets="all" />
     <PackageReference Include="Microsoft.VisualStudio.SolutionPersistence" />
     <PackageReference Include="NuGet.PackageManagement" />
+    <PackageReference Include="NuGet.Versioning" />
     <PackageReference Include="Skyline.DataMiner.CICD.Common" />
   </ItemGroup>
 
