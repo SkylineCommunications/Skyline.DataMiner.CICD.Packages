@@ -1,5 +1,6 @@
 ﻿namespace DMProtocolTests
 {
+    using System.IO.Compression;
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
@@ -82,6 +83,33 @@
 
             // Verify if Trending template is present
             Assert.HasCount(1, builder.TrendTemplates);
+        }
+
+        [TestMethod]
+        [TestCategory("Integration")]
+        public async Task FromRepositoryAsync_WithScripts_EmbedsScriptDependenciesAsync()
+        {
+            // Arrange
+            LogCollector logCollector = new LogCollector();
+            string repositoryPath = @"TestFiles\VisualStudio\ProtocolWithScripts";
+
+            // Act
+            var package = await ProtocolPackageCreator.Factory.FromRepositoryAsync(logCollector, repositoryPath);
+            byte[] packageBytes = package.CreatePackage();
+
+            // Assert
+            using (var memoryStream = new System.IO.MemoryStream(packageBytes))
+            using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Read))
+            {
+                var entryNames = archive.Entries.Select(e => e.FullName).ToList();
+
+                Assert.IsTrue(entryNames.Any(n => n == @"Scripts\edc76df5-0d81-43a8-9b22-ffdd0b2fb2e2\manifest.json"));
+                Assert.IsTrue(entryNames.Any(n => n == @"Scripts\edc76df5-0d81-43a8-9b22-ffdd0b2fb2e2\run\main.py"));
+                Assert.IsTrue(entryNames.Any(n => n.StartsWith(@"Scripts\edc76df5-0d81-43a8-9b22-ffdd0b2fb2e2\dependencies\") && n.EndsWith(".whl")));
+            }
+
+            // Verify the base protocol content is still present alongside the embedded scripts.
+            Assert.AreEqual("ExampleProtocol", package.Name);
         }
     }
 }

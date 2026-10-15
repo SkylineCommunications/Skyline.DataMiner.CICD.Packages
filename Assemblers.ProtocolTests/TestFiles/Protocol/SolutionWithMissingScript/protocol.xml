@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Protocol xmlns="http://www.skyline.be/protocol">
+	<Name>SolutionWithMissingScript</Name>
+	<Version>1.0.0.1</Version>
+	<Edge>
+		<Scripts>
+			<Script id="missing-script" displayName="Missing Script" guid="11111111-1111-1111-1111-111111111111">
+			</Script>
+		</Scripts>
+	</Edge>
+</Protocol>

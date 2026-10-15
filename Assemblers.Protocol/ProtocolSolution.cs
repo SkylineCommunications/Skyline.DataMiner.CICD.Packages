@@ -8,8 +8,10 @@
     using Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects;
     using Skyline.DataMiner.CICD.FileSystem;
     using Skyline.DataMiner.CICD.Loggers;
+    using Skyline.DataMiner.CICD.Assemblers.Protocol.ScriptedConnectorManifest;
     using Skyline.DataMiner.CICD.Parsers.Common.Exceptions;
     using Skyline.DataMiner.CICD.Parsers.Common.Xml;
+    using Skyline.DataMiner.CICD.Parsers.Protocol.Xml.EdgeScripts;
     using Skyline.DataMiner.CICD.Parsers.Protocol.Xml.QActions;
 
     /// <summary>
@@ -25,6 +27,7 @@
 
             LoadProtocol();
             LoadQActions();
+            LoadScripts();
         }
 
         /// <summary>
@@ -40,6 +43,13 @@
         public ICollection<QAction> QActions { get; private set; }
 
         /// <summary>
+        /// Gets the connector script projects declared under
+        /// <c>&lt;Protocol&gt;&lt;Edge&gt;&lt;Scripts&gt;</c> in protocol.xml.
+        /// </summary>
+        /// <value>The script projects.</value>
+        public ICollection<ProtocolScript> Scripts { get; private set; }
+
+        /// <summary>
         /// Parses the specified connector solution.
         /// </summary>
         /// <param name="solutionPath">The connector solution file path.</param>
@@ -53,7 +63,10 @@
         /// Could not find QAction content file.</exception>
         /// <exception cref="ParserException">Could not find folder 'Solution Items' in solution. -or-
         /// Could not find project -or-
-        /// Main code file could not be found in QAction.</exception>
+        /// Main code file could not be found in QAction. -or-
+        /// Could not find a 'ConnectorScript_*' folder whose 'manifest.json' 'project.id' matches a declared script's guid.</exception>
+        /// <exception cref="Skyline.DataMiner.CICD.Assemblers.Protocol.ScriptedConnectorManifest.InvalidManifestException">
+        /// A declared script's 'manifest.json' is missing, malformed, or fails validation.</exception>
         /// <exception cref="DirectoryNotFoundException">Could not find folder for QAction.</exception>
         public new static ProtocolSolution Load(string solutionPath, ILogCollector logCollector = null)
         {
@@ -166,6 +179,88 @@
                     yield return dll;
                 }
             }
+        }
+
+        private void LoadScripts()
+        {
+            logCollector?.ReportDebug("Load Scripts");
+            var scripts = new List<ProtocolScript>();
+
+            var xmlScripts = ProtocolDocument?.Element["Protocol"]?.Element["Edge"]?.Element["Scripts"]?.Elements["Script"];
+            if (xmlScripts == null)
+            {
+                Scripts = scripts;
+                return;
+            }
+
+            var seenGuids = new HashSet<Guid>();
+
+            foreach (var xmlScript in xmlScripts)
+            {
+                var edgeScript = new EdgeScript(xmlScript);
+
+                if (!seenGuids.Add(edgeScript.Guid))
+                {
+                    throw new ParserException($"Duplicate guid '{edgeScript.Guid}' found on script '{edgeScript.Id}' in 'Edge/Scripts'. Each declared script must have a unique guid.");
+                }
+
+                scripts.Add(LoadScript(edgeScript));
+            }
+
+            Scripts = scripts;
+        }
+
+        private ProtocolScript LoadScript(EdgeScript edgeScript)
+        {
+            var matchingProjectFolders = new List<string>();
+
+            foreach (var candidateFolder in FileSystem.Instance.Directory.EnumerateDirectories(SolutionDirectory))
+            {
+                string folderName = FileSystem.Instance.Path.GetFileName(candidateFolder);
+                if (!folderName.StartsWith("ConnectorScript_", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                string manifestPath = FileSystem.Instance.Path.Combine(candidateFolder, "manifest.json");
+                if (!FileSystem.Instance.File.Exists(manifestPath))
+                {
+                    continue;
+                }
+
+                Manifest manifest;
+                try
+                {
+                    manifest = Manifest.Parse(FileSystem.Instance.File.ReadAllText(manifestPath));
+                }
+                catch (Exception)
+                {
+                    // Invalid manifest.json in an unrelated folder; keep looking for a match.
+                    continue;
+                }
+
+                if (manifest?.Project != null && manifest.Project.Id == edgeScript.Guid)
+                {
+                    matchingProjectFolders.Add(candidateFolder);
+                }
+            }
+
+            if (matchingProjectFolders.Count == 0)
+            {
+                throw new ParserException($"Could not find a 'ConnectorScript_*' folder in '{SolutionDirectory}' with a 'manifest.json' 'project.id' matching guid '{edgeScript.Guid}' declared for script '{edgeScript.Id}'.");
+            }
+
+            if (matchingProjectFolders.Count > 1)
+            {
+                throw new ParserException($"Multiple 'ConnectorScript_*' folders in '{SolutionDirectory}' have a 'manifest.json' 'project.id' matching guid '{edgeScript.Guid}' declared for script '{edgeScript.Id}': {String.Join(", ", matchingProjectFolders)}.");
+            }
+
+            string projectDirectory = matchingProjectFolders[0];
+            string requirementsFilePath = FileSystem.Instance.Path.Combine(projectDirectory, "requirements.txt");
+
+            // Fully load and validate the manifest now that the single matching folder has been found.
+            Manifest validatedManifest = ManifestLoader.LoadAndValidate(projectDirectory);
+            return new ProtocolScript(edgeScript, projectDirectory, requirementsFilePath, validatedManifest);
         }
     }
 }
