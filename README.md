@@ -33,6 +33,22 @@ At Skyline Communications, we deal in world-class solutions that are deployed by
 
 ### Getting Started
 
+#### Build-only dependencies
+
+When a selected NuGet package has no compatible managed library, reference, or runtime assemblies, discarded versions of that package do not contribute directory hints, script references, or assembly payload. This includes build/analyzer-only packages and placeholder-only asset groups. Selected transitive runtime dependencies are still processed normally.
+
+This correction preserves the existing version-selection policy and legacy directory hints for assembly-bearing packages, including packages with compatible `ref` or RID-specific managed runtime assets. It does not unify assemblies across an entire application package. Unreadable package metadata remains an error, not an empty-asset result.
+
+Regenerate previously created application packages with corrected tooling; updating the tooling alone does not repair existing script XML.
+
+#### Referenced C# libraries
+
+Automation scripts and GQI ad hoc data sources can reference ordinary C# library projects, including legacy .NET Framework projects. Their built DLLs are included in the generated script imports and application package, and their NuGet dependencies participate in resolution, including solution-runner dependency grouping. Automation script-library references continue to use `scriptRef`.
+
+Build referenced libraries before packaging. Harvesting uses the active build configuration and the nearest compatible target framework, including conditional and transitive project references. Missing outputs or incompatible frameworks fail packaging explicitly. Cyclic references are visited once, and excessive reference depth produces an error rather than incomplete output.
+
+Harvested DLL import identities use the library's package ID, built assembly version, target framework, and assembly filename. Build-only package filtering does not discard these project DLLs.
+
 The code is loosely based on the *Builder* design pattern. You can create a builder object using one of the provided static Factory classes:
 
 ```csharp

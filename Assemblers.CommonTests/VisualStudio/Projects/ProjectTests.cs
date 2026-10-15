@@ -330,5 +330,22 @@ namespace Parsers.CommonTests.VisualStudio.Projects
             CollectionAssert.AreEquivalent(new[] { "System.dll" }, project.References.Select(r => r.GetDllName()).ToArray());
             CollectionAssert.AreEquivalent(new[] { "QAction_3.cs", "Class1.cs", "SubDir\\Class2.cs" }, project.Files.Select(f => f.Name).ToArray());
         }
+
+        [DataRow(@"Protocol\Solution1\QAction_3\QAction_3.csproj", DataMinerProjectType.Unknown)]
+        [DataRow(@"AdHocDataSource\AdHocDataSource.csproj", DataMinerProjectType.AdHocDataSource)]
+        [DataRow(@"PackageProject\PackageProject.csproj", DataMinerProjectType.Package)]
+        [DataRow(@"Automation\AutomationScriptProject.csproj", DataMinerProjectType.AutomationScript)]
+        [DataRow(@"AutomationLibrary\AutomationScript.csproj", DataMinerProjectType.AutomationScriptLibrary)]
+        [TestMethod]
+        public void GetDataMinerProjectType_ProtocolProjectType_ReturnsUnknown(string relativePath, DataMinerProjectType expectedProjectType)
+        {
+            var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "VisualStudio", "TestFiles"));
+            var path = FileSystem.Instance.Path.Combine(dir, relativePath);
+
+            var projectType = Project.GetDataMinerProjectType(path);
+
+            Assert.AreEqual(expectedProjectType, projectType);
+        }
     }
 }

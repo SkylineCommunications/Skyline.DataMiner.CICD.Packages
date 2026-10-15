@@ -6,6 +6,7 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <LangVersion>12.0</LangVersion>
+    <DisableMSBuildAssemblyCopyCheck Condition="'$(TargetFramework)' == 'net48'">true</DisableMSBuildAssemblyCopyCheck>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,7 +15,8 @@
     <PackageReference Include="MSTest" />
     <PackageReference Include="XMLUnit.Core" />
     <PackageReference Include="Microsoft.Build.Locator" />
-    <PackageReference Include="NuGet.Frameworks" ExcludeAssets="runtime" />
+    <PackageReference Include="NuGet.Frameworks" Condition="'$(TargetFramework)' != 'net48'" ExcludeAssets="runtime" PrivateAssets="all" />
+    <PackageReference Include="NuGet.Frameworks" Condition="'$(TargetFramework)' == 'net48'" />
   </ItemGroup>
 
   <ItemGroup>

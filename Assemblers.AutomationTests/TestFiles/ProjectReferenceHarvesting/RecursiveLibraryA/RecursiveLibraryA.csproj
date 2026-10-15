@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+
+        <OutputType>Library</OutputType>
+
+        <AssemblyName>RecursiveLibraryA</AssemblyName>
+        <RootNamespace>RecursiveLibraryA</RootNamespace>
+
+        <PackageId>Recursive.LibraryA</PackageId>
+
+        <AssemblyVersion>3.4.5.0</AssemblyVersion>
+
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\MultiTargetLibrary\MultiTargetLibrary.csproj" />
+    </ItemGroup>
+
+</Project>
