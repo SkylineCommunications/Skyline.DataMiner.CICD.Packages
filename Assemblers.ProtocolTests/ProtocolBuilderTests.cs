@@ -836,7 +836,85 @@ namespace QAction_3
             result.Assemblies.Should().BeEquivalentTo(expectedAssemblies, ExcludeAssemblyPath);
             result.DllAssemblies.Should().BeEmpty();
         }
-        
+
+        [TestMethod]
+        public async Task ProtocolBuilder_BuildAsync_QActionOrderAndAddPrecompileOption()
+        {
+            var logCollector = new Logging(true);
+
+            var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solutions\Solution5"));
+            var solutionFilePath = FileSystem.Instance.Path.Combine(dir, "protocol.sln");
+
+            ProtocolSolution solution = ProtocolSolution.Load(solutionFilePath, logCollector);
+            ProtocolBuilder protocolBuilder = new ProtocolBuilder(solution, logCollector);
+
+            var buildResultItems = await protocolBuilder.BuildAsync();
+
+            Assert.IsNotNull(buildResultItems.Document);
+            var resultXml = XmlDocument.Parse(buildResultItems.Document);
+            var qactionElements = resultXml.Root.Element["QActions"].Elements["QAction"].ToList();
+
+            Assert.AreEqual(2, qactionElements.Count);
+
+            var firstQAction = qactionElements[0];
+            var secondQAction = qactionElements[1];
+
+            Assert.AreEqual("1", firstQAction.Attribute["id"].Value);
+            Assert.AreEqual("2", secondQAction.Attribute["id"].Value);
+
+            var firstOptions = firstQAction.Attribute["options"]?.Value;
+            var secondOptions = secondQAction.Attribute["options"]?.Value;
+
+            Assert.IsTrue(firstOptions != null && firstOptions.Split(';').Any(o => String.Equals(o.Trim(), "precompile", StringComparison.OrdinalIgnoreCase)));
+            Assert.IsTrue(secondOptions == null || !secondOptions.Split(';').Any(o => String.Equals(o.Trim(), "precompile", StringComparison.OrdinalIgnoreCase)));
+        }
+
+        [TestMethod]
+        public async Task ProtocolBuilder_BuildAsync_QActionPreservesOrderIfAlreadyCorrect()
+        {
+            var logCollector = new Logging(true);
+
+            var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solutions\Solution1"));
+            var solutionFilePath = FileSystem.Instance.Path.Combine(dir, "protocol.sln");
+
+            ProtocolSolution solution = ProtocolSolution.Load(solutionFilePath, logCollector);
+            ProtocolBuilder protocolBuilder = new ProtocolBuilder(solution, logCollector);
+
+            var buildResultItems = await protocolBuilder.BuildAsync();
+
+            Assert.IsNotNull(buildResultItems.Document);
+            var resultXml = XmlDocument.Parse(buildResultItems.Document);
+            var qactionElements = resultXml.Root.Element["QActions"].Elements["QAction"].ToList();
+
+            Assert.AreEqual(5, qactionElements.Count);
+
+            var firstQAction = qactionElements[0];
+            var secondQAction = qactionElements[1];
+            var thirdQAction = qactionElements[2];
+            var fourthQAction = qactionElements[3];
+            var fifthQAction = qactionElements[4];
+
+            Assert.AreEqual("63000", firstQAction.Attribute["id"].Value);
+            Assert.AreEqual("1", secondQAction.Attribute["id"].Value);
+            Assert.AreEqual("2", thirdQAction.Attribute["id"].Value);
+            Assert.AreEqual("3", fourthQAction.Attribute["id"].Value);
+            Assert.AreEqual("4", fifthQAction.Attribute["id"].Value);
+
+            var firstOptions = firstQAction.Attribute["options"]?.Value;
+            var secondOptions = secondQAction.Attribute["options"]?.Value;
+            var thirdOptions = thirdQAction.Attribute["options"]?.Value;
+            var fourthOptions = fourthQAction.Attribute["options"]?.Value;
+            var fifthOptions = fifthQAction.Attribute["options"]?.Value;
+
+            Assert.IsTrue(firstOptions != null && firstOptions.Split(';').Any(o => String.Equals(o.Trim(), "precompile", StringComparison.OrdinalIgnoreCase)));
+            Assert.IsTrue(secondOptions != null && secondOptions.Split(';').Any(o => String.Equals(o.Trim(), "precompile", StringComparison.OrdinalIgnoreCase)));
+            Assert.IsTrue(thirdOptions == null || !thirdOptions.Split(';').Any(o => String.Equals(o.Trim(), "precompile", StringComparison.OrdinalIgnoreCase)));
+            Assert.IsTrue(fourthOptions == null || !fourthOptions.Split(';').Any(o => String.Equals(o.Trim(), "precompile", StringComparison.OrdinalIgnoreCase)));
+            Assert.IsTrue(fifthOptions == null || !fifthOptions.Split(';').Any(o => String.Equals(o.Trim(), "precompile", StringComparison.OrdinalIgnoreCase)));
+        }
+
         private static EquivalencyAssertionOptions<PackageAssemblyReference> ExcludeAssemblyPath(EquivalencyAssertionOptions<PackageAssemblyReference> arg)
         {
             arg.Excluding(x => x.AssemblyPath);
