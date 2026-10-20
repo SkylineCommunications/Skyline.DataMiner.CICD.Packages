@@ -28,9 +28,16 @@
                 throw new InvalidManifestException("The manifest.json file is missing the required 'runtime.python.version' field.");
             }
 
-            Match match = MinimumVersionPattern.Match(versionConstraint);
+            Match match = null;
+            foreach (Match candidate in MinimumVersionPattern.Matches(versionConstraint))
+            {
+                if (match == null || new Version(candidate.Groups["version"].Value).CompareTo(new Version(match.Groups["version"].Value)) > 0)
+                {
+                    match = candidate;
+                }
+            }
 
-            if (!match.Success)
+            if (match == null)
             {
                 throw new InvalidManifestException(
                     $"Could not determine a concrete Python version from the constraint '{versionConstraint}'. Specify the Python version explicitly instead.");

@@ -233,7 +233,7 @@ namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
             // When providing multiple "valid" platform tags, pip automatically takes the first one in the list that works for each package.
             // Since this list contains all platforms in order old -> new, this maximizes compatibility for the packages.
             List<string> platformTags = new List<string> { "manylinux2014_x86_64" }; // Old name for manylinux_2_17_x86_64, so also valid for our use case.
-            for (int version = MinimumCompatibleGlibc2Version; version < latestGlibc2.Value; version++)
+            for (int version = MinimumCompatibleGlibc2Version; version <= latestGlibc2.Value; version++)
             {
                 platformTags.Add($"manylinux_2_{version}_x86_64");
             }
@@ -320,6 +320,11 @@ namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
                     }
 
                     uri = location.IsAbsoluteUri ? location : new Uri(uri, location);
+                    if (uri.Scheme != Uri.UriSchemeHttps)
+                    {
+                        return null;
+                    }
+
                     continue;
                 }
 

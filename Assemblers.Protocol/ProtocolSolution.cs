@@ -228,20 +228,24 @@
                     continue;
                 }
 
-                Manifest manifest;
                 try
                 {
-                    manifest = Manifest.Parse(FileSystem.Instance.File.ReadAllText(manifestPath));
+                    using (var document = System.Text.Json.JsonDocument.Parse(FileSystem.Instance.File.ReadAllText(manifestPath)))
+                    {
+                        if (document.RootElement.TryGetProperty("project", out var project)
+                            && project.TryGetProperty("id", out var projectId)
+                            && projectId.ValueKind == System.Text.Json.JsonValueKind.String
+                            && projectId.TryGetGuid(out Guid guid)
+                            && guid == edgeScript.Guid)
+                        {
+                            matchingProjectFolders.Add(candidateFolder);
+                        }
+                    }
                 }
                 catch (Exception)
                 {
-                    // Invalid manifest.json in an unrelated folder; keep looking for a match.
+                    // A project ID could not be read from this manifest; keep looking for a match.
                     continue;
-                }
-
-                if (manifest?.Project != null && manifest.Project.Id == edgeScript.Guid)
-                {
-                    matchingProjectFolders.Add(candidateFolder);
                 }
             }
 

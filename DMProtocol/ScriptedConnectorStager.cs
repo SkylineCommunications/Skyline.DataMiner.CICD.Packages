@@ -66,7 +66,7 @@
                 Manifest manifest = ManifestLoader.LoadAndValidate(fileSystem, sourceDirectory);
 
                 string normalizedEntryPoint = manifest.Runtime.Python.EntryPoint.Replace('\\', '/');
-                if (!normalizedEntryPoint.StartsWith("run/", StringComparison.OrdinalIgnoreCase))
+                if (!normalizedEntryPoint.StartsWith("run/", StringComparison.Ordinal))
                 {
                     throw new InvalidManifestException($"The entry point '{manifest.Runtime.Python.EntryPoint}' declared in manifest.json must be located under the 'run/' folder, since only 'run/' is included when the package is built.");
                 }
@@ -120,6 +120,11 @@
                     // Resolve and download the Python dependencies into the dependencies/ folder.
                     var wheelsResolver = new WheelsResolver(logCollector, fileSystem, stagingDirectory);
                     var resolvedPlatforms = await wheelsResolver.DownloadWheelsAsync(requirementsFilePath, pythonVersion, cancellationToken).ConfigureAwait(false);
+
+                    if (!manifest.Runtime.SupportedPlatforms.Any(platform => resolvedPlatforms.Contains(platform)))
+                    {
+                        throw new InvalidOperationException("Could not resolve dependencies for any platform declared in manifest.json.");
+                    }
 
                     WarnAboutUnresolvedPlatforms(logCollector, manifest, resolvedPlatforms);
 

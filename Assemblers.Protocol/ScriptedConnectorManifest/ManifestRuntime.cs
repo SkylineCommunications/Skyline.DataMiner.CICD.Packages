@@ -11,7 +11,7 @@
         /// Gets or sets the scripting language used by the connector. Currently, only <see cref="RuntimeLanguage.Python"/> is supported.
         /// </summary>
         [JsonPropertyName("language")]
-        public RuntimeLanguage Language { get; set; }
+        public RuntimeLanguage Language { get; set; } = (RuntimeLanguage)(-1);
 
         /// <summary>
         /// Gets or sets the platforms supported by this connector script.

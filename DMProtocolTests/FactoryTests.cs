@@ -86,7 +86,7 @@
         }
 
         [TestMethod]
-        [TestCategory("Integration")]
+        [TestCategory("IntegrationTest")]
         public async Task FromRepositoryAsync_WithScripts_EmbedsScriptDependenciesAsync()
         {
             // Arrange

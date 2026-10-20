@@ -118,7 +118,9 @@ namespace Skyline.DataMiner.CICD.Assemblers.Protocol.ScriptedConnectorManifest
         /// <exception cref="InvalidManifestException">The entry point is rooted, or contains '.' or '..' path segments.</exception>
         private static void ValidateEntryPoint(string entryPoint)
         {
-            if (Path.IsPathRooted(entryPoint))
+            if (Path.IsPathRooted(entryPoint)
+                || entryPoint.StartsWith("\\", StringComparison.Ordinal)
+                || (entryPoint.Length >= 2 && Char.IsLetter(entryPoint[0]) && entryPoint[1] == ':'))
             {
                 throw new InvalidManifestException($"The 'runtime.python.entry_point' value '{entryPoint}' must be a relative path.");
             }
