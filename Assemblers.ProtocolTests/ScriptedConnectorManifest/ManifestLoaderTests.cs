@@ -111,6 +111,23 @@ namespace Assemblers.ProtocolTests.ScriptedConnectorManifest
         }
 
         [TestMethod]
+        [DataRow("0.9")]
+        [DataRow("2.0")]
+        [DataRow("1.0.0")]
+        public void Validate_UnsupportedSchemaVersion_Throws(string schemaVersion)
+        {
+            // Arrange
+            Manifest manifest = CreateValidManifest();
+            manifest.SchemaVersion = schemaVersion;
+
+            // Act
+            Action act = () => ManifestLoader.Validate(manifest);
+
+            // Assert
+            act.Should().Throw<InvalidManifestException>().WithMessage("*unsupported*schema_version*");
+        }
+
+        [TestMethod]
         public void Validate_MissingProjectVersion_Throws()
         {
             // Arrange
@@ -122,6 +139,42 @@ namespace Assemblers.ProtocolTests.ScriptedConnectorManifest
 
             // Assert
             act.Should().Throw<InvalidManifestException>().WithMessage("*project.version*");
+        }
+
+        [TestMethod]
+        [DataRow("not-a-version")]
+        [DataRow("1.0.0-beta")]
+        [DataRow("1.0.0.0.0")]
+        [DataRow("v1.0.0")]
+        public void Validate_InvalidProjectVersionFormat_Throws(string version)
+        {
+            // Arrange
+            Manifest manifest = CreateValidManifest();
+            manifest.Project.Version = version;
+
+            // Act
+            Action act = () => ManifestLoader.Validate(manifest);
+
+            // Assert
+            act.Should().Throw<InvalidManifestException>().WithMessage("*project.version*");
+        }
+
+        [TestMethod]
+        [DataRow("1")]
+        [DataRow("1.0")]
+        [DataRow("1.0.0")]
+        [DataRow("1.0.0.0")]
+        public void Validate_WellFormedProjectVersion_DoesNotThrow(string version)
+        {
+            // Arrange
+            Manifest manifest = CreateValidManifest();
+            manifest.Project.Version = version;
+
+            // Act
+            Action act = () => ManifestLoader.Validate(manifest);
+
+            // Assert
+            act.Should().NotThrow();
         }
 
         [TestMethod]

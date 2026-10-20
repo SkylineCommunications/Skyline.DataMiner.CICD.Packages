@@ -3,6 +3,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Protocol.ScriptedConnectorManifest
     using System;
     using System.IO;
     using System.Linq;
+    using System.Text.RegularExpressions;
 
     using Skyline.DataMiner.CICD.FileSystem;
 
@@ -11,6 +12,10 @@ namespace Skyline.DataMiner.CICD.Assemblers.Protocol.ScriptedConnectorManifest
     /// </summary>
     public static class ManifestLoader
     {
+        private const string SupportedSchemaVersion = "1.0";
+
+        private static readonly Regex VersionPattern = new Regex(@"^\d+(\.\d+){0,3}$", RegexOptions.Compiled);
+
         /// <summary>
         /// Loads and validates the <c>manifest.json</c> file located in <paramref name="sourceDirectory"/>.
         /// </summary>
@@ -72,6 +77,11 @@ namespace Skyline.DataMiner.CICD.Assemblers.Protocol.ScriptedConnectorManifest
                 throw new InvalidManifestException("The manifest.json file is missing the required 'schema_version' field.");
             }
 
+            if (manifest.SchemaVersion != SupportedSchemaVersion)
+            {
+                throw new InvalidManifestException($"The manifest.json file declares an unsupported 'schema_version' value '{manifest.SchemaVersion}'. Only '{SupportedSchemaVersion}' is supported.");
+            }
+
             if (manifest.Project == null || String.IsNullOrWhiteSpace(manifest.Project.Name))
             {
                 throw new InvalidManifestException("The manifest.json file is missing the required 'project.name' field.");
@@ -85,6 +95,11 @@ namespace Skyline.DataMiner.CICD.Assemblers.Protocol.ScriptedConnectorManifest
             if (String.IsNullOrWhiteSpace(manifest.Project.Version))
             {
                 throw new InvalidManifestException("The manifest.json file is missing the required 'project.version' field.");
+            }
+
+            if (!VersionPattern.IsMatch(manifest.Project.Version))
+            {
+                throw new InvalidManifestException($"The manifest.json file's 'project.version' value '{manifest.Project.Version}' is not a valid version (expected 1 to 4 dot-separated numeric components, e.g. '1.0.0').");
             }
 
             if (manifest.Runtime == null || manifest.Runtime.Language != RuntimeLanguage.Python)
