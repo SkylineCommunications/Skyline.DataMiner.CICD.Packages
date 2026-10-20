@@ -13,6 +13,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Protocol
     {
         private static readonly Regex MinimumVersionPattern = new Regex(@">=\s*(?<version>\d+\.\d+(\.\d+)?)", RegexOptions.Compiled);
         private static readonly Regex UpperBoundPattern = new Regex(@"<(?<inclusive>=)?\s*(?<version>\d+\.\d+(\.\d+)?)", RegexOptions.Compiled);
+        private static readonly Regex SupportedClausePattern = new Regex(@"^\s*(>=|<=?)\s*\d+\.\d+(\.\d+)?\s*$", RegexOptions.Compiled);
 
         /// <summary>
         /// Extracts the minimum Python version (major.minor[.patch]) declared by a version constraint string.
@@ -28,6 +29,21 @@ namespace Skyline.DataMiner.CICD.Assemblers.Protocol
             if (String.IsNullOrWhiteSpace(versionConstraint))
             {
                 throw new InvalidManifestException("The manifest.json file is missing the required 'runtime.python.version' field.");
+            }
+
+            foreach (string clause in versionConstraint.Split(';'))
+            {
+                if (String.IsNullOrWhiteSpace(clause))
+                {
+                    continue;
+                }
+
+                if (!SupportedClausePattern.IsMatch(clause))
+                {
+                    throw new InvalidManifestException(
+                        $"The constraint '{versionConstraint}' contains an unsupported clause ('{clause.Trim()}'). " +
+                        "Only '>=', '<' and '<=' clauses against a major.minor[.patch] version are supported.");
+                }
             }
 
             Match match = null;
