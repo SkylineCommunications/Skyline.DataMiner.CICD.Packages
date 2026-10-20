@@ -11,6 +11,7 @@
     <PackageReference Include="Skyline.DataMiner.CICD.Common" />
     <PackageReference Include="Skyline.DataMiner.CICD.Loggers" />
     <PackageReference Include="Skyline.DataMiner.Core.AppPackageCreator" />
+    <PackageReference Include="System.Text.Json" />
   </ItemGroup>
 
   <ItemGroup>

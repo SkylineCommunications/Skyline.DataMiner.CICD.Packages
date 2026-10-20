@@ -17,6 +17,7 @@
     <PackageReference Include="NuGet.PackageManagement" />
     <PackageReference Include="System.IO.FileSystem.AccessControl" />
     <PackageReference Include="Skyline.DataMiner.CICD.FileSystem" />
+    <PackageReference Include="System.Text.Json" />
   </ItemGroup>
 
 </Project>
