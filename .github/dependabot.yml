@@ -17,4 +17,6 @@ updates:
       - dependency-name: "FluentAssertions"
         versions: [ ">=8.0.0" ]
       - dependency-name: "System.CommandLine"
+      - dependency-name: "NuGet.*"
+        update-types: [ "version-update:semver-major", "version-update:semver-minor" ]
     open-pull-requests-limit: 10
