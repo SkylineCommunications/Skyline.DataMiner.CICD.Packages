@@ -14,9 +14,9 @@ namespace Assemblers.ProtocolTests
     {
         [TestMethod]
         [DataRow(">=3.14;<3.15", "3.14")]
-        [DataRow(">=3.10", "3.10")]
         [DataRow(">=3.9.2;<3.10", "3.9.2")]
         [DataRow("<3.15;>=3.14", "3.14")]
+        [DataRow(">=3.10;<=3.10.9", "3.10")]
         public void ExtractMinimumVersion_ValidConstraint_ReturnsMinimumVersion(string constraint, string expectedVersion)
         {
             // Act
@@ -41,6 +41,26 @@ namespace Assemblers.ProtocolTests
         {
             // Act
             Action act = () => PythonVersionConstraint.ExtractMinimumVersion("<3.15");
+
+            // Assert
+            act.Should().Throw<InvalidManifestException>();
+        }
+
+        [TestMethod]
+        public void ExtractMinimumVersion_NoUpperBound_Throws()
+        {
+            // Act
+            Action act = () => PythonVersionConstraint.ExtractMinimumVersion(">=3.10");
+
+            // Assert
+            act.Should().Throw<InvalidManifestException>();
+        }
+
+        [TestMethod]
+        public void ExtractMinimumVersion_UpperBoundSpansMultipleMinorVersions_Throws()
+        {
+            // Act
+            Action act = () => PythonVersionConstraint.ExtractMinimumVersion(">=3.10;<=3.12");
 
             // Assert
             act.Should().Throw<InvalidManifestException>();
