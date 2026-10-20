@@ -1,4 +1,4 @@
-﻿namespace Skyline.DataMiner.CICD.DMProtocol
+namespace Skyline.DataMiner.CICD.Assemblers.Protocol
 {
     using System;
     using System.Text.RegularExpressions;

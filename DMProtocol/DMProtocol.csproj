@@ -16,10 +16,6 @@
     <PackageReference Include="Skyline.DataMiner.CICD.Loggers" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
-    <Reference Include="System.Net.Http" />
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Assemblers.Protocol\Assemblers.Protocol.csproj" />
   </ItemGroup>

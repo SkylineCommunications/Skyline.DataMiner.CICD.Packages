@@ -14,10 +14,15 @@
 
   <ItemGroup>
     <InternalsVisibleTo Include="$(MSBuildProjectName)Tests" />
+    <InternalsVisibleTo Include="Skyline.DataMiner.CICD.DMProtocol" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Skyline.DataMiner.CICD.Models.Protocol" />
     <PackageReference Include="System.Text.Json" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
 </Project>

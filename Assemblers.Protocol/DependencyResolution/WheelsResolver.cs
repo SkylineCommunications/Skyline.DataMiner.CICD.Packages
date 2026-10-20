@@ -1,4 +1,4 @@
-namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
+namespace Skyline.DataMiner.CICD.Assemblers.Protocol.DependencyResolution
 {
     using System;
     using System.Collections.Generic;
@@ -11,7 +11,7 @@ namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
     using System.Threading.Tasks;
 
     using Skyline.DataMiner.CICD.Assemblers.Protocol.ScriptedConnectorManifest;
-    using Skyline.DataMiner.CICD.DMProtocol.DependencyResolution.Exceptions;
+    using Skyline.DataMiner.CICD.Assemblers.Protocol.DependencyResolution.Exceptions;
     using Skyline.DataMiner.CICD.FileSystem;
     using Skyline.DataMiner.CICD.Loggers;
 

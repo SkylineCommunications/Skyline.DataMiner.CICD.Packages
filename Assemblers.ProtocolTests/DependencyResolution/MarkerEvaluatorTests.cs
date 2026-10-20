@@ -1,4 +1,4 @@
-namespace DMProtocolTests.DependencyResolution
+namespace Assemblers.ProtocolTests.DependencyResolution
 {
     using System;
     using System.Collections.Generic;
@@ -7,7 +7,7 @@ namespace DMProtocolTests.DependencyResolution
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Skyline.DataMiner.CICD.DMProtocol.DependencyResolution;
+    using Skyline.DataMiner.CICD.Assemblers.Protocol.DependencyResolution;
 
     [TestClass]
     public class MarkerEvaluatorTests

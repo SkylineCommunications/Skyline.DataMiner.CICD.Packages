@@ -1,4 +1,4 @@
-﻿namespace Skyline.DataMiner.CICD.DMProtocol
+namespace Skyline.DataMiner.CICD.DMProtocol
 {
     using System;
     using System.Collections.Generic;
@@ -42,35 +42,12 @@
             }
 
             /// <summary>
-            /// Creates an <see cref="IAppPackageProtocol"/> instance from the specified repository with the specified name and version.
+            /// Creates an <see cref="IAppPackageProtocol"/> instance from the specified repository with the specified name and version,
+            /// resolving and embedding any connector script Python dependencies declared in the protocol.
             /// </summary>
             /// <param name="logCollector">The log collector.</param>
             /// <param name="repositoryPath">The path of the repository that contains the Protocol solution.</param>
             /// <param name="versionOverride">Override the version in the protocol.</param>
-            /// <returns>The <see cref="IAppPackageProtocol"/> instance.</returns>
-            /// <exception cref="ArgumentNullException"><paramref name="logCollector"/>, <paramref name="repositoryPath"/> is <see langword="null"/>.</exception>
-            /// <exception cref="DirectoryNotFoundException">The directory specified in <paramref name="repositoryPath"/> does not exist.</exception>
-            /// <exception cref="AssemblerException">Project with name could not be found.</exception>
-            /// <exception cref="InvalidOperationException">The protocol does not have a name specified in the Name tag.
-            /// -or-
-            /// The protocol does not have a version specified in the Version tag.</exception>
-            public static async Task<IAppPackageProtocol> FromRepositoryAsync(ILogCollector logCollector, string repositoryPath, string versionOverride)
-            {
-                return await FromRepositoryAsync(logCollector, repositoryPath, versionOverride, null);
-            }
-
-            /// <summary>
-            /// Creates an <see cref="IAppPackageProtocol"/> instance, resolving and embedding any connector
-            /// script Python dependencies.
-            /// </summary>
-            /// <param name="logCollector">The log collector.</param>
-            /// <param name="repositoryPath">The path of the repository that contains the Protocol solution.</param>
-            /// <param name="versionOverride">Override the version in the protocol.</param>
-            /// <param name="pythonVersion">
-            /// Target Python version to resolve connector script dependencies for (pip format, e.g. "3.14"). If not
-            /// specified, it is derived per-script from its manifest's <c>runtime.python.version</c> constraint. Ignored
-            /// if the protocol does not declare any connector scripts.
-            /// </param>
             /// <returns>The <see cref="IAppPackageProtocol"/> instance.</returns>
             /// <exception cref="ArgumentNullException"><paramref name="logCollector"/>, <paramref name="repositoryPath"/> is <see langword="null"/>.</exception>
             /// <exception cref="DirectoryNotFoundException">The directory specified in <paramref name="repositoryPath"/> does not exist.</exception>
@@ -79,10 +56,10 @@
             /// -or-
             /// The protocol does not have a version specified in the Version tag.</exception>
             /// <exception cref="Assemblers.Protocol.ScriptedConnectorManifest.InvalidManifestException">A declared script's <c>manifest.json</c> file is missing, malformed, or fails validation.</exception>
-            /// <exception cref="DependencyResolution.Exceptions.RequirementsNotFoundException">A declared script's <c>requirements.txt</c> file does not exist.</exception>
-            /// <exception cref="DependencyResolution.Exceptions.ConflictingDependenciesException">Pip detected conflicting dependencies for a declared script.</exception>
-            /// <exception cref="DependencyResolution.Exceptions.PipNotFoundException">No valid pip executable could be found on the current system.</exception>
-            public static Task<IAppPackageProtocol> FromRepositoryAsync(ILogCollector logCollector, string repositoryPath, string versionOverride, string pythonVersion)
+            /// <exception cref="Assemblers.Protocol.DependencyResolution.Exceptions.RequirementsNotFoundException">A declared script's <c>requirements.txt</c> file does not exist.</exception>
+            /// <exception cref="Assemblers.Protocol.DependencyResolution.Exceptions.ConflictingDependenciesException">Pip detected conflicting dependencies for a declared script.</exception>
+            /// <exception cref="Assemblers.Protocol.DependencyResolution.Exceptions.PipNotFoundException">No valid pip executable could be found on the current system.</exception>
+            public static Task<IAppPackageProtocol> FromRepositoryAsync(ILogCollector logCollector, string repositoryPath, string versionOverride)
             {
                 if (repositoryPath == null) throw new ArgumentNullException(nameof(repositoryPath));
 
@@ -91,13 +68,13 @@
                 if (String.IsNullOrWhiteSpace(repositoryPath)) throw new ArgumentException("Invalid repository path", nameof(repositoryPath));
                 if (!FileSystem.Instance.Directory.Exists(repositoryPath)) throw new System.IO.DirectoryNotFoundException($"Directory '{repositoryPath}' not found.");
 
-                return FromValidatedRepositoryAsync(logCollector, repositoryPath, versionOverride, pythonVersion);
+                return FromValidatedRepositoryAsync(logCollector, repositoryPath, versionOverride);
             }
 
             /// <summary>
             /// Builds the package from an already-validated <paramref name="repositoryPath"/>.
             /// </summary>
-            private static async Task<IAppPackageProtocol> FromValidatedRepositoryAsync(ILogCollector logCollector, string repositoryPath, string versionOverride, string pythonVersion)
+            private static async Task<IAppPackageProtocol> FromValidatedRepositoryAsync(ILogCollector logCollector, string repositoryPath, string versionOverride)
             {
                 string solutionFilePath = FileSystem.Instance.Directory.GetFiles(repositoryPath, "*.sln", System.IO.SearchOption.TopDirectoryOnly)
                                                     .Concat(FileSystem.Instance.Directory.GetFiles(repositoryPath, "*.slnx",
@@ -143,7 +120,7 @@
 
                 if (solution.Scripts.Count > 0)
                 {
-                    return await BuildWithScriptsAsync(logCollector, solution, packageBuilder, pythonVersion).ConfigureAwait(false);
+                    return await BuildWithScriptsAsync(logCollector, solution, packageBuilder).ConfigureAwait(false);
                 }
 
                 return packageBuilder.Build();
@@ -154,7 +131,7 @@
             /// <paramref name="packageBuilder"/>, and materializes the resulting package before cleaning up the
             /// temporary staging directories.
             /// </summary>
-            private static async Task<IAppPackageProtocol> BuildWithScriptsAsync(ILogCollector logCollector, ProtocolSolution solution, IAppPackageProtocolBuilder packageBuilder, string pythonVersion)
+            private static async Task<IAppPackageProtocol> BuildWithScriptsAsync(ILogCollector logCollector, ProtocolSolution solution, IAppPackageProtocolBuilder packageBuilder)
             {
                 List<string> stagingDirectories = new List<string>();
 
@@ -162,7 +139,7 @@
                 {
                     foreach (ProtocolScript script in solution.Scripts)
                     {
-                        string stagingDirectory = await ScriptedConnectorStager.Factory.StageAsync(logCollector, script.ProjectDirectory, script.RequirementsFilePath, pythonVersion).ConfigureAwait(false);
+                        string stagingDirectory = await ScriptedConnectorStager.Factory.StageAsync(logCollector, script.ProjectDirectory, script.RequirementsFilePath).ConfigureAwait(false);
                         stagingDirectories.Add(stagingDirectory);
 
                         packageBuilder.WithConnectorScript(stagingDirectory, script.Guid);

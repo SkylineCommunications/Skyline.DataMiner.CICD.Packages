@@ -1,4 +1,4 @@
-namespace DMProtocolTests
+namespace Assemblers.ProtocolTests
 {
     using System;
 
@@ -6,8 +6,8 @@ namespace DMProtocolTests
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
+    using Skyline.DataMiner.CICD.Assemblers.Protocol;
     using Skyline.DataMiner.CICD.Assemblers.Protocol.ScriptedConnectorManifest;
-    using Skyline.DataMiner.CICD.DMProtocol;
 
     [TestClass]
     public class PythonVersionConstraintTests

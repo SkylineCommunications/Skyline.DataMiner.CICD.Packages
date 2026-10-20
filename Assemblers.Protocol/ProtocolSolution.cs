@@ -1,4 +1,4 @@
-﻿namespace Skyline.DataMiner.CICD.Assemblers.Protocol
+namespace Skyline.DataMiner.CICD.Assemblers.Protocol
 {
     using System;
     using System.Collections.Generic;
@@ -11,7 +11,7 @@
     using Skyline.DataMiner.CICD.Assemblers.Protocol.ScriptedConnectorManifest;
     using Skyline.DataMiner.CICD.Parsers.Common.Exceptions;
     using Skyline.DataMiner.CICD.Parsers.Common.Xml;
-    using Skyline.DataMiner.CICD.Parsers.Protocol.Xml.EdgeScripts;
+    using Skyline.DataMiner.CICD.Parsers.Protocol.Xml.ConnectorScripts;
     using Skyline.DataMiner.CICD.Parsers.Protocol.Xml.QActions;
 
     /// <summary>
@@ -197,20 +197,20 @@
 
             foreach (var xmlScript in xmlScripts)
             {
-                var edgeScript = new EdgeScript(xmlScript);
+                var connectorScript = new ConnectorScript(xmlScript);
 
-                if (!seenGuids.Add(edgeScript.Guid))
+                if (!seenGuids.Add(connectorScript.Guid))
                 {
-                    throw new ParserException($"Duplicate guid '{edgeScript.Guid}' found on script '{edgeScript.Id}' in 'Edge/Scripts'. Each declared script must have a unique guid.");
+                    throw new ParserException($"Duplicate guid '{connectorScript.Guid}' found on script '{connectorScript.Id}' in 'Edge/Scripts'. Each declared script must have a unique guid.");
                 }
 
-                scripts.Add(LoadScript(edgeScript));
+                scripts.Add(LoadScript(connectorScript));
             }
 
             Scripts = scripts;
         }
 
-        private ProtocolScript LoadScript(EdgeScript edgeScript)
+        private ProtocolScript LoadScript(ConnectorScript connectorScript)
         {
             var matchingProjectFolders = new List<string>();
 
@@ -236,7 +236,7 @@
                             && project.TryGetProperty("id", out var projectId)
                             && projectId.ValueKind == System.Text.Json.JsonValueKind.String
                             && projectId.TryGetGuid(out Guid guid)
-                            && guid == edgeScript.Guid)
+                            && guid == connectorScript.Guid)
                         {
                             matchingProjectFolders.Add(candidateFolder);
                         }
@@ -251,12 +251,12 @@
 
             if (matchingProjectFolders.Count == 0)
             {
-                throw new ParserException($"Could not find a 'ConnectorScript_*' folder in '{SolutionDirectory}' with a 'manifest.json' 'project.id' matching guid '{edgeScript.Guid}' declared for script '{edgeScript.Id}'.");
+                throw new ParserException($"Could not find a 'ConnectorScript_*' folder in '{SolutionDirectory}' with a 'manifest.json' 'project.id' matching guid '{connectorScript.Guid}' declared for script '{connectorScript.Id}'.");
             }
 
             if (matchingProjectFolders.Count > 1)
             {
-                throw new ParserException($"Multiple 'ConnectorScript_*' folders in '{SolutionDirectory}' have a 'manifest.json' 'project.id' matching guid '{edgeScript.Guid}' declared for script '{edgeScript.Id}': {String.Join(", ", matchingProjectFolders)}.");
+                throw new ParserException($"Multiple 'ConnectorScript_*' folders in '{SolutionDirectory}' have a 'manifest.json' 'project.id' matching guid '{connectorScript.Guid}' declared for script '{connectorScript.Id}': {String.Join(", ", matchingProjectFolders)}.");
             }
 
             string projectDirectory = matchingProjectFolders[0];
@@ -264,7 +264,7 @@
 
             // Fully load and validate the manifest now that the single matching folder has been found.
             Manifest validatedManifest = ManifestLoader.LoadAndValidate(projectDirectory);
-            return new ProtocolScript(edgeScript, projectDirectory, requirementsFilePath, validatedManifest);
+            return new ProtocolScript(connectorScript, projectDirectory, requirementsFilePath, validatedManifest);
         }
     }
 }

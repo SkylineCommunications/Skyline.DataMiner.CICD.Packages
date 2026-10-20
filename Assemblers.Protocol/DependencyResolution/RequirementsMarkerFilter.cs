@@ -1,4 +1,4 @@
-namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
+namespace Skyline.DataMiner.CICD.Assemblers.Protocol.DependencyResolution
 {
     using System;
     using System.Collections.Generic;

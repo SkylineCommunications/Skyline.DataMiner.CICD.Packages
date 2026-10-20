@@ -101,10 +101,6 @@ Arguments:
 
 Options:
   -vo, --version-override <VERSION_OVERRIDE>  Override the version in the protocol.
-  -py, --python-version <PYTHON_VERSION>      Target Python version to resolve script dependencies for (pip format,
-                                               e.g. "3.14"). Only used if the solution declares scripted connector
-                                               projects; if not specified, it is derived per script from that
-                                               script's manifest.json 'runtime.python.version' constraint.
   -o, --output <OUTPUT_DIRECTORY> (REQUIRED)  Directory where the package will be stored.
   -n, --name <OUTPUT_NAME>                    Name of the package.
   -?, -h, --help                              Show help and usage information

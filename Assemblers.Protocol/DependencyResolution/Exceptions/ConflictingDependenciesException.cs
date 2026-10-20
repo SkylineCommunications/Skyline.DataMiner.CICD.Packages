@@ -1,4 +1,4 @@
-﻿namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution.Exceptions
+namespace Skyline.DataMiner.CICD.Assemblers.Protocol.DependencyResolution.Exceptions
 {
     using System;
     using System.Runtime.Serialization;

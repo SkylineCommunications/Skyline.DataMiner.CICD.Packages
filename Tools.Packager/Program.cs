@@ -1,4 +1,4 @@
-﻿namespace Skyline.DataMiner.CICD.Tools.Packager
+namespace Skyline.DataMiner.CICD.Tools.Packager
 {
     using System;
     using System.CommandLine;
@@ -17,7 +17,7 @@
     using Skyline.DataMiner.CICD.DMApp.Dashboard;
     using Skyline.DataMiner.CICD.DMApp.Visio;
     using Skyline.DataMiner.CICD.DMProtocol;
-    using Skyline.DataMiner.CICD.DMProtocol.DependencyResolution.Exceptions;
+    using Skyline.DataMiner.CICD.Assemblers.Protocol.DependencyResolution.Exceptions;
     using Skyline.DataMiner.CICD.Assemblers.Protocol.ScriptedConnectorManifest;
     using Skyline.DataMiner.CICD.FileSystem;
     using Skyline.DataMiner.CICD.Loggers;
@@ -121,22 +121,12 @@
                 }
             });
 
-            var pythonVersionOption = new Option<string>(
-                name: "--python-version",
-                description: "Target Python version to resolve scripted connector dependencies for (pip format, e.g. \"3.14\"). If not specified, it is derived per-script from its manifest.json's 'runtime.python.version' constraint. Ignored if the protocol does not declare any scripted connectors.")
-            {
-                IsRequired = false,
-                ArgumentHelpName = "PYTHON_VERSION"
-            };
-            pythonVersionOption.AddAlias("-py");
-
             var dmprotocolSubCommand = new Command("dmprotocol", "Creates a protocol package (.dmprotocol) based on a protocol solution.")
             {
                 workspaceArgument,
                 versionOverride,
-                pythonVersionOption,
             };
-            dmprotocolSubCommand.SetHandler(ProcessDmProtocolAsync, workspaceArgument, outputDirectory, packageName, versionOverride, pythonVersionOption, debugOption);
+            dmprotocolSubCommand.SetHandler(ProcessDmProtocolAsync, workspaceArgument, outputDirectory, packageName, versionOverride, debugOption);
 
             var dmappType = new Option<string>(
                 name: "--type",
@@ -348,13 +338,13 @@
             }
         }
 
-        private static async Task ProcessDmProtocolAsync(string workspace, string outputDirectory, string packageName, string versionOverride, string pythonVersion, bool debug)
+        private static async Task ProcessDmProtocolAsync(string workspace, string outputDirectory, string packageName, string versionOverride, bool debug)
         {
             IAppPackageProtocol package;
 
             try
             {
-                package = await ProtocolPackageCreator.Factory.FromRepositoryAsync(new Logging(debug), workspace, versionOverride ?? String.Empty, pythonVersion);
+                package = await ProtocolPackageCreator.Factory.FromRepositoryAsync(new Logging(debug), workspace, versionOverride ?? String.Empty);
             }
             catch (PipNotFoundException ex)
             {

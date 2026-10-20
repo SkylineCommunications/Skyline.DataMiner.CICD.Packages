@@ -1,4 +1,4 @@
-﻿namespace Skyline.DataMiner.CICD.DMProtocol
+namespace Skyline.DataMiner.CICD.Assemblers.Protocol
 {
     using System;
     using System.Linq;
@@ -6,7 +6,7 @@
     using System.Threading.Tasks;
 
     using Skyline.DataMiner.CICD.Assemblers.Protocol.ScriptedConnectorManifest;
-    using Skyline.DataMiner.CICD.DMProtocol.DependencyResolution;
+    using Skyline.DataMiner.CICD.Assemblers.Protocol.DependencyResolution;
     using Skyline.DataMiner.CICD.FileSystem;
     using Skyline.DataMiner.CICD.Loggers;
 
@@ -22,7 +22,8 @@
     internal class ScriptedConnectorStager
     {
         /// <summary>
-        /// Factory class for staging connector script content.
+        /// Factory class for staging connector script content. Visible to <c>Skyline.DataMiner.CICD.DMProtocol</c>
+        /// via <c>InternalsVisibleTo</c>, since package building (consuming staged content) belongs there.
         /// </summary>
         internal static class Factory
         {
@@ -32,7 +33,6 @@
             /// <param name="logCollector">The log collector.</param>
             /// <param name="sourceDirectory"> Path to the connector script project directory. </param>
             /// <param name="requirementsFilePath"> Path to the <c>requirements.txt</c> file listing the connector's direct Python dependencies. </param>
-            /// <param name="pythonVersion"> Target Python version to resolve dependencies for. </param>
             /// <param name="cancellationToken">A token to cancel the operation.</param>
             /// <returns> The full path of the temporary staging directory. </returns>
             /// <exception cref="ArgumentNullException"><paramref name="logCollector"/> or <paramref name="sourceDirectory"/> is <see langword="null"/>.</exception>
@@ -41,14 +41,14 @@
             /// <exception cref="DependencyResolution.Exceptions.RequirementsNotFoundException">The <c>requirements.txt</c> file does not exist.</exception>
             /// <exception cref="DependencyResolution.Exceptions.ConflictingDependenciesException">Pip detected conflicting dependencies.</exception>
             /// <exception cref="DependencyResolution.Exceptions.PipNotFoundException">No valid pip executable could be found on the current system.</exception>
-            public static Task<string> StageAsync(ILogCollector logCollector, string sourceDirectory, string requirementsFilePath, string pythonVersion = null, CancellationToken cancellationToken = default)
+            public static Task<string> StageAsync(ILogCollector logCollector, string sourceDirectory, string requirementsFilePath, CancellationToken cancellationToken = default)
             {
-                return StageAsync(logCollector, FileSystem.Instance, sourceDirectory, requirementsFilePath, pythonVersion, cancellationToken);
+                return StageAsync(logCollector, FileSystem.Instance, sourceDirectory, requirementsFilePath, cancellationToken);
             }
 
-            /// <inheritdoc cref="StageAsync(ILogCollector, string, string, string, CancellationToken)"/>
+            /// <inheritdoc cref="StageAsync(ILogCollector, string, string, CancellationToken)"/>
             /// <param name="fileSystem">The file system abstraction to use.</param>
-            internal static Task<string> StageAsync(ILogCollector logCollector, IFileSystem fileSystem, string sourceDirectory, string requirementsFilePath, string pythonVersion, CancellationToken cancellationToken)
+            internal static Task<string> StageAsync(ILogCollector logCollector, IFileSystem fileSystem, string sourceDirectory, string requirementsFilePath, CancellationToken cancellationToken)
             {
                 if (logCollector == null) throw new ArgumentNullException(nameof(logCollector));
                 if (fileSystem == null) throw new ArgumentNullException(nameof(fileSystem));
@@ -83,10 +83,7 @@
                     throw new InvalidManifestException($"No 'run' folder found in '{sourceDirectory}'.");
                 }
 
-                if (String.IsNullOrWhiteSpace(pythonVersion))
-                {
-                    pythonVersion = PythonVersionConstraint.ExtractMinimumVersion(manifest.Runtime.Python.Version);
-                }
+                string pythonVersion = PythonVersionConstraint.ExtractMinimumVersion(manifest.Runtime.Python.Version);
 
                 return StageValidatedAsync(logCollector, fileSystem, sourceDirectory, requirementsFilePath, runSourceDirectory, manifest, pythonVersion, cancellationToken);
             }

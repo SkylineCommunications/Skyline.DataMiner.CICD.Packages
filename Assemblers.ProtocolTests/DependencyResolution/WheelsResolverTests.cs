@@ -1,4 +1,4 @@
-﻿namespace DMProtocolTests.DependencyResolution
+namespace Assemblers.ProtocolTests.DependencyResolution
 {
     using System;
     using System.IO;
@@ -7,7 +7,7 @@
 
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-    using Skyline.DataMiner.CICD.DMProtocol.DependencyResolution;
+    using Skyline.DataMiner.CICD.Assemblers.Protocol.DependencyResolution;
     using Skyline.DataMiner.CICD.FileSystem;
     using Skyline.DataMiner.CICD.Loggers;
 

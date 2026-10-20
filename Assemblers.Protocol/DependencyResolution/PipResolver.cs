@@ -1,10 +1,10 @@
-﻿namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
+namespace Skyline.DataMiner.CICD.Assemblers.Protocol.DependencyResolution
 {
     using System;
     using System.ComponentModel;
     using System.Diagnostics;
 
-    using Skyline.DataMiner.CICD.DMProtocol.DependencyResolution.Exceptions;
+    using Skyline.DataMiner.CICD.Assemblers.Protocol.DependencyResolution.Exceptions;
 
     /// <summary>
     /// Utility class to resolve the pip invocation to use for dependency resolution and wheel downloading.

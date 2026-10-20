@@ -3,7 +3,7 @@
     using System;
 
     using Skyline.DataMiner.CICD.Assemblers.Protocol.ScriptedConnectorManifest;
-    using Skyline.DataMiner.CICD.Parsers.Protocol.Xml.EdgeScripts;
+    using Skyline.DataMiner.CICD.Parsers.Protocol.Xml.ConnectorScripts;
 
     /// <summary>
     /// Represents a connector script project that is part of a protocol solution.
@@ -13,18 +13,18 @@
         /// <summary>
         /// Gets the identifier of the script, as declared in protocol.xml's <c>&lt;Script id="..."&gt;</c> attribute.
         /// </summary>
-        public string Id => EdgeScript.Id;
+        public string Id => ConnectorScript.Id;
 
         /// <summary>
         /// Gets the display name of the script, as declared in protocol.xml's <c>&lt;Script displayName="..."&gt;</c> attribute.
         /// </summary>
-        public string DisplayName => EdgeScript.DisplayName;
+        public string DisplayName => ConnectorScript.DisplayName;
 
         /// <summary>
         /// Gets the globally unique identifier of the script. Matches both protocol.xml's <c>&lt;Script guid="..."&gt;</c>
         /// attribute and the script's <c>manifest.json</c> <c>project.id</c> field.
         /// </summary>
-        public Guid Guid => EdgeScript.Guid;
+        public Guid Guid => ConnectorScript.Guid;
 
         /// <summary>
         /// Gets the full path of the script's project directory (a <c>ConnectorScript_{n}</c> folder at the
@@ -45,11 +45,11 @@
         /// <summary>
         /// Gets the underlying protocol.xml declaration.
         /// </summary>
-        public EdgeScript EdgeScript { get; }
+        public ConnectorScript ConnectorScript { get; }
 
-        internal ProtocolScript(EdgeScript edgeScript, string projectDirectory, string requirementsFilePath, Manifest manifest)
+        internal ProtocolScript(ConnectorScript connectorScript, string projectDirectory, string requirementsFilePath, Manifest manifest)
         {
-            EdgeScript = edgeScript ?? throw new ArgumentNullException(nameof(edgeScript));
+            ConnectorScript = connectorScript ?? throw new ArgumentNullException(nameof(connectorScript));
             ProjectDirectory = projectDirectory ?? throw new ArgumentNullException(nameof(projectDirectory));
             RequirementsFilePath = requirementsFilePath ?? throw new ArgumentNullException(nameof(requirementsFilePath));
             Manifest = manifest ?? throw new ArgumentNullException(nameof(manifest));
