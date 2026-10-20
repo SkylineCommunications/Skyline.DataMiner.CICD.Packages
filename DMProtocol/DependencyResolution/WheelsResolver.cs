@@ -129,16 +129,23 @@ namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
 
         /// <summary>
         /// Resolves the dependencies declared in <paramref name="requirementsFilePath"/> and downloads the necessary
-        /// wheels for Windows and Linux.
+        /// wheels for each platform in <paramref name="targetPlatforms"/>.
         /// </summary>
         /// <param name="requirementsFilePath">Path to the requirements file (containing only direct dependencies).</param>
         /// <param name="pythonVersion">Target Python version for which dependencies should be resolved (pip format, e.g. "3.14").</param>
+        /// <param name="targetPlatforms">
+        /// The platforms declared as supported in manifest.json. Only these platforms are attempted; this avoids
+        /// unnecessary downloads (and, for Linux, an unnecessary glibc-version lookup) for platforms the connector
+        /// does not claim to support.
+        /// </param>
         /// <param name="cancellationToken">A token to cancel the operation.</param>
         /// <returns>The platforms for which wheels could successfully be downloaded.</returns>
         /// <exception cref="RequirementsNotFoundException">The requirements file does not exist.</exception>
         /// <exception cref="ConflictingDependenciesException">Pip detected conflicting dependencies.</exception>
-        public async Task<IReadOnlyList<SupportedPlatform>> DownloadWheelsAsync(string requirementsFilePath, string pythonVersion, CancellationToken cancellationToken = default)
+        public async Task<IReadOnlyList<SupportedPlatform>> DownloadWheelsAsync(string requirementsFilePath, string pythonVersion, IReadOnlyCollection<SupportedPlatform> targetPlatforms, CancellationToken cancellationToken = default)
         {
+            if (targetPlatforms == null) throw new ArgumentNullException(nameof(targetPlatforms));
+
             if (!_fileSystem.File.Exists(requirementsFilePath))
             {
                 throw new RequirementsNotFoundException(requirementsFilePath);
@@ -146,21 +153,40 @@ namespace Skyline.DataMiner.CICD.DMProtocol.DependencyResolution
 
             await CheckConflictingDependenciesAsync(requirementsFilePath, pythonVersion, cancellationToken).ConfigureAwait(false);
 
-            List<SupportedPlatform> supportedPlatforms = new List<SupportedPlatform>();
+            string filteredRequirementsDirectory = _fileSystem.Directory.CreateTemporaryDirectory();
 
-            if (await DownloadWindowsWheelsAsync(requirementsFilePath, pythonVersion, cancellationToken).ConfigureAwait(false))
+            try
             {
-                supportedPlatforms.Add(SupportedPlatform.Windows);
-            }
+                List<SupportedPlatform> supportedPlatforms = new List<SupportedPlatform>();
 
-            if (await DownloadLinuxWheelsAsync(requirementsFilePath, pythonVersion, cancellationToken).ConfigureAwait(false))
+                if (targetPlatforms.Contains(SupportedPlatform.Windows))
+                {
+                    string filteredRequirementsFilePath = RequirementsMarkerFilter.CreateFilteredRequirementsFile(_fileSystem, requirementsFilePath, pythonVersion, SupportedPlatform.Windows, filteredRequirementsDirectory);
+
+                    if (await DownloadWindowsWheelsAsync(filteredRequirementsFilePath, pythonVersion, cancellationToken).ConfigureAwait(false))
+                    {
+                        supportedPlatforms.Add(SupportedPlatform.Windows);
+                    }
+                }
+
+                if (targetPlatforms.Contains(SupportedPlatform.Linux))
+                {
+                    string filteredRequirementsFilePath = RequirementsMarkerFilter.CreateFilteredRequirementsFile(_fileSystem, requirementsFilePath, pythonVersion, SupportedPlatform.Linux, filteredRequirementsDirectory);
+
+                    if (await DownloadLinuxWheelsAsync(filteredRequirementsFilePath, pythonVersion, cancellationToken).ConfigureAwait(false))
+                    {
+                        supportedPlatforms.Add(SupportedPlatform.Linux);
+                    }
+                }
+
+                ProcessDownloadedWheels();
+
+                return supportedPlatforms;
+            }
+            finally
             {
-                supportedPlatforms.Add(SupportedPlatform.Linux);
+                _fileSystem.Directory.DeleteDirectory(filteredRequirementsDirectory);
             }
-
-            ProcessDownloadedWheels();
-
-            return supportedPlatforms;
         }
 
         /// <summary>

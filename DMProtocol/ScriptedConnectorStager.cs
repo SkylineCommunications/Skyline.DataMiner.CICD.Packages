@@ -119,7 +119,7 @@
 
                     // Resolve and download the Python dependencies into the dependencies/ folder.
                     var wheelsResolver = new WheelsResolver(logCollector, fileSystem, stagingDirectory);
-                    var resolvedPlatforms = await wheelsResolver.DownloadWheelsAsync(requirementsFilePath, pythonVersion, cancellationToken).ConfigureAwait(false);
+                    var resolvedPlatforms = await wheelsResolver.DownloadWheelsAsync(requirementsFilePath, pythonVersion, manifest.Runtime.SupportedPlatforms, cancellationToken).ConfigureAwait(false);
 
                     if (!manifest.Runtime.SupportedPlatforms.Any(platform => resolvedPlatforms.Contains(platform)))
                     {
