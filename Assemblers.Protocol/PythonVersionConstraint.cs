@@ -59,31 +59,53 @@ namespace Skyline.DataMiner.CICD.Assemblers.Protocol
         }
 
         /// <summary>
-        /// Checks whether an upper bound clause narrows the range to <paramref name="minimum"/>'s minor version:
-        /// either a patch-level bound in that same minor (e.g. <c>"&lt;=3.10.9"</c>), or an exclusive bound on the
-        /// next minor (e.g. <c>"&lt;3.11"</c>). Clauses are ANDed together, so one matching clause is sufficient.
+        /// Checks whether <paramref name="versionConstraint"/>'s upper bound(s) are satisfiable for
+        /// <paramref name="minimum"/> and pin the range to a single Python minor version. A clause that would
+        /// exclude <paramref name="minimum"/> itself (e.g. <c>"&gt;=3.14;&lt;3.14"</c>, an empty range) always
+        /// fails validation, even if another clause in the same constraint looks valid on its own.
         /// </summary>
         private static bool PinsToSingleMinorVersion(string versionConstraint, Version minimum)
         {
+            Version normalizedMinimum = Normalize(minimum);
+            bool pinsSingleMinor = false;
+
             foreach (Match upperBound in UpperBoundPattern.Matches(versionConstraint))
             {
                 Version upper = new Version(upperBound.Groups["version"].Value);
                 bool inclusive = upperBound.Groups["inclusive"].Success;
+                Version normalizedUpper = Normalize(upper);
 
-                // Same minor version, only trimming the allowed patch range (e.g. ">=3.10;<=3.10.9").
-                if (upper.Major == minimum.Major && upper.Minor == minimum.Minor)
+                int comparison = normalizedUpper.CompareTo(normalizedMinimum);
+                bool excludesMinimum = inclusive ? comparison < 0 : comparison <= 0;
+
+                if (excludesMinimum)
                 {
-                    return true;
+                    // This clause contradicts the lower bound, making the overall range empty.
+                    return false;
                 }
 
+                // Same minor version, only trimming the allowed patch range (e.g. ">=3.10;<=3.10.9").
+                bool sameMinor = upper.Major == minimum.Major && upper.Minor == minimum.Minor;
+
                 // Exclusive bound on the next minor with no patch (e.g. ">=3.10;<3.11") excludes all of 3.11+.
-                if (!inclusive && upper.Major == minimum.Major && upper.Minor == minimum.Minor + 1 && upper.Build <= 0)
+                bool nextMinorExclusive = !inclusive && upper.Major == minimum.Major && upper.Minor == minimum.Minor + 1 && upper.Build <= 0;
+
+                if (sameMinor || nextMinorExclusive)
                 {
-                    return true;
+                    pinsSingleMinor = true;
                 }
             }
 
-            return false;
+            return pinsSingleMinor;
+        }
+
+        /// <summary>
+        /// Replaces unset (<c>-1</c>) version components with <c>0</c> so versions with a different number of
+        /// components (e.g. <c>"3.14"</c> vs. <c>"3.14.0"</c>) compare equal.
+        /// </summary>
+        private static Version Normalize(Version version)
+        {
+            return new Version(version.Major, version.Minor, Math.Max(version.Build, 0));
         }
     }
 }

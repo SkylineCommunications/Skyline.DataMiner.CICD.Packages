@@ -65,5 +65,18 @@ namespace Assemblers.ProtocolTests
             // Assert
             act.Should().Throw<InvalidManifestException>();
         }
+
+        [TestMethod]
+        [DataRow(">=3.14;<3.14")]
+        [DataRow(">=3.14.5;<=3.14.2")]
+        [DataRow(">=3.14;<3.15;<3.14")]
+        public void ExtractMinimumVersion_ContradictoryUpperBound_Throws(string constraint)
+        {
+            // Act
+            Action act = () => PythonVersionConstraint.ExtractMinimumVersion(constraint);
+
+            // Assert
+            act.Should().Throw<InvalidManifestException>();
+        }
     }
 }
