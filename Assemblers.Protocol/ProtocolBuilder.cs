@@ -21,8 +21,8 @@
 
     using EditXml = Skyline.DataMiner.CICD.Parsers.Common.XmlEdit;
     using ProtocolDocumentEdit = Skyline.DataMiner.CICD.Models.Protocol.Edit.ProtocolDocumentEdit;
-    using QActionsQAction = Skyline.DataMiner.CICD.Models.Protocol.Edit.QActionsQAction;
     using QActions = Skyline.DataMiner.CICD.Models.Protocol.Edit.QActions;
+    using QActionsQAction = Skyline.DataMiner.CICD.Models.Protocol.Edit.QActionsQAction;
 
     /// <summary>
     /// Protocol builder.
@@ -303,8 +303,11 @@
             // Perform a topological sort so that referenced QActions come before the QActions that reference them.
             List<QActionsQAction> sortedQActions = TopologicalSort(qaList, dependencies);
 
-            // Reorder the underlying XML nodes to match the sorted order.
-            ApplyOrderToXml(qactions, sortedQActions);
+            if (!qaList.SequenceEqual(sortedQActions))
+            {
+                // Reorder the underlying XML nodes to match the sorted order.
+                ApplyOrderToXml(qactions, sortedQActions);
+            }
         }
 
         /// <summary>
@@ -373,41 +376,65 @@
         /// </summary>
         private static List<QActionsQAction> TopologicalSort(List<QActionsQAction> qactions, Dictionary<uint, HashSet<uint>> dependencies)
         {
+            var orderById = new Dictionary<uint, int>();
+            for (int i = 0; i < qactions.Count; i++)
+            {
+                uint? id = qactions[i].Id?.Value;
+                if (id != null && !orderById.ContainsKey(id.Value))
+                {
+                    orderById[id.Value] = i;
+                }
+            }
+
+            var orderComparer = Comparer<uint>.Create((a, b) =>
+            {
+                int orderA = orderById.TryGetValue(a, out int ia) ? ia : Int32.MaxValue;
+                int orderB = orderById.TryGetValue(b, out int ib) ? ib : Int32.MaxValue;
+                return orderA != orderB ? orderA.CompareTo(orderB) : a.CompareTo(b);
+            });
+
+            var sortedDependencies = new Dictionary<uint, SortedSet<uint>>();
+            foreach (var kvp in dependencies)
+            {
+                sortedDependencies[kvp.Key] = new SortedSet<uint>(kvp.Value, orderComparer);
+            }
+
             var result = new List<QActionsQAction>();
             var visited = new HashSet<uint>();
 
             foreach (var qa in qactions)
             {
-                Visit(qa);
+                Visit(qa, qactions, sortedDependencies, visited, result);
             }
 
             return result;
+        }
 
-            void Visit(QActionsQAction qaction)
+        private static void Visit(QActionsQAction qaction, List<QActionsQAction> qactions, Dictionary<uint, SortedSet<uint>> dependencies, HashSet<uint> visited, List<QActionsQAction> result)
+        {
+            uint? id = qaction.Id?.Value;
+            if (id == null || visited.Contains(id.Value))
             {
-                uint? id = qaction.Id?.Value;
-                if (id == null || visited.Contains(id.Value))
-                {
-                    return;
-                }
+                return;
+            }
 
-                visited.Add(id.Value);
+            visited.Add(id.Value);
 
-                if (dependencies.TryGetValue(id.Value, out var dependencyIds))
+            if (dependencies.TryGetValue(id.Value, out var dependencyIds))
+            {
+                foreach (var dependencyId in dependencyIds)
                 {
-                    foreach (var dependencyId in dependencyIds)
+                    var depQaction = qactions.FirstOrDefault(q => q.Id?.Value == dependencyId);
+                    if (depQaction != null)
                     {
-                        var depQaction = qactions.FirstOrDefault(q => q.Id?.Value == dependencyId);
-                        if (depQaction != null)
-                        {
-                            Visit(depQaction);
-                        }
+                        Visit(depQaction, qactions, dependencies, visited, result);
                     }
                 }
-
-                result.Add(qaction);
             }
+
+            result.Add(qaction);
         }
+
 
         /// <summary>
         /// Reorders the QActions collection to match the specified order.
@@ -421,11 +448,46 @@
                 return;
             }
 
+            var xmlChildren = qactions.EditNode.Children;
+
+            // Map each QAction's EditNode to the non-element nodes (whitespace/comments) immediately preceding it,
+            // and keep any trailing nodes after the last QAction.
+            var precedingNodesByQa = new Dictionary<EditXml.XmlNode, List<EditXml.XmlNode>>();
+            var currentPreceding = new List<EditXml.XmlNode>();
+
+            foreach (var child in xmlChildren)
+            {
+                if (child is EditXml.XmlElement)
+                {
+                    precedingNodesByQa[child] = currentPreceding;
+                    currentPreceding = new List<EditXml.XmlNode>();
+                }
+                else
+                {
+                    currentPreceding.Add(child);
+                }
+            }
+
+            var trailingNodes = currentPreceding;
+
             qactions.Clear();
 
             foreach (var qa in sortedQActions)
             {
                 qactions.Add(qa);
+
+                if (precedingNodesByQa.TryGetValue(qa.EditNode, out var precedingNodes))
+                {
+                    foreach (var node in precedingNodes)
+                    {
+                        xmlChildren.InsertBefore(qa.EditNode, node);
+                    }
+                }
+            }
+
+            foreach (var node in trailingNodes)
+            {
+                xmlChildren.Add(node);
             }
         }
 

@@ -855,7 +855,7 @@ namespace QAction_3
             var resultXml = XmlDocument.Parse(buildResultItems.Document);
             var qactionElements = resultXml.Root.Element["QActions"].Elements["QAction"].ToList();
 
-            Assert.AreEqual(2, qactionElements.Count);
+            Assert.HasCount(2, qactionElements);
 
             var firstQAction = qactionElements[0];
             var secondQAction = qactionElements[1];
@@ -866,8 +866,8 @@ namespace QAction_3
             var firstOptions = firstQAction.Attribute["options"]?.Value;
             var secondOptions = secondQAction.Attribute["options"]?.Value;
 
-            Assert.IsTrue(firstOptions != null && firstOptions.Split(';').Any(o => String.Equals(o.Trim(), "precompile", StringComparison.OrdinalIgnoreCase)));
-            Assert.IsTrue(secondOptions == null || !secondOptions.Split(';').Any(o => String.Equals(o.Trim(), "precompile", StringComparison.OrdinalIgnoreCase)));
+            Assert.IsTrue(HasPrecompileOption(firstOptions));
+            Assert.IsFalse(HasPrecompileOption(secondOptions));
         }
 
         [TestMethod]
@@ -876,7 +876,7 @@ namespace QAction_3
             var logCollector = new Logging(true);
 
             var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solutions\Solution1"));
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solutions\Solution8"));
             var solutionFilePath = FileSystem.Instance.Path.Combine(dir, "protocol.sln");
 
             ProtocolSolution solution = ProtocolSolution.Load(solutionFilePath, logCollector);
@@ -888,7 +888,7 @@ namespace QAction_3
             var resultXml = XmlDocument.Parse(buildResultItems.Document);
             var qactionElements = resultXml.Root.Element["QActions"].Elements["QAction"].ToList();
 
-            Assert.AreEqual(5, qactionElements.Count);
+            Assert.HasCount(5, qactionElements);
 
             var firstQAction = qactionElements[0];
             var secondQAction = qactionElements[1];
@@ -908,17 +908,122 @@ namespace QAction_3
             var fourthOptions = fourthQAction.Attribute["options"]?.Value;
             var fifthOptions = fifthQAction.Attribute["options"]?.Value;
 
-            Assert.IsTrue(firstOptions != null && firstOptions.Split(';').Any(o => String.Equals(o.Trim(), "precompile", StringComparison.OrdinalIgnoreCase)));
-            Assert.IsTrue(secondOptions != null && secondOptions.Split(';').Any(o => String.Equals(o.Trim(), "precompile", StringComparison.OrdinalIgnoreCase)));
-            Assert.IsTrue(thirdOptions == null || !thirdOptions.Split(';').Any(o => String.Equals(o.Trim(), "precompile", StringComparison.OrdinalIgnoreCase)));
-            Assert.IsTrue(fourthOptions == null || !fourthOptions.Split(';').Any(o => String.Equals(o.Trim(), "precompile", StringComparison.OrdinalIgnoreCase)));
-            Assert.IsTrue(fifthOptions == null || !fifthOptions.Split(';').Any(o => String.Equals(o.Trim(), "precompile", StringComparison.OrdinalIgnoreCase)));
+            Assert.IsTrue(HasPrecompileOption(firstOptions));
+            Assert.IsTrue(HasPrecompileOption(secondOptions));
+            Assert.IsFalse(HasPrecompileOption(thirdOptions));
+            Assert.IsFalse(HasPrecompileOption(fourthOptions));
+            Assert.IsFalse(HasPrecompileOption(fifthOptions));
+        }
+
+        [TestMethod]
+        public async Task ProtocolBuilder_BuildAsync_QActionOrder()
+        {
+            var logCollector = new Logging(true);
+
+            var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solutions\Solution6"));
+            var solutionFilePath = FileSystem.Instance.Path.Combine(dir, "protocol.sln");
+
+            ProtocolSolution solution = ProtocolSolution.Load(solutionFilePath, logCollector);
+            ProtocolBuilder protocolBuilder = new ProtocolBuilder(solution, logCollector);
+
+            var buildResultItems = await protocolBuilder.BuildAsync();
+
+            Assert.IsNotNull(buildResultItems.Document);
+            var resultXml = XmlDocument.Parse(buildResultItems.Document);
+            var qactionElements = resultXml.Root.Element["QActions"].Elements["QAction"].ToList();
+
+            Assert.HasCount(3, qactionElements);
+
+            var firstQAction = qactionElements[0];
+            var secondQAction = qactionElements[1];
+            var thirdQAction = qactionElements[2];
+
+            Assert.AreEqual("3", firstQAction.Attribute["id"].Value);
+            Assert.AreEqual("4", secondQAction.Attribute["id"].Value);
+            Assert.AreEqual("5", thirdQAction.Attribute["id"].Value);
+
+            var firstOptions = firstQAction.Attribute["options"]?.Value;
+            var secondOptions = secondQAction.Attribute["options"]?.Value;
+            var thirdOptions = thirdQAction.Attribute["options"]?.Value;
+
+            Assert.IsTrue(HasPrecompileOption(firstOptions));
+            Assert.IsTrue(HasPrecompileOption(secondOptions));
+            Assert.IsFalse(HasPrecompileOption(thirdOptions));
+        }
+
+        [TestMethod]
+        public async Task ProtocolBuilder_BuildAsync_QActionOrderAndCommentsAreMovedAlongWithQAction()
+        {
+            var logCollector = new Logging(true);
+
+            var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, @"TestFiles\Solutions\Solution7"));
+            var solutionFilePath = FileSystem.Instance.Path.Combine(dir, "protocol.sln");
+
+            ProtocolSolution solution = ProtocolSolution.Load(solutionFilePath, logCollector);
+            ProtocolBuilder protocolBuilder = new ProtocolBuilder(solution, logCollector);
+
+            var buildResultItems = await protocolBuilder.BuildAsync();
+
+            Assert.IsNotNull(buildResultItems.Document);
+            var resultXml = XmlDocument.Parse(buildResultItems.Document);
+            var qactionElements = resultXml.Root.Element["QActions"].Elements["QAction"].ToList();
+
+            Assert.AreEqual(3, qactionElements.Count);
+
+            var firstQAction = qactionElements[0];
+            var secondQAction = qactionElements[1];
+            var thirdQAction = qactionElements[2];
+
+            Assert.AreEqual("3", firstQAction.Attribute["id"].Value);
+            Assert.AreEqual("4", secondQAction.Attribute["id"].Value);
+            Assert.AreEqual("5", thirdQAction.Attribute["id"].Value);
+
+            var firstOptions = firstQAction.Attribute["options"]?.Value;
+            var secondOptions = secondQAction.Attribute["options"]?.Value;
+            var thirdOptions = thirdQAction.Attribute["options"]?.Value;
+
+            Assert.IsTrue(HasPrecompileOption(firstOptions));
+            Assert.IsTrue(HasPrecompileOption(secondOptions));
+            Assert.IsFalse(HasPrecompileOption(thirdOptions));
+
+            var nonTextChildren = resultXml.Root.Element["QActions"].Children.Where(c => !(c is XmlText)).ToList();
+            Assert.HasCount(8, nonTextChildren);
+
+            Assert.IsInstanceOfType<XmlComment>(nonTextChildren[0]);
+            Assert.AreEqual(" comment intended for QAction 3 ", ((XmlComment)nonTextChildren[0]).InnerText);
+            Assert.AreSame(firstQAction, nonTextChildren[1]);
+
+            Assert.IsInstanceOfType<XmlComment>(nonTextChildren[2]);
+            Assert.AreEqual(" comment intended for QAction 4 ", ((XmlComment)nonTextChildren[2]).InnerText);
+            Assert.IsInstanceOfType<XmlComment>(nonTextChildren[3]);
+            Assert.AreEqual(" another commented intended for QAction 4 ", ((XmlComment)nonTextChildren[3]).InnerText);
+            Assert.AreSame(secondQAction, nonTextChildren[4]);
+
+            Assert.IsInstanceOfType<XmlComment>(nonTextChildren[5]);
+            Assert.AreEqual(" comment intended for QAction 5 ", ((XmlComment)nonTextChildren[5]).InnerText);
+            Assert.AreSame(thirdQAction, nonTextChildren[6]);
+
+            Assert.IsInstanceOfType<XmlComment>(nonTextChildren[7]);
+            Assert.AreEqual(" trailing comment ", ((XmlComment)nonTextChildren[7]).InnerText);
         }
 
         private static EquivalencyAssertionOptions<PackageAssemblyReference> ExcludeAssemblyPath(EquivalencyAssertionOptions<PackageAssemblyReference> arg)
         {
             arg.Excluding(x => x.AssemblyPath);
             return arg;
+        }
+
+        private static bool HasPrecompileOption(string options)
+        {
+            if (String.IsNullOrWhiteSpace(options))
+            {
+                return false;
+            }
+
+            var optionList = options.Split(';').Select(o => o.Trim());
+            return optionList.Any(o => string.Equals(o, "precompile", StringComparison.OrdinalIgnoreCase));
         }
     }
 }
