@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Reflection;
     using System.Text;
     using System.Threading.Tasks;
 
@@ -22,6 +21,7 @@
 
     using EditXml = Skyline.DataMiner.CICD.Parsers.Common.XmlEdit;
     using ProtocolDocumentEdit = Skyline.DataMiner.CICD.Models.Protocol.Edit.ProtocolDocumentEdit;
+    using QActions = Skyline.DataMiner.CICD.Models.Protocol.Edit.QActions;
     using QActionsQAction = Skyline.DataMiner.CICD.Models.Protocol.Edit.QActionsQAction;
 
     /// <summary>
@@ -225,10 +225,286 @@
             var qactions = protocolEdit.Protocol?.QActions;
             if (qactions != null)
             {
+                ReorderQActionsByDependency(qactions);
+
                 foreach (var qa in qactions)
                 {
                     await BuildQAction(qa, qactions.Read, packageReferenceProcessor, buildResultItems, compliancies).ConfigureAwait(false);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Reorders the QActions so that any QAction referenced (via a project reference) by another QAction
+        /// is positioned before the referencing QAction, and marks the referenced QAction with the "precompile" option.
+        /// If a circular dependency is detected between QActions, the order is left untouched.
+        /// </summary>
+        /// <param name="qactions">The QActions collection to reorder.</param>
+        private void ReorderQActionsByDependency(QActions qactions)
+        {
+            var qaList = qactions.ToList();
+
+            // Build a dependency map: QAction Id -> set of QAction Ids it references (project references to other QAction projects).
+            var dependencies = new Dictionary<uint, HashSet<uint>>();
+            var qaById = new Dictionary<uint, QActionsQAction>();
+
+            foreach (var qa in qaList)
+            {
+                if (qa.Id?.Value == null)
+                {
+                    continue;
+                }
+
+                uint qaId = qa.Id.Value.Value;
+                qaById[qaId] = qa;
+
+                string projectName = $"QAction_{qaId}";
+                if (!Projects.TryGetValue(projectName, out var project) || project.ProjectReferences == null)
+                {
+                    continue;
+                }
+
+                var referencedIds = new HashSet<uint>();
+                foreach (var r in project.ProjectReferences)
+                {
+                    if (Helper.TryGetQActionId(r, out int refId) && refId != qaId)
+                    {
+                        referencedIds.Add((uint)refId);
+                    }
+                }
+
+                if (referencedIds.Count > 0)
+                {
+                    dependencies[qaId] = referencedIds;
+                }
+            }
+
+            if (dependencies.Count == 0)
+            {
+                // No dependencies between QActions, nothing to do.
+                return;
+            }
+
+            if (HasCircularDependency(dependencies))
+            {
+                logCollector?.ReportWarning("ProtocolBuilder|ReorderQActionsByDependency|Circular dependency detected between QActions. Skipping reordering.");
+                return;
+            }
+
+            var referencedIdsFlat = new HashSet<uint>(dependencies.Values.SelectMany(x => x));
+            foreach (var referencedId in referencedIdsFlat)
+            {
+                if (qaById.TryGetValue(referencedId, out var referencedQa))
+                {
+                    MarkAsPrecompile(referencedQa);
+                }
+            }
+
+            // Perform a topological sort so that referenced QActions come before the QActions that reference them.
+            List<QActionsQAction> sortedQActions = TopologicalSort(qaList, dependencies);
+
+            if (!qaList.SequenceEqual(sortedQActions))
+            {
+                // Reorder the underlying XML nodes to match the sorted order.
+                ApplyOrderToXml(qactions, sortedQActions);
+            }
+        }
+
+        /// <summary>
+        /// Detects whether the dependency graph contains a circular dependency.
+        /// </summary>
+        /// <param name="dependencies">The dependency graph.</param>
+        /// <returns><c>true</c> if the dependency graph contains a circular dependency; otherwise, <c>false</c>.</returns>
+        /// <remarks>This should never occur (as Visual Studio does not allow adding a circular project reference) but this is added as an additional safeguard.</remarks>
+        private static bool HasCircularDependency(Dictionary<uint, HashSet<uint>> dependencies)
+        {
+            var visiting = new HashSet<uint>();
+            var visited = new HashSet<uint>();
+
+            foreach (var node in dependencies.Keys)
+            {
+                if (HasCycle(node, dependencies, visiting, visited))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Determines whether the specified node is part of a cycle in the dependency graph.
+        /// </summary>
+        /// <param name="node">The node to check for a cycle.</param>
+        /// <param name="dependencies">The dependency graph.</param>
+        /// <param name="visiting">The set of nodes currently being visited.</param>
+        /// <param name="visited">The set of nodes that have already been visited.</param>
+        /// <returns><c>true</c> if the node is part of a cycle; otherwise, <c>false</c>.</returns>
+        private static bool HasCycle(uint node, Dictionary<uint, HashSet<uint>> dependencies, HashSet<uint> visiting, HashSet<uint> visited)
+        {
+            if (visited.Contains(node))
+            {
+                return false;
+            }
+
+            if (visiting.Contains(node))
+            {
+                return true;
+            }
+
+            visiting.Add(node);
+
+            if (dependencies.TryGetValue(node, out var dependencyIds))
+            {
+                foreach (var dependencyId in dependencyIds)
+                {
+                    if (HasCycle(dependencyId, dependencies, visiting, visited))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            visiting.Remove(node);
+            visited.Add(node);
+
+            return false;
+        }
+
+        /// <summary>
+        /// Performs a topological sort, keeping the original relative order of unrelated QActions as much as possible.
+        /// </summary>
+        private static List<QActionsQAction> TopologicalSort(List<QActionsQAction> qactions, Dictionary<uint, HashSet<uint>> dependencies)
+        {
+            var orderById = new Dictionary<uint, int>();
+            for (int i = 0; i < qactions.Count; i++)
+            {
+                uint? id = qactions[i].Id?.Value;
+                if (id != null && !orderById.ContainsKey(id.Value))
+                {
+                    orderById[id.Value] = i;
+                }
+            }
+
+            var orderComparer = Comparer<uint>.Create((a, b) =>
+            {
+                int orderA = orderById.TryGetValue(a, out int ia) ? ia : Int32.MaxValue;
+                int orderB = orderById.TryGetValue(b, out int ib) ? ib : Int32.MaxValue;
+                return orderA != orderB ? orderA.CompareTo(orderB) : a.CompareTo(b);
+            });
+
+            var sortedDependencies = new Dictionary<uint, SortedSet<uint>>();
+            foreach (var kvp in dependencies)
+            {
+                sortedDependencies[kvp.Key] = new SortedSet<uint>(kvp.Value, orderComparer);
+            }
+
+            var result = new List<QActionsQAction>();
+            var visited = new HashSet<uint>();
+
+            foreach (var qa in qactions)
+            {
+                Visit(qa, qactions, sortedDependencies, visited, result);
+            }
+
+            return result;
+        }
+
+        private static void Visit(QActionsQAction qaction, List<QActionsQAction> qactions, Dictionary<uint, SortedSet<uint>> dependencies, HashSet<uint> visited, List<QActionsQAction> result)
+        {
+            uint? id = qaction.Id?.Value;
+            if (id == null || visited.Contains(id.Value))
+            {
+                return;
+            }
+
+            visited.Add(id.Value);
+
+            if (dependencies.TryGetValue(id.Value, out var dependencyIds))
+            {
+                foreach (var dependencyId in dependencyIds)
+                {
+                    var depQaction = qactions.FirstOrDefault(q => q.Id?.Value == dependencyId);
+                    if (depQaction != null)
+                    {
+                        Visit(depQaction, qactions, dependencies, visited, result);
+                    }
+                }
+            }
+
+            result.Add(qaction);
+        }
+
+
+        /// <summary>
+        /// Reorders the QActions collection to match the specified order.
+        /// </summary>
+        /// <param name="qactions">The QActions collection to reorder (also backs the underlying XML).</param>
+        /// <param name="sortedQActions">The QActions in the desired order.</param>
+        private static void ApplyOrderToXml(QActions qactions, List<QActionsQAction> sortedQActions)
+        {
+            if (sortedQActions.Count == 0)
+            {
+                return;
+            }
+
+            var xmlChildren = qactions.EditNode.Children;
+
+            // Map each QAction's EditNode to the non-element nodes (whitespace/comments) immediately preceding it,
+            // and keep any trailing nodes after the last QAction.
+            var precedingNodesByQa = new Dictionary<EditXml.XmlNode, List<EditXml.XmlNode>>();
+            var currentPreceding = new List<EditXml.XmlNode>();
+
+            foreach (var child in xmlChildren)
+            {
+                if (child is EditXml.XmlElement)
+                {
+                    precedingNodesByQa[child] = currentPreceding;
+                    currentPreceding = new List<EditXml.XmlNode>();
+                }
+                else
+                {
+                    currentPreceding.Add(child);
+                }
+            }
+
+            var trailingNodes = currentPreceding;
+
+            qactions.Clear();
+
+            foreach (var qa in sortedQActions)
+            {
+                qactions.Add(qa);
+
+                if (precedingNodesByQa.TryGetValue(qa.EditNode, out var precedingNodes))
+                {
+                    foreach (var node in precedingNodes)
+                    {
+                        xmlChildren.InsertBefore(qa.EditNode, node);
+                    }
+                }
+            }
+
+            foreach (var node in trailingNodes)
+            {
+                xmlChildren.Add(node);
+            }
+        }
+
+        /// <summary>
+        /// Ensures the specified QAction has the "precompile" option set, preserving any other existing options.
+        /// </summary>
+        private static void MarkAsPrecompile(QActionsQAction qa)
+        {
+            const string precompileOption = "precompile";
+
+            if (qa.Options == null || String.IsNullOrWhiteSpace(qa.Options.RawValue))
+            {
+                qa.Options = precompileOption;
+            }
+            else if (!qa.Options.RawValue.Split(';').Any(o => String.Equals(o.Trim(), precompileOption, StringComparison.OrdinalIgnoreCase)))
+            {
+                qa.Options = precompileOption + ";" + qa.Options;
             }
         }
 
