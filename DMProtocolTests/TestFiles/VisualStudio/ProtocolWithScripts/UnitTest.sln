@@ -1,0 +1,85 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33502.453
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Internal", "Internal", "{FFD8343C-27EB-468F-8C32-E9FF6FCCC216}"
+	ProjectSection(SolutionItems) = preProject
+		Internal\.editorconfig = Internal\.editorconfig
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "QActions", "QActions", "{A14A5B2F-589B-4E77-AFFD-3BD5EE94DE06}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dlls", "Dlls", "{7BBF7B9F-62D0-4CF9-B184-8248D3C8D882}"
+	ProjectSection(SolutionItems) = preProject
+		Dlls\ABOUT.md = Dlls\ABOUT.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DefaultTemplates", "DefaultTemplates", "{F2683535-3B81-4454-9E99-120E5016BBCE}"
+	ProjectSection(SolutionItems) = preProject
+		DefaultTemplates\ABOUT.md = DefaultTemplates\ABOUT.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{F5EFE09A-E21F-4797-BB4D-A7CDE25769E4}"
+	ProjectSection(SolutionItems) = preProject
+		Documentation\ABOUT.md = Documentation\ABOUT.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{63306FF3-5EB7-4750-BD24-0D9F437B544A}"
+	ProjectSection(SolutionItems) = preProject
+		protocol.xml = protocol.xml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{938735A1-0F3F-47CC-ACC5-34EE973D278B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Code Analysis", "Code Analysis", "{EA0228C4-530A-46F1-BA61-3903461E2E8B}"
+	ProjectSection(SolutionItems) = preProject
+		Internal\Code Analysis\qaction-debug.ruleset = Internal\Code Analysis\qaction-debug.ruleset
+		Internal\Code Analysis\qaction-release.ruleset = Internal\Code Analysis\qaction-release.ruleset
+		Internal\Code Analysis\stylecop.json = Internal\Code Analysis\stylecop.json
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QAction_Helper", "QAction_Helper\QAction_Helper.csproj", "{7BC0B800-9696-424A-AD11-33D379C60812}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QAction_1", "QAction_1\QAction_1.csproj", "{573CB1EC-602E-443F-B29D-C8A8CEC4B050}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QAction_2", "QAction_2\QAction_2.csproj", "{4A45C283-015F-474B-84F1-4A5252A90C60}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "SharedProject1", "SharedProject1\SharedProject1.shproj", "{339971ED-BF29-4FC7-90A2-D84FE7BDC48F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7BC0B800-9696-424A-AD11-33D379C60812}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7BC0B800-9696-424A-AD11-33D379C60812}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7BC0B800-9696-424A-AD11-33D379C60812}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7BC0B800-9696-424A-AD11-33D379C60812}.Release|Any CPU.Build.0 = Release|Any CPU
+		{573CB1EC-602E-443F-B29D-C8A8CEC4B050}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{573CB1EC-602E-443F-B29D-C8A8CEC4B050}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{573CB1EC-602E-443F-B29D-C8A8CEC4B050}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{573CB1EC-602E-443F-B29D-C8A8CEC4B050}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A45C283-015F-474B-84F1-4A5252A90C60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A45C283-015F-474B-84F1-4A5252A90C60}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A45C283-015F-474B-84F1-4A5252A90C60}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A45C283-015F-474B-84F1-4A5252A90C60}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{EA0228C4-530A-46F1-BA61-3903461E2E8B} = {FFD8343C-27EB-468F-8C32-E9FF6FCCC216}
+		{7BC0B800-9696-424A-AD11-33D379C60812} = {FFD8343C-27EB-468F-8C32-E9FF6FCCC216}
+		{573CB1EC-602E-443F-B29D-C8A8CEC4B050} = {A14A5B2F-589B-4E77-AFFD-3BD5EE94DE06}
+		{4A45C283-015F-474B-84F1-4A5252A90C60} = {A14A5B2F-589B-4E77-AFFD-3BD5EE94DE06}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3D53A558-A8D1-4461-8BE5-2B33D9723528}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		SharedProject1\SharedProject1.projitems*{339971ed-bf29-4fc7-90a2-d84fe7bdc48f}*SharedItemsImports = 13
+		SharedProject1\SharedProject1.projitems*{573cb1ec-602e-443f-b29d-c8a8cec4b050}*SharedItemsImports = 5
+	EndGlobalSection
+EndGlobal
