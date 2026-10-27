@@ -161,18 +161,19 @@ The dependency-resolution logic is a C# port of the reference implementation ava
 
 #### Source directory layout
 
-A script project lives in a `ConnectorScript_{n}/` folder at the root of the protocol solution (a sibling of the
-existing `Dlls/` and `QAction_{n}/` folders). The `{n}` suffix is just a sequential counter assigned when the
-script project was created — it does **not** correspond to the script's `id`/`guid` declared in `protocol.xml`. The
-matching folder is instead found by its `manifest.json`'s `project.id`, which must match the `guid` attribute of
-a `<Script id="..." guid="...">` declared under `<Protocol><Edge><Scripts>` in `protocol.xml`:
+A script project lives in a folder at the root of the protocol solution (a sibling of the existing `Dlls/` and
+`QAction_{n}/` folders). The folder name is chosen freely by the developer — it is **not** significant. The script
+project folder is instead identified by its content: it must contain a `.pyproj` file (the Visual Studio Python
+Tools project file) and a `manifest.json`. The matching folder for a given `<Script>` declaration is found by its
+`manifest.json`'s `project.id`, which must match the `guid` attribute of a `<Script id="..." guid="...">` declared
+under `<Protocol><Edge><Scripts>` in `protocol.xml`:
 
 ```text
 MyProtocolSolution/
 ├── protocol.xml
 ├── Dlls/
 ├── QAction_1/
-└── ConnectorScript_1/
+└── ConnectorScript_1/                (folder name is arbitrary, e.g. assigned by Visual Studio)
     ├── ConnectorScript_1.pyproj   (Visual Studio Python Tools project file, not packaged)
     ├── requirements.txt              (direct dependencies only, no transitive dependencies; not packaged)
     ├── manifest.json
@@ -241,9 +242,10 @@ implementation.
   validation (missing required fields, an empty `runtime.supported_platforms` list, or an `entry_point` that is
   rooted/absolute or contains `.`/`..` path segments), its declared entry point is not located under `run/` (only
   `run/` is included when the package is built), or its declared entry point file does not exist, or no `run/`
-  folder exists at all. A `ParserException` is raised instead (from `Assemblers.Protocol`) if no `ConnectorScript_*`
-  folder at the solution root has a `manifest.json` whose `project.id` matches the `guid` declared for a
-  `<Script id="..." guid="...">` in `protocol.xml`, or if more than one folder's manifest matches the same `guid`.
+  folder exists at all. A `ParserException` is raised instead (from `Assemblers.Protocol`) if no script project
+  folder (a `.pyproj` file alongside a `manifest.json`) at the solution root has a `manifest.json` whose `project.id`
+  matches the `guid` declared for a `<Script id="..." guid="...">` in `protocol.xml`, or if more than one folder's
+  manifest matches the same `guid`.
 
 A warning (not an exception) is reported through the supplied `ILogCollector` if a platform declared in
 `runtime.supported_platforms` could not be resolved at all (e.g. no compatible wheel exists for that platform for one

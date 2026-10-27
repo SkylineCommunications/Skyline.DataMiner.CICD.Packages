@@ -8,27 +8,27 @@
     /// <summary>
     /// Represents a connector script project that is part of a protocol solution.
     /// </summary>
-    public class ProtocolScript
+    public class ConnectorScript
     {
         /// <summary>
         /// Gets the identifier of the script, as declared in protocol.xml's <c>&lt;Script id="..."&gt;</c> attribute.
         /// </summary>
-        public string Id => ConnectorScript.Id;
+        public string Id => EdgeScript.Id;
 
         /// <summary>
         /// Gets the display name of the script, as declared in protocol.xml's <c>&lt;Script displayName="..."&gt;</c> attribute.
         /// </summary>
-        public string DisplayName => ConnectorScript.DisplayName;
+        public string DisplayName => EdgeScript.DisplayName;
 
         /// <summary>
         /// Gets the globally unique identifier of the script. Matches both protocol.xml's <c>&lt;Script guid="..."&gt;</c>
         /// attribute and the script's <c>manifest.json</c> <c>project.id</c> field.
         /// </summary>
-        public Guid Guid => ConnectorScript.Guid;
+        public Guid Guid => EdgeScript.Guid;
 
         /// <summary>
-        /// Gets the full path of the script's project directory (a <c>ConnectorScript_{n}</c> folder at the
-        /// solution root). This is the Visual Studio Python project folder.
+        /// Gets the full path of the script's project directory: the Visual Studio Python project folder (identified
+        /// by its <c>.pyproj</c> file) at the solution root whose <c>manifest.json</c> matches this script's guid.
         /// </summary>
         public string ProjectDirectory { get; }
 
@@ -45,11 +45,11 @@
         /// <summary>
         /// Gets the underlying protocol.xml declaration.
         /// </summary>
-        public ConnectorScript ConnectorScript { get; }
+        public Parsers.Protocol.Xml.ConnectorScripts.EdgeScript EdgeScript { get; }
 
-        internal ProtocolScript(ConnectorScript connectorScript, string projectDirectory, string requirementsFilePath, Manifest manifest)
+        internal ConnectorScript(Parsers.Protocol.Xml.ConnectorScripts.EdgeScript connectorScript, string projectDirectory, string requirementsFilePath, Manifest manifest)
         {
-            ConnectorScript = connectorScript ?? throw new ArgumentNullException(nameof(connectorScript));
+            EdgeScript = connectorScript ?? throw new ArgumentNullException(nameof(connectorScript));
             ProjectDirectory = projectDirectory ?? throw new ArgumentNullException(nameof(projectDirectory));
             RequirementsFilePath = requirementsFilePath ?? throw new ArgumentNullException(nameof(requirementsFilePath));
             Manifest = manifest ?? throw new ArgumentNullException(nameof(manifest));

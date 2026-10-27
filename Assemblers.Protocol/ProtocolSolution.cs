@@ -47,7 +47,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Protocol
         /// <c>&lt;Protocol&gt;&lt;Edge&gt;&lt;Scripts&gt;</c> in protocol.xml.
         /// </summary>
         /// <value>The script projects.</value>
-        public ICollection<ProtocolScript> Scripts { get; private set; }
+        public ICollection<ConnectorScript> Scripts { get; private set; }
 
         /// <summary>
         /// Parses the specified connector solution.
@@ -64,7 +64,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Protocol
         /// <exception cref="ParserException">Could not find folder 'Solution Items' in solution. -or-
         /// Could not find project -or-
         /// Main code file could not be found in QAction. -or-
-        /// Could not find a 'ConnectorScript_*' folder whose 'manifest.json' 'project.id' matches a declared script's guid.</exception>
+        /// Could not find a script project folder (a '.pyproj' file alongside a 'manifest.json') whose 'project.id' matches a declared script's guid.</exception>
         /// <exception cref="Skyline.DataMiner.CICD.Assemblers.Protocol.ScriptedConnectorManifest.InvalidManifestException">
         /// A declared script's 'manifest.json' is missing, malformed, or fails validation.</exception>
         /// <exception cref="DirectoryNotFoundException">Could not find folder for QAction.</exception>
@@ -184,7 +184,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Protocol
         private void LoadScripts()
         {
             logCollector?.ReportDebug("Load Scripts");
-            var scripts = new List<ProtocolScript>();
+            var scripts = new List<ConnectorScript>();
 
             var xmlScripts = ProtocolDocument?.Element["Protocol"]?.Element["Edge"]?.Element["Scripts"]?.Elements["Script"];
             if (xmlScripts == null)
@@ -197,7 +197,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Protocol
 
             foreach (var xmlScript in xmlScripts)
             {
-                var connectorScript = new ConnectorScript(xmlScript);
+                var connectorScript = new Parsers.Protocol.Xml.ConnectorScripts.EdgeScript(xmlScript);
 
                 if (!seenGuids.Add(connectorScript.Guid))
                 {
@@ -210,14 +210,14 @@ namespace Skyline.DataMiner.CICD.Assemblers.Protocol
             Scripts = scripts;
         }
 
-        private ProtocolScript LoadScript(ConnectorScript connectorScript)
+        private ConnectorScript LoadScript(Parsers.Protocol.Xml.ConnectorScripts.EdgeScript connectorScript)
         {
             var matchingProjectFolders = new List<string>();
 
             foreach (var candidateFolder in FileSystem.Instance.Directory.EnumerateDirectories(SolutionDirectory))
             {
-                string folderName = FileSystem.Instance.Path.GetFileName(candidateFolder);
-                if (!folderName.StartsWith("ConnectorScript_", StringComparison.OrdinalIgnoreCase))
+                bool hasPyProjFile = FileSystem.Instance.Directory.EnumerateFiles(candidateFolder, "*.pyproj").Any();
+                if (!hasPyProjFile)
                 {
                     continue;
                 }
@@ -251,12 +251,12 @@ namespace Skyline.DataMiner.CICD.Assemblers.Protocol
 
             if (matchingProjectFolders.Count == 0)
             {
-                throw new ParserException($"Could not find a 'ConnectorScript_*' folder in '{SolutionDirectory}' with a 'manifest.json' 'project.id' matching guid '{connectorScript.Guid}' declared for script '{connectorScript.Id}'.");
+                throw new ParserException($"Could not find a script project folder in '{SolutionDirectory}' (a '.pyproj' file alongside a 'manifest.json') with a 'project.id' matching guid '{connectorScript.Guid}' declared for script '{connectorScript.Id}'.");
             }
 
             if (matchingProjectFolders.Count > 1)
             {
-                throw new ParserException($"Multiple 'ConnectorScript_*' folders in '{SolutionDirectory}' have a 'manifest.json' 'project.id' matching guid '{connectorScript.Guid}' declared for script '{connectorScript.Id}': {String.Join(", ", matchingProjectFolders)}.");
+                throw new ParserException($"Multiple script project folders in '{SolutionDirectory}' have a 'manifest.json' 'project.id' matching guid '{connectorScript.Guid}' declared for script '{connectorScript.Id}': {String.Join(", ", matchingProjectFolders)}.");
             }
 
             string projectDirectory = matchingProjectFolders[0];
@@ -264,7 +264,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Protocol
 
             // Fully load and validate the manifest now that the single matching folder has been found.
             Manifest validatedManifest = ManifestLoader.LoadAndValidate(projectDirectory);
-            return new ProtocolScript(connectorScript, projectDirectory, requirementsFilePath, validatedManifest);
+            return new ConnectorScript(connectorScript, projectDirectory, requirementsFilePath, validatedManifest);
         }
     }
 }

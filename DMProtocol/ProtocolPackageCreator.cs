@@ -120,43 +120,13 @@ namespace Skyline.DataMiner.CICD.DMProtocol
 
                 if (solution.Scripts.Count > 0)
                 {
-                    return await BuildWithScriptsAsync(logCollector, solution, packageBuilder).ConfigureAwait(false);
+                    // Dependency resolution/staging for each script is deferred until the package is actually
+                    // created, so the temporary staging directories only need to exist for that single call.
+                    IAppPackageProtocol metadataPackage = packageBuilder.Build();
+                    return new ScriptStagingAppPackageProtocol(logCollector, metadataPackage, packageBuilder, solution.Scripts);
                 }
 
                 return packageBuilder.Build();
-            }
-
-            /// <summary>
-            /// Stages each declared script's content (resolving its Python dependencies in the process), adds it to
-            /// <paramref name="packageBuilder"/>, and materializes the resulting package before cleaning up the
-            /// temporary staging directories.
-            /// </summary>
-            private static async Task<IAppPackageProtocol> BuildWithScriptsAsync(ILogCollector logCollector, ProtocolSolution solution, IAppPackageProtocolBuilder packageBuilder)
-            {
-                List<string> stagingDirectories = new List<string>();
-
-                try
-                {
-                    foreach (ProtocolScript script in solution.Scripts)
-                    {
-                        string stagingDirectory = await ScriptedConnectorStager.Factory.StageAsync(logCollector, script.ProjectDirectory, script.RequirementsFilePath).ConfigureAwait(false);
-                        stagingDirectories.Add(stagingDirectory);
-
-                        packageBuilder.WithConnectorScript(stagingDirectory, script.Guid);
-                    }
-
-                    IAppPackageProtocol protocolPackage = packageBuilder.Build();
-                    byte[] mergedBytes = protocolPackage.CreatePackage();
-
-                    return new PrecomputedAppPackageProtocol(protocolPackage, mergedBytes);
-                }
-                finally
-                {
-                    foreach (string stagingDirectory in stagingDirectories)
-                    {
-                        FileSystem.Instance.Directory.DeleteDirectory(stagingDirectory);
-                    }
-                }
             }
 
             private static void AddTemplates(ProtocolSolution solution, IAppPackageProtocolBuilder packageBuilder)

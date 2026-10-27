@@ -82,5 +82,22 @@
             // Assert
             act.Should().Throw<ParserException>();
         }
+
+        [TestMethod]
+        public void ProtocolSolution_Scripts_ArbitrarilyNamedFolder_IsDiscoveredByContent()
+        {
+            // Arrange
+            var baseDir = FileSystem.Instance.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var dir = FileSystem.Instance.Path.GetFullPath(FileSystem.Instance.Path.Combine(baseDir, "TestFiles", "Protocol", "SolutionWithArbitrarilyNamedScriptFolder"));
+            var path = FileSystem.Instance.Path.Combine(dir, "Protocol.sln");
+
+            // Act
+            var solution = ProtocolSolution.Load(path);
+
+            // Assert: the script project folder is not named 'ConnectorScript_*', so this only succeeds if
+            // discovery is based on folder content (a '.pyproj' file and a 'manifest.json'), not folder name.
+            solution.Scripts.Should().HaveCount(1);
+            solution.Scripts.First().ProjectDirectory.Should().Be(FileSystem.Instance.Path.Combine(dir, "MyPythonScript"));
+        }
     }
 }
