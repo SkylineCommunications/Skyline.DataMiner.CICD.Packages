@@ -16,38 +16,30 @@ namespace Skyline.DataMiner.CICD.DMProtocol
     /// the staging directories are deleted afterward. Build a new instance via
     /// <see cref="ProtocolPackageCreator.Factory"/> instead.
     /// </remarks>
-    internal sealed class ScriptStagingAppPackageProtocol : IAppPackageProtocol
+    internal sealed class ScriptStagingAppPackageProtocol(
+        ILogCollector logCollector,
+        IAppPackageProtocol metadataPackage,
+        IAppPackageProtocolBuilder packageBuilder,
+        ICollection<ConnectorScript> scripts)
+        : IAppPackageProtocol
     {
-        private readonly ILogCollector _logCollector;
-        private readonly IAppPackageProtocol _metadataPackage;
-        private readonly IAppPackageProtocolBuilder _packageBuilder;
-        private readonly ICollection<ConnectorScript> _scripts;
+        public string Name => metadataPackage.Name;
 
-        public ScriptStagingAppPackageProtocol(ILogCollector logCollector, IAppPackageProtocol metadataPackage, IAppPackageProtocolBuilder packageBuilder, ICollection<ConnectorScript> scripts)
-        {
-            _logCollector = logCollector;
-            _metadataPackage = metadataPackage;
-            _packageBuilder = packageBuilder;
-            _scripts = scripts;
-        }
+        public string Version => metadataPackage.Version;
 
-        public string Name => _metadataPackage.Name;
+        public string ProtocolPath => metadataPackage.ProtocolPath;
 
-        public string Version => _metadataPackage.Version;
+        public byte[] ProtocolContent => metadataPackage.ProtocolContent;
 
-        public string ProtocolPath => _metadataPackage.ProtocolPath;
+        public IReadOnlyCollection<IAppPackageAlarmTemplate> AlarmTemplates => metadataPackage.AlarmTemplates;
 
-        public byte[] ProtocolContent => _metadataPackage.ProtocolContent;
+        public IReadOnlyCollection<IAppPackageInformationTemplate> InformationTemplates => metadataPackage.InformationTemplates;
 
-        public IReadOnlyCollection<IAppPackageAlarmTemplate> AlarmTemplates => _metadataPackage.AlarmTemplates;
+        public IReadOnlyCollection<IAppPackageTrendTemplate> TrendTemplates => metadataPackage.TrendTemplates;
 
-        public IReadOnlyCollection<IAppPackageInformationTemplate> InformationTemplates => _metadataPackage.InformationTemplates;
+        public IReadOnlyCollection<IAppPackageAssembly> Assemblies => metadataPackage.Assemblies;
 
-        public IReadOnlyCollection<IAppPackageTrendTemplate> TrendTemplates => _metadataPackage.TrendTemplates;
-
-        public IReadOnlyCollection<IAppPackageAssembly> Assemblies => _metadataPackage.Assemblies;
-
-        public IReadOnlyCollection<IAppPackageConnectorScript> Scripts => _metadataPackage.Scripts;
+        public IReadOnlyCollection<IAppPackageConnectorScript> Scripts => metadataPackage.Scripts;
 
         public byte[] CreatePackage()
         {
@@ -55,7 +47,7 @@ namespace Skyline.DataMiner.CICD.DMProtocol
 
             try
             {
-                return _packageBuilder.Build().CreatePackage();
+                return packageBuilder.Build().CreatePackage();
             }
             finally
             {
@@ -69,7 +61,7 @@ namespace Skyline.DataMiner.CICD.DMProtocol
 
             try
             {
-                _packageBuilder.Build().CreatePackage(destinationFilePath);
+                packageBuilder.Build().CreatePackage(destinationFilePath);
             }
             finally
             {
@@ -83,18 +75,18 @@ namespace Skyline.DataMiner.CICD.DMProtocol
         /// </summary>
         private List<string> StageScripts()
         {
-            List<string> stagingDirectories = new List<string>();
+            List<string> stagingDirectories = [];
 
             try
             {
-                foreach (ConnectorScript script in _scripts)
+                foreach (ConnectorScript script in scripts)
                 {
                     string stagingDirectory = ScriptedConnectorStager.Factory
-                        .StageAsync(_logCollector, script.ProjectDirectory, script.RequirementsFilePath)
+                        .StageAsync(logCollector, script.ProjectDirectory, script.RequirementsFilePath)
                         .GetAwaiter().GetResult();
                     stagingDirectories.Add(stagingDirectory);
 
-                    _packageBuilder.WithConnectorScript(stagingDirectory, script.Guid);
+                    packageBuilder.WithConnectorScript(stagingDirectory, script.Guid);
                 }
 
                 return stagingDirectories;

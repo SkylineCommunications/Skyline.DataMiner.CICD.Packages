@@ -37,7 +37,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio
         /// <param name="path">The path to the solution file.</param>
         /// <param name="allowAll">Allow all projects, regardless of type.</param>
         /// <exception cref="System.IO.FileNotFoundException">The specified solution file does not exist.</exception>
-        private Solution(string path, bool allowAll)
+        protected Solution(string path, bool allowAll)
         {
             if (!_fileSystem.File.Exists(path))
             {

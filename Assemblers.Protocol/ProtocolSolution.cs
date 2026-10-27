@@ -21,7 +21,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Protocol
     {
         private readonly ILogCollector logCollector;
 
-        private ProtocolSolution(string solutionPath, ILogCollector logCollector) : base(solutionPath)
+        private ProtocolSolution(string solutionPath, ILogCollector logCollector) : base(solutionPath, true)
         {
             this.logCollector = logCollector;
 
@@ -184,6 +184,9 @@ namespace Skyline.DataMiner.CICD.Assemblers.Protocol
         private void LoadScripts()
         {
             logCollector?.ReportDebug("Load Scripts");
+
+            Dictionary<Guid, string> connectorScriptProjects = LoadConnectorScriptProjects();
+
             var scripts = new List<ConnectorScript>();
 
             var xmlScripts = ProtocolDocument?.Element["Protocol"]?.Element["Edge"]?.Element["Scripts"]?.Elements["Script"];
@@ -197,32 +200,47 @@ namespace Skyline.DataMiner.CICD.Assemblers.Protocol
 
             foreach (var xmlScript in xmlScripts)
             {
-                var connectorScript = new Parsers.Protocol.Xml.ConnectorScripts.EdgeScript(xmlScript);
+                var connectorScript = new EdgeScript(xmlScript);
 
                 if (!seenGuids.Add(connectorScript.Guid))
                 {
                     throw new ParserException($"Duplicate guid '{connectorScript.Guid}' found on script '{connectorScript.Id}' in 'Edge/Scripts'. Each declared script must have a unique guid.");
                 }
 
-                scripts.Add(LoadScript(connectorScript));
+                if (!connectorScriptProjects.TryGetValue(connectorScript.Guid, out var projectDirectory))
+                {
+                    throw new ParserException($"Could not find a script project folder in '{SolutionDirectory}' (a '.pyproj' file alongside a 'manifest.json') with a 'project.id' matching guid '{connectorScript.Guid}' declared for script '{connectorScript.Id}'.");
+                }
+
+                scripts.Add(LoadScript(connectorScript, projectDirectory));
             }
 
             Scripts = scripts;
         }
 
-        private ConnectorScript LoadScript(Parsers.Protocol.Xml.ConnectorScripts.EdgeScript connectorScript)
+        private ConnectorScript LoadScript(EdgeScript connectorScript, string projectDirectory)
         {
-            var matchingProjectFolders = new List<string>();
+            string requirementsFilePath = FileSystem.Instance.Path.Combine(projectDirectory, "requirements.txt");
 
-            foreach (var candidateFolder in FileSystem.Instance.Directory.EnumerateDirectories(SolutionDirectory))
+            // Fully load and validate the manifest
+            Manifest validatedManifest = ManifestLoader.LoadAndValidate(projectDirectory);
+            return new ConnectorScript(connectorScript, projectDirectory, requirementsFilePath, validatedManifest);
+        }
+
+        private Dictionary<Guid, string> LoadConnectorScriptProjects()
+        {
+            Dictionary<Guid, string> connectorScriptProjects = new();
+
+            foreach (ProjectInSolution projectInSolution in Projects)
             {
-                bool hasPyProjFile = FileSystem.Instance.Directory.EnumerateFiles(candidateFolder, "*.pyproj").Any();
+                string directoryPath = FileSystem.Instance.Path.GetDirectoryName(projectInSolution.AbsolutePath);
+                bool hasPyProjFile = FileSystem.Instance.Directory.EnumerateFiles(directoryPath, "*.pyproj").Any();
                 if (!hasPyProjFile)
                 {
                     continue;
                 }
 
-                string manifestPath = FileSystem.Instance.Path.Combine(candidateFolder, "manifest.json");
+                string manifestPath = FileSystem.Instance.Path.Combine(directoryPath, "manifest.json");
                 if (!FileSystem.Instance.File.Exists(manifestPath))
                 {
                     continue;
@@ -230,16 +248,14 @@ namespace Skyline.DataMiner.CICD.Assemblers.Protocol
 
                 try
                 {
-                    using (var document = System.Text.Json.JsonDocument.Parse(FileSystem.Instance.File.ReadAllText(manifestPath)))
+                    using var document = System.Text.Json.JsonDocument.Parse(FileSystem.Instance.File.ReadAllText(manifestPath));
+
+                    if (document.RootElement.TryGetProperty("project", out var project)
+                        && project.TryGetProperty("id", out var projectId)
+                        && projectId.ValueKind == System.Text.Json.JsonValueKind.String
+                        && projectId.TryGetGuid(out Guid guid))
                     {
-                        if (document.RootElement.TryGetProperty("project", out var project)
-                            && project.TryGetProperty("id", out var projectId)
-                            && projectId.ValueKind == System.Text.Json.JsonValueKind.String
-                            && projectId.TryGetGuid(out Guid guid)
-                            && guid == connectorScript.Guid)
-                        {
-                            matchingProjectFolders.Add(candidateFolder);
-                        }
+                        connectorScriptProjects.Add(guid, directoryPath);
                     }
                 }
                 catch (Exception)
@@ -249,22 +265,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Protocol
                 }
             }
 
-            if (matchingProjectFolders.Count == 0)
-            {
-                throw new ParserException($"Could not find a script project folder in '{SolutionDirectory}' (a '.pyproj' file alongside a 'manifest.json') with a 'project.id' matching guid '{connectorScript.Guid}' declared for script '{connectorScript.Id}'.");
-            }
-
-            if (matchingProjectFolders.Count > 1)
-            {
-                throw new ParserException($"Multiple script project folders in '{SolutionDirectory}' have a 'manifest.json' 'project.id' matching guid '{connectorScript.Guid}' declared for script '{connectorScript.Id}': {String.Join(", ", matchingProjectFolders)}.");
-            }
-
-            string projectDirectory = matchingProjectFolders[0];
-            string requirementsFilePath = FileSystem.Instance.Path.Combine(projectDirectory, "requirements.txt");
-
-            // Fully load and validate the manifest now that the single matching folder has been found.
-            Manifest validatedManifest = ManifestLoader.LoadAndValidate(projectDirectory);
-            return new ConnectorScript(connectorScript, projectDirectory, requirementsFilePath, validatedManifest);
-        }
+            return connectorScriptProjects;
+        } 
     }
 }

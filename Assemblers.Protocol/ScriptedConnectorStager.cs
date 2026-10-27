@@ -19,7 +19,7 @@ namespace Skyline.DataMiner.CICD.Assemblers.Protocol
     /// folder, and a resolved <c>dependencies/</c> folder. Development-only content such as <c>Tests/</c>,
     /// <c>requirements.txt</c> and the <c>.pyproj</c> file is intentionally left out of the package.
     /// </remarks>
-    internal class ScriptedConnectorStager
+    internal static class ScriptedConnectorStager
     {
         /// <summary>
         /// Factory class for staging connector script content. Visible to <c>Skyline.DataMiner.CICD.DMProtocol</c>

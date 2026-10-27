@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.5.33502.453
+# Visual Studio Version 18
+VisualStudioVersion = 18.11.12324.101 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Internal", "Internal", "{FFD8343C-27EB-468F-8C32-E9FF6FCCC216}"
 	ProjectSection(SolutionItems) = preProject
@@ -47,6 +47,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QAction_2", "QAction_2\QAct
 EndProject
 Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "SharedProject1", "SharedProject1\SharedProject1.shproj", "{339971ED-BF29-4FC7-90A2-D84FE7BDC48F}"
 EndProject
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "ConnectorScript_1", "ConnectorScript_1\ConnectorScript_1.pyproj", "{3BE4FA66-B5A9-4812-BFD7-E4496E7E57D7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -65,6 +67,8 @@ Global
 		{4A45C283-015F-474B-84F1-4A5252A90C60}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4A45C283-015F-474B-84F1-4A5252A90C60}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4A45C283-015F-474B-84F1-4A5252A90C60}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3BE4FA66-B5A9-4812-BFD7-E4496E7E57D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3BE4FA66-B5A9-4812-BFD7-E4496E7E57D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
