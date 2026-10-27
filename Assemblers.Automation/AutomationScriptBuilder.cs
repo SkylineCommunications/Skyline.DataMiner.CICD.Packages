@@ -36,6 +36,7 @@
         private readonly IFileSystem _fileSystem = FileSystem.Instance;
         private readonly ILogCollector logCollector;
         private readonly string directoryForNuGetConfig;
+        private readonly ReferenceProjectEvaluationCache referenceProjectEvaluations = new ReferenceProjectEvaluationCache();
         private const int MaxReferenceRecursionDepth = 100;
 
         /// <summary>
@@ -205,6 +206,7 @@
         /// <exception cref="AggregateException">Aggregation of exception(s) thrown during building.</exception>
         public async Task<BuildResultItems> BuildAsync()
         {
+            referenceProjectEvaluations.Clear();
             var xmlEdit = new EditXml.XmlDocument(Document);
 
             UpdateSolutionIdElement(xmlEdit);
@@ -426,7 +428,7 @@
                     throw new FileNotFoundException($"Referenced project does not exist: {fullRefPath}", fullRefPath);
                 }
 
-                referencedProjectInfo = MSBuildHelpers.EvaluateReferenceProject(fullRefPath, requestedTargetFramework, project.Configuration);
+                referencedProjectInfo = referenceProjectEvaluations.Evaluate(fullRefPath, requestedTargetFramework, project.Configuration);
                 if (referencedProjectInfo == null)
                 {
                     LogDebug($"TryGetReferencedProjectInfo|Referenced project file is invalid: {fullRefPath}");
