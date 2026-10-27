@@ -1,4 +1,4 @@
-﻿namespace Skyline.DataMiner.CICD.Tools.Packager
+namespace Skyline.DataMiner.CICD.Tools.Packager
 {
     using System;
     using System.CommandLine;
@@ -17,8 +17,11 @@
     using Skyline.DataMiner.CICD.DMApp.Dashboard;
     using Skyline.DataMiner.CICD.DMApp.Visio;
     using Skyline.DataMiner.CICD.DMProtocol;
+    using Skyline.DataMiner.CICD.Assemblers.Protocol.DependencyResolution.Exceptions;
+    using Skyline.DataMiner.CICD.Assemblers.Protocol.ScriptedConnectorManifest;
     using Skyline.DataMiner.CICD.FileSystem;
     using Skyline.DataMiner.CICD.Loggers;
+    using Skyline.DataMiner.CICD.Parsers.Common.Exceptions;
     using Skyline.DataMiner.CICD.Tools.Reporter;
 
     using Solution = Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Solution;
@@ -28,6 +31,16 @@
     /// </summary>
     public static class Program
     {
+        // Process exit codes returned by the 'dmprotocol' subcommand on failure, for scripted-connector dependency
+        // resolution errors. Loosely mirrors the EXIT_* constants of the reference Python implementation
+        // (https://github.com/SkylineCommunications/PythonScriptedConnectorWheelsResolver).
+        private const int ExitPipNotFound = 1;
+        private const int ExitConflictingDependencies = 2;
+        private const int ExitRequirementsNotFound = 3;
+        private const int ExitInvalidManifest = 4;
+        private const int ExitInvalidArguments = 5;
+        private const int ExitScriptDiscoveryFailed = 6;
+
         /// <summary>
         /// Code that will be called when running the tool.
         /// </summary>
@@ -329,13 +342,47 @@
         {
             IAppPackageProtocol package;
 
-            if (String.IsNullOrWhiteSpace(versionOverride))
+            try
             {
-                package = await ProtocolPackageCreator.Factory.FromRepositoryAsync(new Logging(debug), workspace);
+                package = await ProtocolPackageCreator.Factory.FromRepositoryAsync(new Logging(debug), workspace, versionOverride ?? String.Empty);
             }
-            else
+            catch (PipNotFoundException ex)
             {
-                package = await ProtocolPackageCreator.Factory.FromRepositoryAsync(new Logging(debug), workspace, versionOverride);
+                await Console.Error.WriteLineAsync(debug ? ex.ToString() : ex.Message);
+                Environment.Exit(ExitPipNotFound);
+                return;
+            }
+            catch (ConflictingDependenciesException ex)
+            {
+                await Console.Error.WriteLineAsync(debug ? ex.ToString() : ex.Message);
+                Environment.Exit(ExitConflictingDependencies);
+                return;
+            }
+            catch (RequirementsNotFoundException ex)
+            {
+                await Console.Error.WriteLineAsync(debug ? ex.ToString() : ex.Message);
+                Environment.Exit(ExitRequirementsNotFound);
+                return;
+            }
+            catch (InvalidManifestException ex)
+            {
+                await Console.Error.WriteLineAsync(debug ? ex.ToString() : ex.Message);
+                Environment.Exit(ExitInvalidManifest);
+                return;
+            }
+            catch (System.IO.DirectoryNotFoundException ex)
+            {
+                await Console.Error.WriteLineAsync(debug ? ex.ToString() : ex.Message);
+                Environment.Exit(ExitInvalidArguments);
+                return;
+            }
+            catch (ParserException ex)
+            {
+                // Raised by ProtocolSolution for protocol.xml parsing issues, including a <Edge><Scripts><Script
+                // guid="..."> entry with no matching (or more than one matching) script project folder.
+                await Console.Error.WriteLineAsync(debug ? ex.ToString() : ex.Message);
+                Environment.Exit(ExitScriptDiscoveryFailed);
+                return;
             }
 
             if (String.IsNullOrWhiteSpace(packageName))

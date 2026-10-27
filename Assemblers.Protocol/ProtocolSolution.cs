@@ -1,4 +1,4 @@
-﻿namespace Skyline.DataMiner.CICD.Assemblers.Protocol
+namespace Skyline.DataMiner.CICD.Assemblers.Protocol
 {
     using System;
     using System.Collections.Generic;
@@ -8,8 +8,10 @@
     using Skyline.DataMiner.CICD.Assemblers.Common.VisualStudio.Projects;
     using Skyline.DataMiner.CICD.FileSystem;
     using Skyline.DataMiner.CICD.Loggers;
+    using Skyline.DataMiner.CICD.Assemblers.Protocol.ScriptedConnectorManifest;
     using Skyline.DataMiner.CICD.Parsers.Common.Exceptions;
     using Skyline.DataMiner.CICD.Parsers.Common.Xml;
+    using Skyline.DataMiner.CICD.Parsers.Protocol.Xml.ConnectorScripts;
     using Skyline.DataMiner.CICD.Parsers.Protocol.Xml.QActions;
 
     /// <summary>
@@ -19,12 +21,13 @@
     {
         private readonly ILogCollector logCollector;
 
-        private ProtocolSolution(string solutionPath, ILogCollector logCollector) : base(solutionPath)
+        private ProtocolSolution(string solutionPath, ILogCollector logCollector) : base(solutionPath, true)
         {
             this.logCollector = logCollector;
 
             LoadProtocol();
             LoadQActions();
+            LoadScripts();
         }
 
         /// <summary>
@@ -40,6 +43,13 @@
         public ICollection<QAction> QActions { get; private set; }
 
         /// <summary>
+        /// Gets the connector script projects declared under
+        /// <c>&lt;Protocol&gt;&lt;Edge&gt;&lt;Scripts&gt;</c> in protocol.xml.
+        /// </summary>
+        /// <value>The script projects.</value>
+        public ICollection<ConnectorScript> Scripts { get; private set; }
+
+        /// <summary>
         /// Parses the specified connector solution.
         /// </summary>
         /// <param name="solutionPath">The connector solution file path.</param>
@@ -53,7 +63,10 @@
         /// Could not find QAction content file.</exception>
         /// <exception cref="ParserException">Could not find folder 'Solution Items' in solution. -or-
         /// Could not find project -or-
-        /// Main code file could not be found in QAction.</exception>
+        /// Main code file could not be found in QAction. -or-
+        /// Could not find a script project folder (a '.pyproj' file alongside a 'manifest.json') whose 'project.id' matches a declared script's guid.</exception>
+        /// <exception cref="Skyline.DataMiner.CICD.Assemblers.Protocol.ScriptedConnectorManifest.InvalidManifestException">
+        /// A declared script's 'manifest.json' is missing, malformed, or fails validation.</exception>
         /// <exception cref="DirectoryNotFoundException">Could not find folder for QAction.</exception>
         public new static ProtocolSolution Load(string solutionPath, ILogCollector logCollector = null)
         {
@@ -167,5 +180,92 @@
                 }
             }
         }
+
+        private void LoadScripts()
+        {
+            logCollector?.ReportDebug("Load Scripts");
+
+            Dictionary<Guid, string> connectorScriptProjects = LoadConnectorScriptProjects();
+
+            var scripts = new List<ConnectorScript>();
+
+            var xmlScripts = ProtocolDocument?.Element["Protocol"]?.Element["Edge"]?.Element["Scripts"]?.Elements["Script"];
+            if (xmlScripts == null)
+            {
+                Scripts = scripts;
+                return;
+            }
+
+            var seenGuids = new HashSet<Guid>();
+
+            foreach (var xmlScript in xmlScripts)
+            {
+                var connectorScript = new EdgeScript(xmlScript);
+
+                if (!seenGuids.Add(connectorScript.Guid))
+                {
+                    throw new ParserException($"Duplicate guid '{connectorScript.Guid}' found on script '{connectorScript.Id}' in 'Edge/Scripts'. Each declared script must have a unique guid.");
+                }
+
+                if (!connectorScriptProjects.TryGetValue(connectorScript.Guid, out var projectDirectory))
+                {
+                    throw new ParserException($"Could not find a script project folder in '{SolutionDirectory}' (a '.pyproj' file alongside a 'manifest.json') with a 'project.id' matching guid '{connectorScript.Guid}' declared for script '{connectorScript.Id}'.");
+                }
+
+                scripts.Add(LoadScript(connectorScript, projectDirectory));
+            }
+
+            Scripts = scripts;
+        }
+
+        private ConnectorScript LoadScript(EdgeScript connectorScript, string projectDirectory)
+        {
+            string requirementsFilePath = FileSystem.Instance.Path.Combine(projectDirectory, "requirements.txt");
+
+            // Fully load and validate the manifest
+            Manifest validatedManifest = ManifestLoader.LoadAndValidate(projectDirectory);
+            return new ConnectorScript(connectorScript, projectDirectory, requirementsFilePath, validatedManifest);
+        }
+
+        private Dictionary<Guid, string> LoadConnectorScriptProjects()
+        {
+            Dictionary<Guid, string> connectorScriptProjects = new();
+
+            foreach (ProjectInSolution projectInSolution in Projects)
+            {
+                string directoryPath = FileSystem.Instance.Path.GetDirectoryName(projectInSolution.AbsolutePath);
+                bool hasPyProjFile = FileSystem.Instance.Directory.EnumerateFiles(directoryPath, "*.pyproj").Any();
+                if (!hasPyProjFile)
+                {
+                    continue;
+                }
+
+                string manifestPath = FileSystem.Instance.Path.Combine(directoryPath, "manifest.json");
+                if (!FileSystem.Instance.File.Exists(manifestPath))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    using var document = System.Text.Json.JsonDocument.Parse(FileSystem.Instance.File.ReadAllText(manifestPath));
+
+                    if (document.RootElement.TryGetProperty("project", out var project)
+                        && project.TryGetProperty("id", out var projectId)
+                        && projectId.ValueKind == System.Text.Json.JsonValueKind.String
+                        && projectId.TryGetGuid(out Guid guid))
+                    {
+                        connectorScriptProjects.Add(guid, directoryPath);
+                    }
+                }
+                catch (Exception)
+                {
+                    // A project ID could not be read from this manifest; keep looking for a match.
+                    continue;
+                }
+            }
+
+            return connectorScriptProjects;
+        } 
     }
 }
