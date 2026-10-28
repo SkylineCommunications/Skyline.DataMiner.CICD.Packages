@@ -11,7 +11,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Skyline.DataMiner.Dev.Protocol" Version="10.2.0.25" />
-    <PackageReference Include="Skyline.DataMiner.Dev.Utils.ModSolutionLib" Version="1.0.0" />
   </ItemGroup>
   <ProjectExtensions>
     <VisualStudio>
