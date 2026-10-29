@@ -347,12 +347,10 @@
                 return false;
             }
 
-            if (visiting.Contains(node))
+            if (!visiting.Add(node))
             {
                 return true;
             }
-
-            visiting.Add(node);
 
             if (dependencies.TryGetValue(node, out var dependencyIds))
             {
@@ -413,12 +411,10 @@
         private static void Visit(QActionsQAction qaction, List<QActionsQAction> qactions, Dictionary<uint, SortedSet<uint>> dependencies, HashSet<uint> visited, List<QActionsQAction> result)
         {
             uint? id = qaction.Id?.Value;
-            if (id == null || visited.Contains(id.Value))
+            if (id == null || !visited.Add(id.Value))
             {
                 return;
             }
-
-            visited.Add(id.Value);
 
             if (dependencies.TryGetValue(id.Value, out var dependencyIds))
             {
@@ -434,7 +430,6 @@
 
             result.Add(qaction);
         }
-
 
         /// <summary>
         /// Reorders the QActions collection to match the specified order.
