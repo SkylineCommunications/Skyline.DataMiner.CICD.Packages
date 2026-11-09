@@ -46,6 +46,11 @@
         /// Represents a DataMiner Intelligence Context project.
         /// </summary>
         Intelligence,
+
+        /// <summary>
+        /// Represents a DataMiner Web Application project (a static web site that fully runs on the client).
+        /// </summary>
+        WebApplication,
     }
 
     /// <summary>
@@ -61,7 +66,8 @@
             ["AdHocDataSource"] = DataMinerProjectType.AdHocDataSource,
             ["UserDefinedApi"] = DataMinerProjectType.UserDefinedApi,
             ["TestPackage"] = DataMinerProjectType.TestPackage,
-            ["Intelligence"] = DataMinerProjectType.Intelligence
+            ["Intelligence"] = DataMinerProjectType.Intelligence,
+            ["WebApplication"] = DataMinerProjectType.WebApplication,
         };
 
         private static readonly Dictionary<DataMinerProjectType, string> EnumToString = new Dictionary<DataMinerProjectType, string>
@@ -73,6 +79,7 @@
             [DataMinerProjectType.UserDefinedApi] = "UserDefinedApi",
             [DataMinerProjectType.TestPackage] = "TestPackage",
             [DataMinerProjectType.Intelligence] = "Intelligence",
+            [DataMinerProjectType.WebApplication] = "WebApplication",
         };
 
         /// <summary>
