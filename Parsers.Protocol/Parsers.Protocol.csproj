@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Text.Json" />
     <SonarQubeSetting Include="sonar.exclusions">
       <Value>Xml/**</Value>
     </SonarQubeSetting>
